@@ -1,13 +1,15 @@
 import { useAppStore } from "../../stores/useAppStore";
-import type { ContentWidth, MermaidDefault } from "../../stores/useAppStore";
+import type { ContentWidth, MermaidDefault, VscodeThemeColors } from "../../stores/useAppStore";
 import { parseVscodeTheme } from "../../hooks/useVscodeTheme";
+import { BUILTIN_THEMES } from "../../themes/builtin";
 
 const SHORTCUTS = [
   { key: "\u2190 \u2192", action: "Navigate cards" },
   { key: "Home / End", action: "First / Last" },
   { key: "F", action: "Focus mode" },
-  { key: "T", action: "Cycle theme" },
   { key: "\u2318K", action: "Search" },
+  { key: "\u2318F", action: "Find in doc" },
+  { key: "\u2318W", action: "Close tab" },
   { key: "\u2318,", action: "Settings" },
 ];
 
@@ -74,6 +76,46 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+function ThemeItem({
+  theme,
+  isDefault,
+  isActive,
+  onSelect,
+}: {
+  theme: VscodeThemeColors;
+  isDefault: boolean;
+  isActive: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left transition-colors ${
+        isActive
+          ? "bg-accent-100 dark:bg-accent-900 ring-1 ring-accent-300 dark:ring-accent-700"
+          : "hover:bg-gray-100 dark:hover:bg-gray-800"
+      }`}
+    >
+      {isDefault ? (
+        <div className="flex gap-0.5 shrink-0">
+          <div className="w-3 h-3 rounded-sm bg-surface-50 border border-gray-200" />
+          <div className="w-3 h-3 rounded-sm bg-surface-900 border border-gray-700" />
+        </div>
+      ) : (
+        <div className="flex gap-0.5 shrink-0">
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: theme.bg, border: `1px solid ${theme.border}` }} />
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: theme.accent }} />
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: theme.sidebarBg, border: `1px solid ${theme.border}` }} />
+        </div>
+      )}
+      <span className={`text-[11px] truncate ${isActive ? "font-medium" : ""}`}>
+        {theme.name}
+      </span>
+      {isActive ? <span className="text-[9px] text-accent-500 ml-auto shrink-0">Active</span> : null}
+    </button>
+  );
+}
+
 export function SettingsPanel({ width }: { width?: number }) {
   const settings = useAppStore((s) => s.settings);
   const update = useAppStore((s) => s.updateSettings);
@@ -93,17 +135,6 @@ export function SettingsPanel({ width }: { width?: number }) {
 
       <div className="px-4 py-3 space-y-5 flex-1">
         <Section title="Display">
-          <Row label="Theme">
-            <SegmentControl
-              value={settings.theme}
-              options={[
-                { value: "system", label: "Auto" },
-                { value: "light", label: "Light" },
-                { value: "dark", label: "Dark" },
-              ]}
-              onChange={(v) => update({ theme: v })}
-            />
-          </Row>
           <Row label="Font Size">
             <div className="flex items-center gap-1.5">
               <input
@@ -210,50 +241,43 @@ export function SettingsPanel({ width }: { width?: number }) {
           </Row>
         </Section>
 
-        <Section title="Theme File">
-          <div className="space-y-2">
-            {settings.vscodeTheme ? (
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-gray-500 truncate">{settings.vscodeTheme.name}</span>
-                <button
-                  onClick={() => update({ vscodeTheme: null })}
-                  className="text-[10px] text-red-500 hover:text-red-400"
-                >
-                  Remove
-                </button>
-              </div>
-            ) : null}
-            <label className="block">
-              <span className="text-[10px] text-gray-400">Import VSCode .json theme</span>
-              <input
-                type="file"
-                accept=".json"
-                className="block w-full text-[10px] text-gray-500 mt-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-600 dark:file:text-gray-300 cursor-pointer"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  try {
-                    const text = await file.text();
-                    const json = JSON.parse(text);
-                    const theme = parseVscodeTheme(json);
-                    if (theme) update({ vscodeTheme: theme });
-                  } catch { /* ignore invalid files */ }
-                  e.target.value = "";
-                }}
-              />
-            </label>
-            {settings.vscodeTheme ? (
-              <div className="flex gap-1 flex-wrap">
-                {Object.entries(settings.vscodeTheme)
-                  .filter(([k, v]) => k !== "name" && typeof v === "string" && v.startsWith("#"))
-                  .map(([k, v]) => (
-                    <div key={k} className="flex items-center gap-1" title={k}>
-                      <div className="w-3 h-3 rounded-sm border border-gray-300 dark:border-gray-600" style={{ backgroundColor: v as string }} />
-                    </div>
-                  ))}
-              </div>
-            ) : null}
+        <Section title="Color Theme">
+          <div className="space-y-1.5 max-h-52 overflow-y-auto">
+            {BUILTIN_THEMES.map((theme) => {
+              const isVillarDefault = theme.name.startsWith("villar ");
+              const isActive = settings.vscodeTheme
+                ? settings.vscodeTheme.name === theme.name
+                : !settings.vscodeTheme && theme.name === "villar Light";
+              return (
+                <ThemeItem
+                  key={theme.name}
+                  theme={theme}
+                  isDefault={isVillarDefault}
+                  isActive={isActive}
+                  onSelect={() => update({ vscodeTheme: theme })}
+                />
+              );
+            })}
           </div>
+          <label className="block mt-2">
+            <span className="text-[10px] text-gray-400">Or import .json file</span>
+            <input
+              type="file"
+              accept=".json"
+              className="block w-full text-[10px] text-gray-500 mt-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-600 dark:file:text-gray-300 cursor-pointer"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                  const text = await file.text();
+                  const json = JSON.parse(text);
+                  const parsed = parseVscodeTheme(json);
+                  if (parsed) update({ vscodeTheme: parsed });
+                } catch { /* ignore */ }
+                e.target.value = "";
+              }}
+            />
+          </label>
         </Section>
 
         <Section title="General">

@@ -19,12 +19,10 @@ export interface Tab {
   scrollTop: number;
 }
 
-export type Theme = "light" | "dark" | "system";
 export type ContentWidth = "narrow" | "medium" | "wide";
 export type MermaidDefault = "step" | "diagram";
 
 export interface Settings {
-  theme: Theme;
   fontScale: number;
   lineHeight: number;
   contentWidth: ContentWidth;
@@ -53,7 +51,6 @@ export interface VscodeThemeColors {
 }
 
 const DEFAULT_SETTINGS: Settings = {
-  theme: "system",
   fontScale: 100,
   lineHeight: 165,
   contentWidth: "medium",

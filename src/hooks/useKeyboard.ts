@@ -40,7 +40,7 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
 
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-      const { activeCardIndex, setActiveCardIndex, toggleFocusMode, settings, updateSettings } =
+      const { activeCardIndex, setActiveCardIndex, toggleFocusMode } =
         useAppStore.getState();
 
       switch (e.key) {
@@ -57,11 +57,6 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
         case "f":
           toggleFocusMode();
           break;
-        case "t": {
-          const next = settings.theme === "system" ? "light" : settings.theme === "light" ? "dark" : "system";
-          updateSettings({ theme: next });
-          break;
-        }
         case "Home":
           e.preventDefault();
           setActiveCardIndex(0);
