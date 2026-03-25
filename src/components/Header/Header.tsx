@@ -2,7 +2,11 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore, type FsNode } from "../../stores/useAppStore";
 
-export function Header() {
+interface HeaderProps {
+  onSearchClick?: () => void;
+}
+
+export function Header({ onSearchClick }: HeaderProps) {
   // Individual selectors — avoids re-render when unrelated state changes
   const folderPath = useAppStore((s) => s.folderPath);
   const selectedFile = useAppStore((s) => s.selectedFile);
@@ -61,6 +65,15 @@ export function Header() {
       </div>
 
       <div className="ml-auto flex items-center gap-1.5">
+        {folderPath ? (
+          <button
+            onClick={onSearchClick}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            title="Search (Cmd+K)"
+          >
+            Search
+          </button>
+        ) : null}
         <button
           onClick={handleToggleFocus}
           className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${

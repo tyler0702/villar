@@ -1,12 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAppStore } from "../stores/useAppStore";
 
-export function useKeyboard(sectionCount: number) {
+export function useKeyboard(sectionCount: number, onSearch?: () => void) {
+  const onSearchRef = useRef(onSearch);
+  onSearchRef.current = onSearch;
+
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      // Cmd+K / Ctrl+K — open search (works even in inputs)
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        onSearchRef.current?.();
+        return;
+      }
+
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-      // Read state at event time — avoids stale closure and excess deps
       const { activeCardIndex, setActiveCardIndex, toggleFocusMode, theme, setTheme } =
         useAppStore.getState();
 

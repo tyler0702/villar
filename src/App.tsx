@@ -1,22 +1,27 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { Header } from "./components/Header/Header";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import { CardView } from "./components/CardView/CardView";
+import { SearchPanel } from "./components/Search/SearchPanel";
 import { useAppStore, type FsNode } from "./stores/useAppStore";
 import { useMarkdown } from "./hooks/useMarkdown";
 import { useTheme } from "./hooks/useTheme";
 import { useKeyboard } from "./hooks/useKeyboard";
+import { useRestoreSession } from "./hooks/useRestoreSession";
+import { useDragDrop } from "./hooks/useDragDrop";
 
 function App() {
   useTheme();
+  useRestoreSession();
+  useDragDrop();
   const fileContent = useAppStore((s) => s.fileContent);
-  const selectedFile = useAppStore((s) => s.selectedFile);
   const setFileContent = useAppStore((s) => s.setFileContent);
   const sections = useMarkdown(fileContent);
-  useKeyboard(sections.length);
+  const [searchOpen, setSearchOpen] = useState(false);
+  useKeyboard(sections.length, () => setSearchOpen(true));
 
   const handleFileChanged = useCallback(
     async (path: string) => {
@@ -47,7 +52,7 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col bg-surface-50 dark:bg-surface-900 text-gray-800 dark:text-gray-100">
-      <Header />
+      <Header onSearchClick={() => setSearchOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar sections={sections} />
         <main className="flex-1 overflow-hidden">
@@ -63,6 +68,7 @@ function App() {
                   Navigate
                 </p>
                 <p>
+                  <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+K</kbd> Search{" "}
                   <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">F</kbd> Focus{" "}
                   <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">T</kbd> Theme
                 </p>
@@ -71,6 +77,7 @@ function App() {
           )}
         </main>
       </div>
+      {searchOpen ? <SearchPanel onClose={() => setSearchOpen(false)} /> : null}
     </div>
   );
 }

@@ -152,6 +152,64 @@ fn watch_folder(app_handle: AppHandle, dir_path: String) -> Result<(), String> {
     Ok(())
 }
 
+#[derive(Serialize)]
+struct SearchHit {
+    file_name: String,
+    file_path: String,
+    line_number: usize,
+    line_text: String,
+}
+
+#[tauri::command]
+fn search_files(dir_path: String, query: String) -> Result<Vec<SearchHit>, String> {
+    if query.is_empty() {
+        return Ok(vec![]);
+    }
+
+    let path = Path::new(&dir_path);
+    if !path.is_dir() {
+        return Err("Not a directory".into());
+    }
+
+    let query_lower = query.to_lowercase();
+    let mut hits = Vec::new();
+    search_recursive(path, &query_lower, &mut hits).map_err(|e| e.to_string())?;
+    hits.truncate(100); // Cap results
+    Ok(hits)
+}
+
+fn search_recursive(dir: &Path, query: &str, hits: &mut Vec<SearchHit>) -> std::io::Result<()> {
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.file_name().is_some_and(|n| n.to_string_lossy().starts_with('.')) {
+            continue;
+        }
+
+        if path.is_dir() {
+            search_recursive(&path, query, hits)?;
+        } else if path.extension().is_some_and(|ext| ext == "md") {
+            if let Ok(content) = fs::read_to_string(&path) {
+                for (i, line) in content.lines().enumerate() {
+                    if line.to_lowercase().contains(query) {
+                        hits.push(SearchHit {
+                            file_name: path.file_name().unwrap_or_default().to_string_lossy().into_owned(),
+                            file_path: path.to_string_lossy().into_owned(),
+                            line_number: i + 1,
+                            line_text: line.chars().take(120).collect(),
+                        });
+                        if hits.len() >= 100 {
+                            return Ok(());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 #[derive(Deserialize)]
 struct LogEntry {
     event: String,
@@ -200,7 +258,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![list_md_files, read_file, watch_folder, write_log])
+        .invoke_handler(tauri::generate_handler![list_md_files, read_file, watch_folder, search_files, write_log])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
