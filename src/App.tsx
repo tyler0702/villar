@@ -94,11 +94,12 @@ function App() {
         <div className="resize-handle" onMouseDown={sidebarResize} />
 
         {/* Main area */}
-        <div className="flex-1 flex flex-col overflow-hidden vs-canvas" style={zoomStyle}>
-          <TabBar />
-          {findOpen ? <FindBar /> : null}
-          <div className={`flex-1 overflow-hidden ${splitMode ? "flex" : ""}`}>
-            <main className={`${splitMode ? "flex-1" : ""} h-full overflow-hidden`}>
+        <div className="flex-1 flex overflow-hidden vs-canvas" style={zoomStyle}>
+          {/* Left pane */}
+          <div className={`${splitMode ? "flex-1" : "flex-1"} flex flex-col overflow-hidden`}>
+            <TabBar pane="left" />
+            {findOpen ? <FindBar /> : null}
+            <main className="flex-1 overflow-hidden">
               {hasContent ? (
                 <CardView sections={sections} />
               ) : (
@@ -119,15 +120,20 @@ function App() {
                 </div>
               )}
             </main>
-            {splitMode && splitSections.length > 0 ? (
-              <>
-                <div className="w-px bg-gray-200/60 dark:bg-gray-700/60 vs-border shrink-0" />
-                <div className="flex-1 h-full overflow-hidden">
+          </div>
+
+          {/* Right pane (split mode) */}
+          {splitMode && splitSections.length > 0 ? (
+            <>
+              <div className="w-px bg-gray-200/60 dark:bg-gray-700/60 vs-border shrink-0" />
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <TabBar pane="right" />
+                <div className="flex-1 overflow-hidden">
                   <CardView sections={splitSections} />
                 </div>
-              </>
-            ) : null}
-          </div>
+              </div>
+            </>
+          ) : null}
         </div>
 
         {/* Right settings sidebar */}

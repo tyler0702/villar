@@ -139,6 +139,8 @@ interface AppState {
   clearChangedSections: (path: string) => void;
   toggleSplitMode: () => void;
   setSplitTabIndex: (index: number) => void;
+  reorderTab: (from: number, to: number) => void;
+  moveTabToSplit: (tabIndex: number) => void;
 }
 
 const initialSettings: Settings = { ...DEFAULT_SETTINGS, ...savedSettings };
@@ -275,6 +277,29 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
   setSplitTabIndex: (index) => set({ splitTabIndex: index }),
+  reorderTab: (from, to) => {
+    const { tabs, activeTabIndex, splitTabIndex } = get();
+    if (from === to || from < 0 || to < 0 || from >= tabs.length || to >= tabs.length) return;
+    const updated = [...tabs];
+    const [moved] = updated.splice(from, 1);
+    updated.splice(to, 0, moved);
+    // Adjust active/split indices to follow their tabs
+    let newActive = activeTabIndex;
+    if (from === activeTabIndex) newActive = to;
+    else if (from < activeTabIndex && to >= activeTabIndex) newActive--;
+    else if (from > activeTabIndex && to <= activeTabIndex) newActive++;
+    let newSplit = splitTabIndex;
+    if (splitTabIndex >= 0) {
+      if (from === splitTabIndex) newSplit = to;
+      else if (from < splitTabIndex && to >= splitTabIndex) newSplit--;
+      else if (from > splitTabIndex && to <= splitTabIndex) newSplit++;
+    }
+    set({ tabs: updated, activeTabIndex: newActive, splitTabIndex: newSplit });
+    persistSession(get());
+  },
+  moveTabToSplit: (tabIndex) => {
+    set({ splitMode: true, splitTabIndex: tabIndex });
+  },
 }));
 
 // --- Diff detection ---
