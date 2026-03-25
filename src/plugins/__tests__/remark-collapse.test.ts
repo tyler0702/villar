@@ -1,0 +1,38 @@
+import { describe, it, expect } from "vitest";
+import { collapseHtml } from "../remark-collapse";
+
+describe("collapseHtml", () => {
+  it("wraps long lists in details/summary", () => {
+    const items = Array.from({ length: 8 }, (_, i) => `<li>Item ${i + 1}</li>`).join("");
+    const html = `<ul>${items}</ul>`;
+    const result = collapseHtml(html);
+    expect(result).toContain("<details>");
+    expect(result).toContain("8 items");
+  });
+
+  it("does not wrap short lists", () => {
+    const html = `<ul><li>A</li><li>B</li><li>C</li></ul>`;
+    const result = collapseHtml(html);
+    expect(result).not.toContain("<details>");
+  });
+
+  it("wraps long code blocks in details/summary", () => {
+    const lines = Array.from({ length: 25 }, (_, i) => `line ${i + 1}`).join("\n");
+    const html = `<pre><code class="language-js">${lines}</code></pre>`;
+    const result = collapseHtml(html);
+    expect(result).toContain("<details>");
+    expect(result).toContain("25 lines");
+  });
+
+  it("does not wrap short code blocks", () => {
+    const html = `<pre><code>short code</code></pre>`;
+    const result = collapseHtml(html);
+    expect(result).not.toContain("<details>");
+  });
+
+  it("preserves other HTML unchanged", () => {
+    const html = `<p>Hello</p><h2>Title</h2>`;
+    const result = collapseHtml(html);
+    expect(result).toBe(html);
+  });
+});
