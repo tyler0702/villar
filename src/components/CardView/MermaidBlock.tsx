@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { parseFlowchart, checkLinear, type LinearSteps } from "../../plugins/mermaid-linear";
-import mermaid from "mermaid";
 
-mermaid.initialize({ startOnLoad: false, theme: "default" });
+// Dynamic import — mermaid.js is ~1MB, only load when needed (bundle-dynamic-imports)
+const mermaidPromise = import("mermaid").then((m) => {
+  m.default.initialize({ startOnLoad: false, theme: "default" });
+  return m.default;
+});
 
-// Simple LRU cache
+// LRU cache — module-level (js-cache-function-results)
 const cache = new Map<string, { linear: LinearSteps | null; svg: string | null }>();
 const MAX_CACHE = 50;
 
@@ -47,18 +50,15 @@ export function MermaidBlock({ code }: MermaidBlockProps) {
       return;
     }
 
-    // Parse and check linearity
     const flowchart = parseFlowchart(code);
     const linearResult = flowchart ? checkLinear(flowchart) : null;
     setLinear(linearResult);
 
-    // Try rendering diagram with timeout
-    const timeout = setTimeout(() => {
-      setError(true);
-    }, 1000);
+    const timeout = setTimeout(() => setError(true), 1000);
 
     (async () => {
       try {
+        const mermaid = await mermaidPromise;
         const id = `mermaid-${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const { svg: renderedSvg } = await mermaid.render(id, code);
         clearTimeout(timeout);
@@ -69,9 +69,7 @@ export function MermaidBlock({ code }: MermaidBlockProps) {
         clearTimeout(timeout);
         setSvg(null);
         cacheSet(code, { linear: linearResult, svg: null });
-        if (!linearResult) {
-          setError(true);
-        }
+        if (!linearResult) setError(true);
       }
     })();
 
@@ -85,28 +83,27 @@ export function MermaidBlock({ code }: MermaidBlockProps) {
     else setMode(linear ? "step" : svg ? "diagram" : "raw");
   };
 
-  // Step UI
+  const headerClass = "flex items-center justify-between mb-3";
+  const labelClass = "text-[10px] font-semibold uppercase tracking-widest text-gray-400";
+  const toggleClass = "text-[10px] text-accent-600 dark:text-accent-400 hover:underline font-medium";
+  const wrapClass = "my-4 rounded-xl border p-4";
+
   if (mode === "step" && linear) {
     return (
-      <div className="my-4 rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold text-gray-400 uppercase">Steps</span>
-          <button
-            onClick={toggleMode}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            Show diagram
-          </button>
+      <div className={`${wrapClass} border-accent-200/40 dark:border-accent-800/30 bg-accent-50/50 dark:bg-accent-950/30`}>
+        <div className={headerClass}>
+          <span className={labelClass}>Steps</span>
+          <button onClick={toggleMode} className={toggleClass}>Show diagram</button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {linear.steps.map((step, i) => (
             <div key={i} className="flex items-center gap-2">
-              <span className="px-3 py-1.5 text-sm rounded-md bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-medium">
+              <span className="px-3 py-1.5 text-sm rounded-lg bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium">
                 {step}
               </span>
-              {i < linear.steps.length - 1 && (
-                <span className="text-gray-400 dark:text-gray-500">&rarr;</span>
-              )}
+              {i < linear.steps.length - 1 ? (
+                <span className="text-gray-300 dark:text-gray-600">&rarr;</span>
+              ) : null}
             </div>
           ))}
         </div>
@@ -114,47 +111,31 @@ export function MermaidBlock({ code }: MermaidBlockProps) {
     );
   }
 
-  // Diagram view
   if (mode === "diagram" && svg) {
     return (
-      <div className="my-4 rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold text-gray-400 uppercase">Diagram</span>
-          <button
-            onClick={toggleMode}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
-          >
+      <div className={`${wrapClass} border-gray-200/60 dark:border-gray-700/40 bg-white dark:bg-surface-800`}>
+        <div className={headerClass}>
+          <span className={labelClass}>Diagram</span>
+          <button onClick={toggleMode} className={toggleClass}>
             {linear ? "Show steps" : "Show source"}
           </button>
         </div>
-        <div
-          ref={diagramRef}
-          className="overflow-x-auto"
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
+        <div ref={diagramRef} className="overflow-x-auto" dangerouslySetInnerHTML={{ __html: svg }} />
       </div>
     );
   }
 
-  // Raw text fallback
   return (
-    <div className="my-4 rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold text-gray-400 uppercase">
-          {error ? "Could not render diagram" : "Mermaid"}
-        </span>
-        {(linear || svg) && (
-          <button
-            onClick={toggleMode}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
-          >
+    <div className={`${wrapClass} border-gray-200/60 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-900`}>
+      <div className={headerClass}>
+        <span className={labelClass}>{error ? "Render failed" : "Mermaid"}</span>
+        {linear || svg ? (
+          <button onClick={toggleMode} className={toggleClass}>
             {linear ? "Show steps" : "Show diagram"}
           </button>
-        )}
+        ) : null}
       </div>
-      <pre className="text-xs text-gray-600 dark:text-gray-400 whitespace-pre-wrap overflow-x-auto">
-        {code}
-      </pre>
+      <pre className="text-xs text-gray-500 dark:text-gray-400 whitespace-pre-wrap overflow-x-auto">{code}</pre>
     </div>
   );
 }

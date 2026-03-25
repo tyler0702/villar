@@ -3,63 +3,70 @@ import { invoke } from "@tauri-apps/api/core";
 import { useAppStore, type FileEntry } from "../../stores/useAppStore";
 
 export function Header() {
-  const { folderPath, selectedFile, setFolderPath, setFiles, setSelectedFile, setFileContent } =
-    useAppStore();
+  // Individual selectors — avoids re-render when unrelated state changes
+  const folderPath = useAppStore((s) => s.folderPath);
+  const selectedFile = useAppStore((s) => s.selectedFile);
   const focusMode = useAppStore((s) => s.focusMode);
-  const toggleFocusMode = useAppStore((s) => s.toggleFocusMode);
   const theme = useAppStore((s) => s.theme);
-  const setTheme = useAppStore((s) => s.setTheme);
 
   async function handleOpenFolder() {
     const selected = await open({ directory: true, multiple: false });
     if (!selected) return;
 
     const path = selected as string;
+    const { setFolderPath, setSelectedFile, setFileContent, setFiles } = useAppStore.getState();
     setFolderPath(path);
     setSelectedFile(null);
     setFileContent(null);
 
     const files = await invoke<FileEntry[]>("list_md_files", { dirPath: path });
     setFiles(files);
-
-    // Start file watching
     await invoke("watch_folder", { dirPath: path });
   }
 
   function cycleTheme() {
-    const next = theme === "system" ? "light" : theme === "light" ? "dark" : "system";
+    const { theme: current, setTheme } = useAppStore.getState();
+    const next = current === "system" ? "light" : current === "light" ? "dark" : "system";
     setTheme(next);
   }
 
-  const themeLabel = theme === "system" ? "Auto" : theme === "light" ? "Light" : "Dark";
+  function handleToggleFocus() {
+    useAppStore.getState().toggleFocusMode();
+  }
+
+  const themeIcon = theme === "system" ? "Auto" : theme === "light" ? "Light" : "Dark";
   const folderName = folderPath ? folderPath.split("/").pop() : null;
 
   return (
-    <header className="flex items-center gap-3 px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+    <header className="flex items-center gap-3 px-5 py-2.5 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0">
       <button
         onClick={handleOpenFolder}
-        className="px-3 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
+        className="px-3 py-1.5 text-sm font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
       >
-        Open Folder
+        Open
       </button>
-      {folderName && (
-        <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
-          {folderName}
-        </span>
-      )}
-      {selectedFile && (
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
-          {selectedFile.name}
-        </span>
-      )}
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="flex items-center gap-1.5 min-w-0">
+        {folderName ? (
+          <span className="text-sm text-gray-400 dark:text-gray-500 truncate">{folderName}</span>
+        ) : null}
+        {selectedFile ? (
+          <>
+            {folderName ? <span className="text-gray-300 dark:text-gray-600">/</span> : null}
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
+              {selectedFile.name}
+            </span>
+          </>
+        ) : null}
+      </div>
+
+      <div className="ml-auto flex items-center gap-1.5">
         <button
-          onClick={toggleFocusMode}
-          className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+          onClick={handleToggleFocus}
+          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
             focusMode
-              ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200"
-              : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
+              ? "bg-accent-200 dark:bg-accent-800 text-accent-800 dark:text-accent-100"
+              : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
           }`}
           title="Toggle focus mode (F)"
         >
@@ -67,10 +74,10 @@ export function Header() {
         </button>
         <button
           onClick={cycleTheme}
-          className="px-3 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
+          className="px-3 py-1.5 text-xs font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           title="Cycle theme (T)"
         >
-          {themeLabel}
+          {themeIcon}
         </button>
       </div>
     </header>

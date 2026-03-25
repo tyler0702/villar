@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
@@ -18,34 +18,47 @@ function App() {
   const sections = useMarkdown(fileContent);
   useKeyboard(sections.length);
 
-  // Listen for file changes from Rust watcher
-  useEffect(() => {
-    const unlisten = listen<{ path: string }>("file-changed", async (event) => {
-      if (selectedFile && event.payload.path === selectedFile.path) {
-        const content = await invoke<string>("read_file", { filePath: selectedFile.path });
+  const handleFileChanged = useCallback(
+    async (path: string) => {
+      const current = useAppStore.getState().selectedFile;
+      if (current && path === current.path) {
+        const content = await invoke<string>("read_file", { filePath: current.path });
         setFileContent(content);
       }
-    });
+    },
+    [setFileContent]
+  );
 
-    return () => {
-      unlisten.then((fn) => fn());
-    };
-  }, [selectedFile, setFileContent]);
+  useEffect(() => {
+    const unlisten = listen<{ path: string }>("file-changed", (event) => {
+      handleFileChanged(event.payload.path);
+    });
+    return () => { unlisten.then((fn) => fn()); };
+  }, [handleFileChanged]);
+
+  const hasContent = sections.length > 0;
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div className="h-screen flex flex-col bg-surface-50 dark:bg-surface-900 text-gray-800 dark:text-gray-100">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar sections={sections} />
         <main className="flex-1 overflow-hidden">
-          {sections.length > 0 ? (
+          {hasContent ? (
             <CardView sections={sections} />
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-3">
-              <p className="text-lg">Select a file to view</p>
-              <div className="text-xs space-y-1 text-center">
-                <p><kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-mono">&larr;</kbd> <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-mono">&rarr;</kbd> Navigate cards</p>
-                <p><kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-mono">F</kbd> Focus mode &middot; <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-mono">T</kbd> Theme</p>
+            <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-4">
+              <p className="text-lg font-light tracking-wide">Open a folder, pick a file</p>
+              <div className="text-xs space-y-1.5 text-center opacity-60">
+                <p>
+                  <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&larr;</kbd>{" "}
+                  <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&rarr;</kbd>{" "}
+                  Navigate
+                </p>
+                <p>
+                  <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">F</kbd> Focus{" "}
+                  <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">T</kbd> Theme
+                </p>
               </div>
             </div>
           )}
