@@ -81,4 +81,63 @@ This is the only section.
     expect(sections).toHaveLength(1);
     expect(sections[0].title).toBe("Only Section");
   });
+
+  it("handles H2 with inline formatting (bold/italic)", () => {
+    const md = `## Section with **bold** and *italic*
+
+Content here.
+`;
+    const sections = parseSections(md);
+    expect(sections).toHaveLength(1);
+    expect(sections[0].title).toBe("Section with bold and italic");
+  });
+
+  it("drops inline code from H2 title (extractText limitation)", () => {
+    const md = `## Title with \`code\`
+
+Content.
+`;
+    const sections = parseSections(md);
+    expect(sections).toHaveLength(1);
+    // inlineCode nodes are not handled by extractText, so the code part is dropped
+    expect(sections[0].title).toBe("Title with ");
+  });
+
+  it("handles consecutive H2s with no content between them", () => {
+    const md = `## Empty Section
+
+## Next Section
+
+Some content.
+`;
+    const sections = parseSections(md);
+    expect(sections).toHaveLength(2);
+    expect(sections[0].title).toBe("Empty Section");
+    expect(sections[0].children).toHaveLength(0);
+    expect(sections[1].title).toBe("Next Section");
+  });
+
+  it("handles whitespace-only document", () => {
+    const sections = parseSections("   \n\n   \n");
+    expect(sections).toHaveLength(0);
+  });
+
+  it("keeps H3/H4 headings inside their parent H2 section", () => {
+    const md = `## Parent
+
+### Sub heading
+
+#### Deep heading
+
+Content under deep heading.
+
+## Next
+`;
+    const sections = parseSections(md);
+    expect(sections).toHaveLength(2);
+    expect(sections[0].title).toBe("Parent");
+    // H3 and H4 should be children of the Parent section
+    const childTypes = sections[0].children.map((c) => c.type);
+    expect(childTypes.filter((t) => t === "heading")).toHaveLength(2);
+  });
 });

@@ -71,4 +71,49 @@ This is a long enough overview paragraph that provides sufficient content for TL
     const tldr = extractTldr(children);
     expect(tldr).toBeNull();
   });
+
+  it("handles content with only headings and no paragraphs", () => {
+    const children = getChildren(`
+### Sub heading
+
+#### Another heading
+`);
+    const tldr = extractTldr(children);
+    expect(tldr).toBeNull();
+  });
+
+  it("handles ordered list (extracts points)", () => {
+    const children = getChildren(`
+This is a sufficiently long paragraph with enough text to pass the minimum character threshold for TL;DR generation.
+
+1. First ordered item
+2. Second ordered item
+3. Third ordered item
+4. Fourth ordered item
+`);
+    const tldr = extractTldr(children);
+    expect(tldr).not.toBeNull();
+    expect(tldr!.points).toHaveLength(3);
+    expect(tldr!.points[0]).toContain("First ordered item");
+  });
+
+  it("extracts duplicate bold keywords only once", () => {
+    const children = getChildren(`
+This paragraph has **duplicate** keyword and **duplicate** keyword again plus **unique** keyword to reach the threshold.
+`);
+    const tldr = extractTldr(children);
+    expect(tldr).not.toBeNull();
+    expect(tldr!.keywords.filter((k) => k === "duplicate")).toHaveLength(1);
+  });
+
+  it("extracts conclusion with まとめ prefix", () => {
+    const children = getChildren(`
+This is a long enough overview paragraph that provides sufficient content for TL;DR generation to work properly.
+
+まとめ：全体的に良好な結果が得られた。
+`);
+    const tldr = extractTldr(children);
+    expect(tldr).not.toBeNull();
+    expect(tldr!.conclusion).toContain("まとめ");
+  });
 });
