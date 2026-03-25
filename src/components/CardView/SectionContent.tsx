@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { MERMAID_PLACEHOLDER } from "../../hooks/useMarkdown";
 import { MermaidBlock } from "./MermaidBlock";
 
@@ -7,7 +7,28 @@ interface SectionContentProps {
   mermaidCodes: string[];
 }
 
+function injectCopyButtons(container: HTMLElement) {
+  const pres = container.querySelectorAll("pre");
+  pres.forEach((pre) => {
+    if (pre.querySelector(".code-copy-btn")) return;
+    const btn = document.createElement("button");
+    btn.className = "code-copy-btn";
+    btn.textContent = "Copy";
+    btn.addEventListener("click", async () => {
+      const code = pre.querySelector("code");
+      if (code) {
+        await navigator.clipboard.writeText(code.textContent ?? "");
+        btn.textContent = "Copied!";
+        setTimeout(() => { btn.textContent = "Copy"; }, 1500);
+      }
+    });
+    pre.appendChild(btn);
+  });
+}
+
 export function SectionContent({ html, mermaidCodes }: SectionContentProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const parts = useMemo(() => {
     if (mermaidCodes.length === 0) return [{ type: "html" as const, content: html }];
 
@@ -29,8 +50,14 @@ export function SectionContent({ html, mermaidCodes }: SectionContentProps) {
     return result;
   }, [html, mermaidCodes]);
 
+  useEffect(() => {
+    if (containerRef.current) {
+      injectCopyButtons(containerRef.current);
+    }
+  }, [parts]);
+
   return (
-    <>
+    <div ref={containerRef}>
       {parts.map((part, i) =>
         part.type === "mermaid" ? (
           <MermaidBlock key={`m-${i}`} code={part.content} />
@@ -42,6 +69,6 @@ export function SectionContent({ html, mermaidCodes }: SectionContentProps) {
           />
         )
       )}
-    </>
+    </div>
   );
 }

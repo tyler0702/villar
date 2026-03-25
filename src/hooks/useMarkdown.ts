@@ -8,10 +8,25 @@ import remarkRehype from "remark-rehype";
 import rehypeHighlight from "rehype-highlight";
 import rehypeStringify from "rehype-stringify";
 import { collapseHtml } from "../plugins/remark-collapse";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { logRenderTime, logTldrResult } from "./useMetrics";
-import type { Root as MdastRoot, Content, Code } from "mdast";
+import type { Root as MdastRoot, Content, Code, Heading } from "mdast";
 
 const MERMAID_PLACEHOLDER = "___MERMAID_BLOCK___";
+
+function extractSubHeadings(children: Content[]): SubHeading[] {
+  const subs: SubHeading[] = [];
+  for (const node of children) {
+    if (node.type === "heading" && (node as Heading).depth >= 3) {
+      const h = node as Heading;
+      const title = h.children
+        .map((c) => ("value" in c ? c.value : ""))
+        .join("");
+      subs.push({ depth: h.depth, title });
+    }
+  }
+  return subs;
+}
 
 function extractMermaidBlocks(children: Content[]): { cleaned: Content[]; mermaidCodes: string[] } {
   const mermaidCodes: string[] = [];
@@ -49,11 +64,17 @@ function renderChildren(children: Content[]): string {
   return String(result);
 }
 
+export interface SubHeading {
+  depth: number; // 3, 4, 5, 6
+  title: string;
+}
+
 export interface ProcessedSection {
   title: string;
   html: string;
   tldr: TldrData | null;
   mermaidCodes: string[];
+  subHeadings: SubHeading[];
 }
 
 interface CollapseConfig {
@@ -61,7 +82,20 @@ interface CollapseConfig {
   codeThreshold: number;
 }
 
-export function useMarkdown(content: string | null, collapseConfig?: CollapseConfig): ProcessedSection[] {
+function resolveImagePaths(html: string, basePath: string | null): string {
+  if (!basePath) return html;
+  return html.replace(/<img\s+src="([^"]+)"/g, (_match, src: string) => {
+    if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("data:")) {
+      return `<img src="${src}"`;
+    }
+    // Resolve relative path against the file's directory
+    const dir = basePath.substring(0, basePath.lastIndexOf("/"));
+    const fullPath = src.startsWith("/") ? src : `${dir}/${src}`;
+    return `<img src="${convertFileSrc(fullPath)}"`;
+  });
+}
+
+export function useMarkdown(content: string | null, collapseConfig?: CollapseConfig, filePath?: string | null): ProcessedSection[] {
   return useMemo(() => {
     if (!content) return [];
 
@@ -81,9 +115,10 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
       logTldrResult(section.title, tldr !== null);
       return {
         title: section.title,
-        html: collapseHtml(renderChildren(cleaned), collapseConfig),
+        html: resolveImagePaths(collapseHtml(renderChildren(cleaned), collapseConfig), filePath ?? null),
         tldr,
         mermaidCodes,
+        subHeadings: extractSubHeadings(section.children),
       };
     });
 
@@ -91,7 +126,7 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
     logRenderTime(Math.round(elapsed), content.length);
 
     return result;
-  }, [content, collapseConfig?.listThreshold, collapseConfig?.codeThreshold]);
+  }, [content, collapseConfig?.listThreshold, collapseConfig?.codeThreshold, filePath]);
 }
 
 export { MERMAID_PLACEHOLDER };

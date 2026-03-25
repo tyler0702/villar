@@ -51,6 +51,40 @@ html {
   line-height: inherit !important;
 }
 
+/* Image styling */
+.prose img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+}
+
+/* Code block copy button */
+.prose pre {
+  position: relative;
+}
+.prose pre .code-copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 2px 8px;
+  font-size: 10px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+.prose pre:hover .code-copy-btn {
+  opacity: 1;
+}
+.prose pre .code-copy-btn:hover {
+  background: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.9);
+}
+
 /* GFM table styling within prose */
 .prose table {
   width: 100%;
