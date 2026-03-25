@@ -57,13 +57,14 @@ function App() {
 
   const hasContent = sections.length > 0;
   const fontScale = useAppStore((s) => s.settings.fontScale);
+  const zoomStyle = { zoom: fontScale / 100 };
 
   return (
     <div className="h-screen flex flex-col bg-surface-50 dark:bg-surface-900 text-gray-800 dark:text-gray-100">
       <Header onSearchClick={() => setSearchOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar sections={sections} />
-        <main className="flex-1 overflow-hidden" style={{ fontSize: `${fontScale}%` }}>
+        <Sidebar sections={sections} style={zoomStyle} />
+        <main className="flex-1 overflow-hidden" style={zoomStyle}>
           {hasContent ? (
             <CardView sections={sections} />
           ) : (

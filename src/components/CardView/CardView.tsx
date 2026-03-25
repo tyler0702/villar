@@ -1,7 +1,6 @@
 import { useCallback, useRef, useEffect, memo, useMemo, useState } from "react";
 import type { ProcessedSection } from "../../hooks/useMarkdown";
 import { useAppStore } from "../../stores/useAppStore";
-import type { LineHeight } from "../../stores/useAppStore";
 import { TldrCard } from "./TldrCard";
 import { SectionContent } from "./SectionContent";
 
@@ -10,7 +9,6 @@ interface CardViewProps {
 }
 
 const WIDTH_MAP = { narrow: "max-w-2xl", medium: "max-w-4xl", wide: "max-w-none" } as const;
-const LINE_HEIGHT_VAL: Record<LineHeight, string> = { tight: "1.4", normal: "1.65", relaxed: "2.0" };
 
 const SectionCard = memo(function SectionCard({
   section,
@@ -74,7 +72,7 @@ export function CardView({ sections }: CardViewProps) {
   const [scrollProgress, setScrollProgress] = useState(0);
 
   const readingStyle = useMemo<React.CSSProperties>(() => ({
-    "--reading-line-height": LINE_HEIGHT_VAL[lineHeight],
+    "--reading-line-height": String(lineHeight / 100),
   } as React.CSSProperties), [lineHeight]);
 
   useEffect(() => {

@@ -13,14 +13,13 @@ export interface FileEntry {
 }
 
 export type Theme = "light" | "dark" | "system";
-export type LineHeight = "tight" | "normal" | "relaxed";
 export type ContentWidth = "narrow" | "medium" | "wide";
 export type MermaidDefault = "step" | "diagram";
 
 export interface Settings {
   theme: Theme;
   fontScale: number; // 50-150, 100 = default
-  lineHeight: LineHeight;
+  lineHeight: number; // 100-250, percent (100 = 1.0)
   contentWidth: ContentWidth;
   focusOpacity: number; // 10-50
   tldrExpanded: boolean;
@@ -33,7 +32,7 @@ export interface Settings {
 const DEFAULT_SETTINGS: Settings = {
   theme: "system",
   fontScale: 100,
-  lineHeight: "normal",
+  lineHeight: 165,
   contentWidth: "medium",
   focusOpacity: 30,
   tldrExpanded: true,

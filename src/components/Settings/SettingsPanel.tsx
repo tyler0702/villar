@@ -1,5 +1,5 @@
 import { useAppStore } from "../../stores/useAppStore";
-import type { LineHeight, ContentWidth, MermaidDefault } from "../../stores/useAppStore";
+import type { ContentWidth, MermaidDefault } from "../../stores/useAppStore";
 
 const SHORTCUTS = [
   { key: "\u2190 \u2192", action: "Navigate cards" },
@@ -79,7 +79,7 @@ export function SettingsPanel() {
   const close = () => useAppStore.getState().setSettingsOpen(false);
 
   return (
-    <aside className="w-64 shrink-0 border-l border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm overflow-y-auto flex flex-col">
+    <aside style={{ fontSize: "16px" }} className="w-64 shrink-0 border-l border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm overflow-y-auto flex flex-col">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <span className="text-xs font-semibold text-gray-800 dark:text-gray-100">Settings</span>
         <button
@@ -118,15 +118,18 @@ export function SettingsPanel() {
             </div>
           </Row>
           <Row label="Line Height">
-            <SegmentControl<LineHeight>
-              value={settings.lineHeight}
-              options={[
-                { value: "tight", label: "Tight" },
-                { value: "normal", label: "Normal" },
-                { value: "relaxed", label: "Relaxed" },
-              ]}
-              onChange={(v) => update({ lineHeight: v })}
-            />
+            <div className="flex items-center gap-1.5">
+              <input
+                type="range"
+                min={100}
+                max={250}
+                step={10}
+                value={settings.lineHeight}
+                onChange={(e) => update({ lineHeight: Number(e.target.value) })}
+                className="w-20 accent-accent-500"
+              />
+              <span className="text-[10px] text-gray-400 w-8 text-right tabular-nums">{settings.lineHeight}%</span>
+            </div>
           </Row>
           <Row label="Width">
             <SegmentControl<ContentWidth>

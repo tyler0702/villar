@@ -5,16 +5,17 @@ import type { ProcessedSection } from "../../hooks/useMarkdown";
 
 interface SidebarProps {
   sections: ProcessedSection[];
+  style?: React.CSSProperties;
 }
 
-export function Sidebar({ sections }: SidebarProps) {
+export function Sidebar({ sections, style }: SidebarProps) {
   const tree = useAppStore((s) => s.tree);
   const selectedPath = useAppStore((s) => s.selectedFile?.path ?? null);
   const activeCardIndex = useAppStore((s) => s.activeCardIndex);
   const setActiveCardIndex = useAppStore((s) => s.setActiveCardIndex);
 
   return (
-    <aside className="w-56 shrink-0 border-r border-gray-200/60 dark:border-gray-700/60 bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm overflow-y-auto flex flex-col">
+    <aside style={style} className="w-56 shrink-0 border-r border-gray-200/60 dark:border-gray-700/60 bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm overflow-y-auto flex flex-col">
       <div className="px-3 pt-3 pb-1">
         <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
           Files
