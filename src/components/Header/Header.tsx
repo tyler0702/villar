@@ -1,6 +1,8 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppStore, type FsNode } from "../../stores/useAppStore";
+import { WindowControls } from "./WindowControls";
 
 interface HeaderProps {
   onSearchClick?: () => void;
@@ -24,10 +26,22 @@ export function Header({ onSearchClick }: HeaderProps) {
     await invoke("watch_folder", { dirPath: path });
   }
 
+  function handleDragStart(e: React.MouseEvent) {
+    // Only drag from the header itself, not from buttons
+    if ((e.target as HTMLElement).closest("button")) return;
+    e.preventDefault();
+    getCurrentWindow().startDragging();
+  }
+
   const folderName = folderPath ? folderPath.split("/").pop() : null;
 
   return (
-    <header className="vs-header flex items-center gap-3 px-5 py-2.5 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0">
+    <header
+      onMouseDown={handleDragStart}
+      className="vs-header flex items-center gap-3 pl-4 pr-5 py-2.5 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0 select-none cursor-default"
+    >
+      <WindowControls />
+
       <button
         onClick={handleOpenFolder}
         className="vs-header-accent px-3 py-1.5 text-sm font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
@@ -35,7 +49,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         Open
       </button>
 
-      <div className="flex items-center gap-1.5 min-w-0">
+      <div className="flex items-center gap-1.5 min-w-0 flex-1">
         {folderName ? (
           <span className="text-sm opacity-50 truncate">{folderName}</span>
         ) : null}
@@ -49,7 +63,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         ) : null}
       </div>
 
-      <div className="ml-auto flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5">
         {folderPath ? (
           <button
             onClick={onSearchClick}
@@ -72,7 +86,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         </button>
         <button
           onClick={() => useAppStore.getState().setSettingsOpen(true)}
-          className="px-2 py-1.5 text-xs opacity-50 hover:opacity-100 hover:bg-white/10 rounded-lg transition-all"
+          className="px-2 py-1.5 text-[20px] leading-none opacity-50 hover:opacity-100 hover:bg-white/10 rounded-lg transition-all"
           title="Settings (Cmd+,)"
         >
           &#9881;
