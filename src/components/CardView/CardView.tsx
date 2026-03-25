@@ -156,7 +156,7 @@ export function CardView({ sections }: CardViewProps) {
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-4 py-2.5 border-t border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0">
+      <div className="flex items-center justify-center gap-4 py-1 border-t border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0">
         <button
           onClick={() => goTo(activeIndex - 1)}
           disabled={activeIndex === 0}

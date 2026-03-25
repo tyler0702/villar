@@ -36,23 +36,23 @@ export function Header({ onSearchClick }: HeaderProps) {
   return (
     <header
       onMouseDown={handleDragStart}
-      className="vs-header flex items-center gap-3 pl-20 pr-5 py-3 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0 select-none cursor-default"
+      className="vs-header flex items-center gap-3 pl-20 pr-5 py-1 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0 select-none cursor-default"
     >
       <button
         onClick={handleOpenFolder}
-        className="vs-header-accent px-3 py-1.5 text-sm font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
+        className="vs-header-accent px-3 py-1 text-[12px] font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
       >
         Open
       </button>
 
       <div className="flex items-center gap-1.5 min-w-0 flex-1">
         {folderName ? (
-          <span className="text-sm opacity-50 truncate">{folderName}</span>
+          <span className="text-[12px] opacity-50 truncate">{folderName}</span>
         ) : null}
         {selectedFile ? (
           <>
             {folderName ? <span className="opacity-30">/</span> : null}
-            <span className="text-sm font-medium truncate">
+            <span className="text-[12px] font-medium truncate">
               {selectedFile.name}
             </span>
           </>
@@ -63,7 +63,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         {folderPath ? (
           <button
             onClick={onSearchClick}
-            className="px-3 py-1.5 text-xs font-medium rounded-lg opacity-60 hover:opacity-100 hover:bg-white/10 transition-all"
+            className="px-3 py-1 text-[12px] font-medium rounded-lg opacity-60 hover:opacity-100 hover:bg-white/10 transition-all"
             title="Search (Cmd+K)"
           >
             Search
@@ -71,7 +71,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         ) : null}
         <button
           onClick={() => useAppStore.getState().toggleFocusMode()}
-          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+          className={`px-3 py-1 text-[12px] font-medium rounded-lg transition-all ${
             focusMode
               ? "vs-header-accent bg-accent-200 dark:bg-accent-800 text-accent-800 dark:text-accent-100"
               : "opacity-60 hover:opacity-100 hover:bg-white/10"
@@ -82,7 +82,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         </button>
         <button
           onClick={() => useAppStore.getState().setSettingsOpen(true)}
-          className="px-2 py-1.5 text-[20px] leading-none opacity-50 hover:opacity-100 hover:bg-white/10 rounded-lg transition-all"
+          className="px-2 py-1 text-[16px] leading-none opacity-50 hover:opacity-100 hover:bg-white/10 rounded-lg transition-all"
           title="Settings (Cmd+,)"
         >
           &#9881;
