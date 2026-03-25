@@ -8,6 +8,7 @@ import { CardView } from "./components/CardView/CardView";
 import { useAppStore } from "./stores/useAppStore";
 import { useMarkdown } from "./hooks/useMarkdown";
 import { useTheme } from "./hooks/useTheme";
+import { useKeyboard } from "./hooks/useKeyboard";
 
 function App() {
   useTheme();
@@ -15,6 +16,7 @@ function App() {
   const selectedFile = useAppStore((s) => s.selectedFile);
   const setFileContent = useAppStore((s) => s.setFileContent);
   const sections = useMarkdown(fileContent);
+  useKeyboard(sections.length);
 
   // Listen for file changes from Rust watcher
   useEffect(() => {
@@ -39,8 +41,12 @@ function App() {
           {sections.length > 0 ? (
             <CardView sections={sections} />
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500">
-              Select a file to view
+            <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-3">
+              <p className="text-lg">Select a file to view</p>
+              <div className="text-xs space-y-1 text-center">
+                <p><kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-mono">&larr;</kbd> <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-mono">&rarr;</kbd> Navigate cards</p>
+                <p><kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-mono">F</kbd> Focus mode &middot; <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-mono">T</kbd> Theme</p>
+              </div>
             </div>
           )}
         </main>

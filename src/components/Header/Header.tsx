@@ -61,12 +61,14 @@ export function Header() {
               ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200"
               : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
           }`}
+          title="Toggle focus mode (F)"
         >
           Focus
         </button>
         <button
           onClick={cycleTheme}
           className="px-3 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
+          title="Cycle theme (T)"
         >
           {themeLabel}
         </button>

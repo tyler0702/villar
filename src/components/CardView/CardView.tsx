@@ -38,9 +38,11 @@ export function CardView({ sections }: CardViewProps) {
             key={i}
             ref={i === activeIndex ? activeCardRef : undefined}
             onClick={() => setActiveIndex(i)}
-            className={`rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 cursor-pointer transition-opacity duration-300 ${
-              focusMode && i !== activeIndex ? "opacity-30" : "opacity-100"
-            }`}
+            className={`rounded-lg border bg-white dark:bg-gray-800 p-6 cursor-pointer transition-all duration-300 ${
+              i === activeIndex
+                ? "border-blue-300 dark:border-blue-700 shadow-lg shadow-blue-100 dark:shadow-blue-900/20"
+                : "border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md"
+            } ${focusMode && i !== activeIndex ? "opacity-30" : "opacity-100"}`}
           >
             <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
               {section.title}
@@ -57,8 +59,9 @@ export function CardView({ sections }: CardViewProps) {
           onClick={() => goTo(activeIndex - 1)}
           disabled={activeIndex === 0}
           className="px-3 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          title="Previous (Arrow Left)"
         >
-          Prev
+          &larr; Prev
         </button>
         <span className="text-sm text-gray-500 dark:text-gray-400 tabular-nums">
           {activeIndex + 1} / {sections.length}
@@ -67,8 +70,9 @@ export function CardView({ sections }: CardViewProps) {
           onClick={() => goTo(activeIndex + 1)}
           disabled={activeIndex === sections.length - 1}
           className="px-3 py-1.5 text-sm rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          title="Next (Arrow Right)"
         >
-          Next
+          Next &rarr;
         </button>
       </div>
     </div>
