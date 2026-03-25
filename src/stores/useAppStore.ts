@@ -25,6 +25,7 @@ export type ContentWidth = "narrow" | "medium" | "wide";
 export type MermaidDefault = "step" | "diagram";
 
 export interface Settings {
+  fontFamily: string;
   fontScale: number;
   lineHeight: number;
   contentWidth: ContentWidth;
@@ -53,6 +54,7 @@ export interface VscodeThemeColors {
 }
 
 const DEFAULT_SETTINGS: Settings = {
+  fontFamily: "system",
   fontScale: 100,
   lineHeight: 165,
   contentWidth: "medium",

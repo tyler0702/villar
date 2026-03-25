@@ -29,6 +29,7 @@ html {
 
 /* Reading settings — applied via CSS variables on .reading-root */
 .reading-root {
+  font-family: var(--reading-font, inherit);
   font-size: var(--reading-font-size, 1rem);
   line-height: var(--reading-line-height, 1.6);
 }

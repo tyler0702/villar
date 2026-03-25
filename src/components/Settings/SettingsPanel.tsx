@@ -2,6 +2,7 @@ import { useAppStore } from "../../stores/useAppStore";
 import type { ContentWidth, MermaidDefault, VscodeThemeColors } from "../../stores/useAppStore";
 import { parseVscodeTheme } from "../../hooks/useVscodeTheme";
 import { BUILTIN_THEMES } from "../../themes/builtin";
+import { FONT_OPTIONS } from "../../themes/fonts";
 
 const SHORTCUTS = [
   { key: "\u2190 \u2192", action: "Navigate cards" },
@@ -135,6 +136,29 @@ export function SettingsPanel({ width }: { width?: number }) {
 
       <div className="px-4 py-3 space-y-5 flex-1">
         <Section title="Display">
+          <Row label="Font">
+            <select
+              value={settings.fontFamily}
+              onChange={(e) => update({ fontFamily: e.target.value })}
+              className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg px-2 py-1 outline-none cursor-pointer w-28"
+            >
+              <optgroup label="Sans-serif">
+                {FONT_OPTIONS.filter((f) => f.category === "sans").map((f) => (
+                  <option key={f.id} value={f.id}>{f.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="Serif">
+                {FONT_OPTIONS.filter((f) => f.category === "serif").map((f) => (
+                  <option key={f.id} value={f.id}>{f.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="Monospace">
+                {FONT_OPTIONS.filter((f) => f.category === "mono").map((f) => (
+                  <option key={f.id} value={f.id}>{f.label}</option>
+                ))}
+              </optgroup>
+            </select>
+          </Row>
           <Row label="Font Size">
             <div className="flex items-center gap-1.5">
               <input
