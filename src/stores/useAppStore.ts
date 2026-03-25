@@ -318,3 +318,8 @@ function detectChangedSections(oldContent: string | null, newContent: string): n
 export function useActiveTab(): Tab | null {
   return useAppStore((s) => s.tabs[s.activeTabIndex] ?? null);
 }
+
+// Expose store for E2E tests
+if (typeof window !== "undefined") {
+  (window as unknown as Record<string, unknown>).__villarStore = useAppStore;
+}
