@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
 import { remarkSection, type Section } from "../plugins/remark-section";
 import { extractTldr, type TldrData } from "../plugins/remark-tldr";
 import remarkRehype from "remark-rehype";
@@ -60,7 +61,7 @@ export function useMarkdown(content: string | null): ProcessedSection[] {
     if (!content) return [];
 
     const start = performance.now();
-    const processor = unified().use(remarkParse).use(remarkSection);
+    const processor = unified().use(remarkParse).use(remarkGfm).use(remarkSection);
 
     const tree = processor.parse(content);
     const transformed = processor.runSync(tree) as MdastRoot & {

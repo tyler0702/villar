@@ -25,3 +25,27 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* GFM table styling within prose */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.prose th,
+.prose td {
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.prose th {
+  background: var(--color-gray-50, #f9fafb);
+  font-weight: 600;
+}
+.dark .prose th,
+.dark .prose td {
+  border-color: var(--color-gray-700, #374151);
+}
+.dark .prose th {
+  background: var(--color-gray-800, #1f2937);
+}
