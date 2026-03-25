@@ -27,22 +27,22 @@ export function Header({ onSearchClick }: HeaderProps) {
   const folderName = folderPath ? folderPath.split("/").pop() : null;
 
   return (
-    <header className="flex items-center gap-3 px-5 py-2.5 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0 vs-bg vs-border">
+    <header className="vs-header flex items-center gap-3 px-5 py-2.5 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0">
       <button
         onClick={handleOpenFolder}
-        className="px-3 py-1.5 text-sm font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
+        className="vs-header-accent px-3 py-1.5 text-sm font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
       >
         Open
       </button>
 
       <div className="flex items-center gap-1.5 min-w-0">
         {folderName ? (
-          <span className="text-sm text-gray-400 dark:text-gray-500 truncate">{folderName}</span>
+          <span className="text-sm opacity-50 truncate">{folderName}</span>
         ) : null}
         {selectedFile ? (
           <>
-            {folderName ? <span className="text-gray-300 dark:text-gray-600">/</span> : null}
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
+            {folderName ? <span className="opacity-30">/</span> : null}
+            <span className="text-sm font-medium truncate">
               {selectedFile.name}
             </span>
           </>
@@ -53,7 +53,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         {folderPath ? (
           <button
             onClick={onSearchClick}
-            className="px-3 py-1.5 text-xs font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="px-3 py-1.5 text-xs font-medium rounded-lg opacity-60 hover:opacity-100 hover:bg-white/10 transition-all"
             title="Search (Cmd+K)"
           >
             Search
@@ -61,10 +61,10 @@ export function Header({ onSearchClick }: HeaderProps) {
         ) : null}
         <button
           onClick={() => useAppStore.getState().toggleFocusMode()}
-          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+          className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
             focusMode
-              ? "bg-accent-200 dark:bg-accent-800 text-accent-800 dark:text-accent-100"
-              : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+              ? "vs-header-accent bg-accent-200 dark:bg-accent-800 text-accent-800 dark:text-accent-100"
+              : "opacity-60 hover:opacity-100 hover:bg-white/10"
           }`}
           title="Toggle focus mode (F)"
         >
@@ -72,7 +72,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         </button>
         <button
           onClick={() => useAppStore.getState().setSettingsOpen(true)}
-          className="px-2 py-1.5 text-xs text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          className="px-2 py-1.5 text-xs opacity-50 hover:opacity-100 hover:bg-white/10 rounded-lg transition-all"
           title="Settings (Cmd+,)"
         >
           &#9881;

@@ -76,6 +76,22 @@ html {
 [data-vscode-theme] .vs-bg { background-color: var(--vs-bg) !important; }
 [data-vscode-theme] .vs-fg { color: var(--vs-fg) !important; }
 [data-vscode-theme] .vs-sidebar { background-color: var(--vs-sidebar-bg) !important; color: var(--vs-sidebar-fg) !important; }
+/* Header bar */
+[data-vscode-theme] .vs-header {
+  background-color: var(--vs-bg) !important;
+  border-color: var(--vs-border) !important;
+  color: var(--vs-fg) !important;
+}
+[data-vscode-theme] .vs-header button {
+  color: var(--vs-fg) !important;
+}
+[data-vscode-theme] .vs-header .vs-header-accent {
+  background-color: color-mix(in srgb, var(--vs-accent) 20%, transparent) !important;
+  color: var(--vs-accent) !important;
+}
+[data-vscode-theme] .vs-header .vs-header-accent:hover {
+  background-color: color-mix(in srgb, var(--vs-accent) 30%, transparent) !important;
+}
 /* Main content area uses sidebar bg — creates contrast against cards */
 [data-vscode-theme] .vs-canvas { background-color: var(--vs-sidebar-bg) !important; color: var(--vs-editor-fg) !important; }
 /* Cards use editor bg — visually "elevated" from canvas */
