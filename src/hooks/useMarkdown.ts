@@ -118,15 +118,15 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
       const { cleaned, mermaidCodes } = extractMermaidBlocks(section.children);
       const tldr = extractTldr(section.children);
       logTldrResult(section.title, tldr !== null);
-      const rendered = addCopyButtonsToHtml(renderChildren(cleaned));
+      const rendered = renderChildren(cleaned);
       const { html: collapsedHtml, collapsed } = collapseHtml(rendered, collapseConfig);
       return {
         title: section.title,
-        html: resolveImagePaths(collapsedHtml, filePath ?? null),
+        html: resolveImagePaths(addCopyButtonsToHtml(collapsedHtml), filePath ?? null),
         tldr,
         mermaidCodes,
         subHeadings: extractSubHeadings(section.children),
-        collapsed,
+        collapsed: collapsed.map((b) => ({ ...b, html: addCopyButtonsToHtml(b.html) })),
       };
     });
 
