@@ -60,29 +60,27 @@ html {
 
 /* Code block copy button */
 .prose pre {
-  position: relative;
+  position: relative !important;
+  overflow: visible !important;
 }
-.prose pre .code-copy-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  padding: 2px 8px;
-  font-size: 10px;
-  border-radius: 4px;
-  background: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.6);
-  border: 1px solid rgba(255,255,255,0.15);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s;
-  z-index: 1;
+.code-copy-btn {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  padding: 3px 10px !important;
+  font-size: 11px !important;
+  border-radius: 4px !important;
+  background: rgba(128,128,128,0.3) !important;
+  color: rgba(200,200,200,0.9) !important;
+  border: 1px solid rgba(128,128,128,0.3) !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+  line-height: 1.4 !important;
+  display: block !important;
 }
-.prose pre:hover .code-copy-btn {
-  opacity: 1;
-}
-.prose pre .code-copy-btn:hover {
-  background: rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.9);
+.code-copy-btn:hover {
+  background: rgba(128,128,128,0.5) !important;
+  color: #fff !important;
 }
 
 /* GFM table styling within prose */

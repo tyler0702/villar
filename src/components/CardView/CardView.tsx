@@ -58,7 +58,7 @@ const SectionCard = memo(function SectionCard({
         </h2>
       </div>
       {section.tldr ? <TldrCard tldr={section.tldr} /> : null}
-      <SectionContent html={section.html} mermaidCodes={section.mermaidCodes} />
+      <SectionContent html={section.html} mermaidCodes={section.mermaidCodes} collapsed={section.collapsed} />
     </div>
   );
 });

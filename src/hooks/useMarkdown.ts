@@ -7,7 +7,7 @@ import { extractTldr, type TldrData } from "../plugins/remark-tldr";
 import remarkRehype from "remark-rehype";
 import rehypeHighlight from "rehype-highlight";
 import rehypeStringify from "rehype-stringify";
-import { collapseHtml } from "../plugins/remark-collapse";
+import { collapseHtml, type CollapsedBlock, COLLAPSE_MARKER } from "../plugins/remark-collapse";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { logRenderTime, logTldrResult } from "./useMetrics";
 import type { Root as MdastRoot, Content, Code, Heading } from "mdast";
@@ -64,6 +64,10 @@ function renderChildren(children: Content[]): string {
   return String(result);
 }
 
+function addCopyButtonsToHtml(html: string): string {
+  return html.replace(/<pre><code/g, '<pre><button class="code-copy-btn" data-copy>Copy</button><code');
+}
+
 export interface SubHeading {
   depth: number; // 3, 4, 5, 6
   title: string;
@@ -75,6 +79,7 @@ export interface ProcessedSection {
   tldr: TldrData | null;
   mermaidCodes: string[];
   subHeadings: SubHeading[];
+  collapsed: CollapsedBlock[];
 }
 
 interface CollapseConfig {
@@ -113,12 +118,15 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
       const { cleaned, mermaidCodes } = extractMermaidBlocks(section.children);
       const tldr = extractTldr(section.children);
       logTldrResult(section.title, tldr !== null);
+      const rendered = addCopyButtonsToHtml(renderChildren(cleaned));
+      const { html: collapsedHtml, collapsed } = collapseHtml(rendered, collapseConfig);
       return {
         title: section.title,
-        html: resolveImagePaths(collapseHtml(renderChildren(cleaned), collapseConfig), filePath ?? null),
+        html: resolveImagePaths(collapsedHtml, filePath ?? null),
         tldr,
         mermaidCodes,
         subHeadings: extractSubHeadings(section.children),
+        collapsed,
       };
     });
 
@@ -129,4 +137,4 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
   }, [content, collapseConfig?.listThreshold, collapseConfig?.codeThreshold, filePath]);
 }
 
-export { MERMAID_PLACEHOLDER };
+export { MERMAID_PLACEHOLDER, COLLAPSE_MARKER };

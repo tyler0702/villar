@@ -88,9 +88,8 @@ describe("Performance Budget", () => {
     const sections = transformed.data?.sections || [];
 
     sections.forEach((section) => {
-      const html = collapseHtml(renderChildren(section.children));
+      const { html } = collapseHtml(renderChildren(section.children));
       extractTldr(section.children);
-      // Return html to prevent dead code elimination
       return html;
     });
 
