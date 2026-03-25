@@ -10,9 +10,6 @@ export default defineConfig(async () => ({
   plugins: [react(), tailwindcss()],
   test: {
     exclude: ["e2e/**", "node_modules/**"],
-  },
-
-  test: {
     setupFiles: ["src/components/__tests__/setup.ts"],
   },
 
