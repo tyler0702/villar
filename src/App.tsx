@@ -5,7 +5,7 @@ import "./App.css";
 import { Header } from "./components/Header/Header";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import { CardView } from "./components/CardView/CardView";
-import { useAppStore } from "./stores/useAppStore";
+import { useAppStore, type FsNode } from "./stores/useAppStore";
 import { useMarkdown } from "./hooks/useMarkdown";
 import { useTheme } from "./hooks/useTheme";
 import { useKeyboard } from "./hooks/useKeyboard";
@@ -30,10 +30,17 @@ function App() {
   );
 
   useEffect(() => {
-    const unlisten = listen<{ path: string }>("file-changed", (event) => {
+    const unlistenFile = listen<{ path: string }>("file-changed", (event) => {
       handleFileChanged(event.payload.path);
     });
-    return () => { unlisten.then((fn) => fn()); };
+    const unlistenTree = listen<{ path: string }>("tree-changed", async (event) => {
+      const tree = await invoke<FsNode[]>("list_md_files", { dirPath: event.payload.path });
+      useAppStore.getState().setTree(tree);
+    });
+    return () => {
+      unlistenFile.then((fn) => fn());
+      unlistenTree.then((fn) => fn());
+    };
   }, [handleFileChanged]);
 
   const hasContent = sections.length > 0;

@@ -7,10 +7,12 @@ use std::sync::Mutex;
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter, Manager};
 
-#[derive(Serialize)]
-pub struct FileEntry {
+#[derive(Serialize, Clone)]
+pub struct FsNode {
     name: String,
     path: String,
+    is_dir: bool,
+    children: Vec<FsNode>,
 }
 
 #[derive(Serialize, Clone)]
@@ -23,34 +25,58 @@ struct WatcherState {
 }
 
 #[tauri::command]
-fn list_md_files(dir_path: String) -> Result<Vec<FileEntry>, String> {
+fn list_md_files(dir_path: String) -> Result<Vec<FsNode>, String> {
     let path = Path::new(&dir_path);
     if !path.is_dir() {
         return Err("Not a directory".into());
     }
 
-    let mut entries = Vec::new();
-    collect_md_files(path, &mut entries).map_err(|e| e.to_string())?;
-    entries.sort_by(|a, b| a.name.cmp(&b.name));
-    Ok(entries)
+    let mut nodes = collect_tree(path).map_err(|e| e.to_string())?;
+    nodes.sort_by(|a, b| match (a.is_dir, b.is_dir) {
+        (true, false) => std::cmp::Ordering::Less,
+        (false, true) => std::cmp::Ordering::Greater,
+        _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
+    });
+    Ok(nodes)
 }
 
-fn collect_md_files(dir: &Path, entries: &mut Vec<FileEntry>) -> std::io::Result<()> {
+fn collect_tree(dir: &Path) -> std::io::Result<Vec<FsNode>> {
+    let mut nodes = Vec::new();
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let path = entry.path();
+        let name = path.file_name().unwrap_or_default().to_string_lossy().into_owned();
+
+        if name.starts_with('.') {
+            continue;
+        }
+
         if path.is_dir() {
-            collect_md_files(&path, entries)?;
-        } else if path.extension().is_some_and(|ext| ext == "md") {
-            if let Some(name) = path.file_name() {
-                entries.push(FileEntry {
-                    name: name.to_string_lossy().into_owned(),
+            let mut children = collect_tree(&path)?;
+            // Only include folders that contain at least one .md (recursively)
+            if !children.is_empty() {
+                children.sort_by(|a, b| match (a.is_dir, b.is_dir) {
+                    (true, false) => std::cmp::Ordering::Less,
+                    (false, true) => std::cmp::Ordering::Greater,
+                    _ => a.name.to_lowercase().cmp(&b.name.to_lowercase()),
+                });
+                nodes.push(FsNode {
+                    name,
                     path: path.to_string_lossy().into_owned(),
+                    is_dir: true,
+                    children,
                 });
             }
+        } else if path.extension().is_some_and(|ext| ext == "md") {
+            nodes.push(FsNode {
+                name,
+                path: path.to_string_lossy().into_owned(),
+                is_dir: false,
+                children: vec![],
+            });
         }
     }
-    Ok(())
+    Ok(nodes)
 }
 
 #[tauri::command]
@@ -62,29 +88,51 @@ fn read_file(file_path: String) -> Result<String, String> {
 fn watch_folder(app_handle: AppHandle, dir_path: String) -> Result<(), String> {
     let state = app_handle.state::<Mutex<WatcherState>>();
     let handle = app_handle.clone();
+    let watched_dir = dir_path.clone();
 
     let debounce = Duration::from_millis(300);
-    let last_emit = std::sync::Arc::new(Mutex::new(Instant::now() - debounce));
+    let last_file_emit = std::sync::Arc::new(Mutex::new(Instant::now() - debounce));
+    let last_tree_emit = std::sync::Arc::new(Mutex::new(Instant::now() - debounce));
 
     let mut watcher = RecommendedWatcher::new(
         move |res: Result<Event, notify::Error>| {
             if let Ok(event) = res {
-                // Only care about modify/create events
-                if !event.kind.is_modify() && !event.kind.is_create() {
+                let is_modify = event.kind.is_modify();
+                let is_create = event.kind.is_create();
+                let is_remove = event.kind.is_remove();
+
+                if !is_modify && !is_create && !is_remove {
                     return;
                 }
 
-                for path in &event.paths {
-                    if path.extension().is_some_and(|ext| ext == "md") {
-                        let mut last = last_emit.lock().unwrap();
-                        if last.elapsed() >= debounce {
-                            *last = Instant::now();
-                            let _ = handle.emit(
-                                "file-changed",
-                                FileChangedPayload {
-                                    path: path.to_string_lossy().into_owned(),
-                                },
-                            );
+                // Tree structure changed (file added/removed) — refresh sidebar
+                if is_create || is_remove {
+                    let mut last = last_tree_emit.lock().unwrap();
+                    if last.elapsed() >= debounce {
+                        *last = Instant::now();
+                        let _ = handle.emit(
+                            "tree-changed",
+                            FileChangedPayload {
+                                path: watched_dir.clone(),
+                            },
+                        );
+                    }
+                }
+
+                // File content changed — refresh current document
+                if is_modify || is_create {
+                    for path in &event.paths {
+                        if path.extension().is_some_and(|ext| ext == "md") {
+                            let mut last = last_file_emit.lock().unwrap();
+                            if last.elapsed() >= debounce {
+                                *last = Instant::now();
+                                let _ = handle.emit(
+                                    "file-changed",
+                                    FileChangedPayload {
+                                        path: path.to_string_lossy().into_owned(),
+                                    },
+                                );
+                            }
                         }
                     }
                 }

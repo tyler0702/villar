@@ -1,6 +1,6 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
-import { useAppStore, type FileEntry } from "../../stores/useAppStore";
+import { useAppStore, type FsNode } from "../../stores/useAppStore";
 
 export function Header() {
   // Individual selectors — avoids re-render when unrelated state changes
@@ -14,13 +14,13 @@ export function Header() {
     if (!selected) return;
 
     const path = selected as string;
-    const { setFolderPath, setSelectedFile, setFileContent, setFiles } = useAppStore.getState();
+    const { setFolderPath, setSelectedFile, setFileContent, setTree } = useAppStore.getState();
     setFolderPath(path);
     setSelectedFile(null);
     setFileContent(null);
 
-    const files = await invoke<FileEntry[]>("list_md_files", { dirPath: path });
-    setFiles(files);
+    const tree = await invoke<FsNode[]>("list_md_files", { dirPath: path });
+    setTree(tree);
     await invoke("watch_folder", { dirPath: path });
   }
 

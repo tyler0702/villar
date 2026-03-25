@@ -1,5 +1,12 @@
 import { create } from "zustand";
 
+export interface FsNode {
+  name: string;
+  path: string;
+  is_dir: boolean;
+  children: FsNode[];
+}
+
 export interface FileEntry {
   name: string;
   path: string;
@@ -9,7 +16,7 @@ type Theme = "light" | "dark" | "system";
 
 interface AppState {
   folderPath: string | null;
-  files: FileEntry[];
+  tree: FsNode[];
   selectedFile: FileEntry | null;
   fileContent: string | null;
   activeCardIndex: number;
@@ -17,7 +24,7 @@ interface AppState {
   theme: Theme;
 
   setFolderPath: (path: string | null) => void;
-  setFiles: (files: FileEntry[]) => void;
+  setTree: (tree: FsNode[]) => void;
   setSelectedFile: (file: FileEntry | null) => void;
   setFileContent: (content: string | null) => void;
   setActiveCardIndex: (index: number) => void;
@@ -27,7 +34,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set) => ({
   folderPath: null,
-  files: [],
+  tree: [],
   selectedFile: null,
   fileContent: null,
   activeCardIndex: 0,
@@ -35,7 +42,7 @@ export const useAppStore = create<AppState>((set) => ({
   theme: "system",
 
   setFolderPath: (path) => set({ folderPath: path }),
-  setFiles: (files) => set({ files }),
+  setTree: (tree) => set({ tree }),
   setSelectedFile: (file) => set({ selectedFile: file, activeCardIndex: 0 }),
   setFileContent: (content) => set({ fileContent: content }),
   setActiveCardIndex: (index) => set({ activeCardIndex: index }),
