@@ -61,25 +61,29 @@ html {
 /* Code block copy button */
 .prose pre {
   position: relative !important;
-  overflow: visible !important;
+  overflow: hidden !important;
 }
 .code-copy-btn {
+  all: unset !important;
   position: absolute !important;
   top: 8px !important;
   right: 8px !important;
   padding: 3px 10px !important;
   font-size: 11px !important;
+  font-family: inherit !important;
   border-radius: 4px !important;
-  background: rgba(128,128,128,0.3) !important;
-  color: rgba(200,200,200,0.9) !important;
-  border: 1px solid rgba(128,128,128,0.3) !important;
+  background: rgba(128,128,128,0.4) !important;
+  color: #e0e0e0 !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
   cursor: pointer !important;
   z-index: 10 !important;
   line-height: 1.4 !important;
   display: block !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
 }
 .code-copy-btn:hover {
-  background: rgba(128,128,128,0.5) !important;
+  background: rgba(128,128,128,0.6) !important;
   color: #fff !important;
 }
 
