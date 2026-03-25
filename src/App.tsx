@@ -6,6 +6,7 @@ import { Header } from "./components/Header/Header";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import { CardView } from "./components/CardView/CardView";
 import { SearchPanel } from "./components/Search/SearchPanel";
+import { SettingsPanel } from "./components/Settings/SettingsPanel";
 import { useAppStore, type FsNode } from "./stores/useAppStore";
 import { useMarkdown } from "./hooks/useMarkdown";
 import { useTheme } from "./hooks/useTheme";
@@ -19,6 +20,7 @@ function App() {
   useDragDrop();
   const fileContent = useAppStore((s) => s.fileContent);
   const setFileContent = useAppStore((s) => s.setFileContent);
+  const settingsOpen = useAppStore((s) => s.settingsOpen);
   const sections = useMarkdown(fileContent);
   const [searchOpen, setSearchOpen] = useState(false);
   useKeyboard(sections.length, () => setSearchOpen(true));
@@ -78,6 +80,7 @@ function App() {
         </main>
       </div>
       {searchOpen ? <SearchPanel onClose={() => setSearchOpen(false)} /> : null}
+      {settingsOpen ? <SettingsPanel /> : null}
     </div>
   );
 }

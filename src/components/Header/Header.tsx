@@ -7,11 +7,10 @@ interface HeaderProps {
 }
 
 export function Header({ onSearchClick }: HeaderProps) {
-  // Individual selectors — avoids re-render when unrelated state changes
   const folderPath = useAppStore((s) => s.folderPath);
   const selectedFile = useAppStore((s) => s.selectedFile);
   const focusMode = useAppStore((s) => s.focusMode);
-  const theme = useAppStore((s) => s.theme);
+  const theme = useAppStore((s) => s.settings.theme);
 
   async function handleOpenFolder() {
     const selected = await open({ directory: true, multiple: false });
@@ -29,13 +28,17 @@ export function Header({ onSearchClick }: HeaderProps) {
   }
 
   function cycleTheme() {
-    const { theme: current, setTheme } = useAppStore.getState();
+    const current = useAppStore.getState().settings.theme;
     const next = current === "system" ? "light" : current === "light" ? "dark" : "system";
-    setTheme(next);
+    useAppStore.getState().updateSettings({ theme: next });
   }
 
   function handleToggleFocus() {
     useAppStore.getState().toggleFocusMode();
+  }
+
+  function handleOpenSettings() {
+    useAppStore.getState().setSettingsOpen(true);
   }
 
   const themeIcon = theme === "system" ? "Auto" : theme === "light" ? "Light" : "Dark";
@@ -91,6 +94,13 @@ export function Header({ onSearchClick }: HeaderProps) {
           title="Cycle theme (T)"
         >
           {themeIcon}
+        </button>
+        <button
+          onClick={handleOpenSettings}
+          className="px-2 py-1.5 text-xs text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          title="Settings (Cmd+,)"
+        >
+          &#9881;
         </button>
       </div>
     </header>

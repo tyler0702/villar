@@ -7,16 +7,24 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      // Cmd+K / Ctrl+K — open search (works even in inputs)
+      // Cmd+K — search
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         onSearchRef.current?.();
         return;
       }
 
+      // Cmd+, — settings
+      if ((e.metaKey || e.ctrlKey) && e.key === ",") {
+        e.preventDefault();
+        const { settingsOpen, setSettingsOpen } = useAppStore.getState();
+        setSettingsOpen(!settingsOpen);
+        return;
+      }
+
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-      const { activeCardIndex, setActiveCardIndex, toggleFocusMode, theme, setTheme } =
+      const { activeCardIndex, setActiveCardIndex, toggleFocusMode, settings, updateSettings } =
         useAppStore.getState();
 
       switch (e.key) {
@@ -34,8 +42,8 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
           toggleFocusMode();
           break;
         case "t": {
-          const next = theme === "system" ? "light" : theme === "light" ? "dark" : "system";
-          setTheme(next);
+          const next = settings.theme === "system" ? "light" : settings.theme === "light" ? "dark" : "system";
+          updateSettings({ theme: next });
           break;
         }
         case "Home":

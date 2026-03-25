@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { parseFlowchart, checkLinear, type LinearSteps } from "../../plugins/mermaid-linear";
+import { useAppStore } from "../../stores/useAppStore";
 
 // Dynamic import — mermaid.js is ~1MB, only load when needed (bundle-dynamic-imports)
 const mermaidPromise = import("mermaid").then((m) => {
@@ -35,7 +36,8 @@ interface MermaidBlockProps {
 type ViewMode = "step" | "diagram" | "raw";
 
 export function MermaidBlock({ code }: MermaidBlockProps) {
-  const [mode, setMode] = useState<ViewMode>("step");
+  const mermaidDefault = useAppStore((s) => s.settings.mermaidDefault);
+  const [mode, setMode] = useState<ViewMode>(mermaidDefault);
   const [linear, setLinear] = useState<LinearSteps | null>(null);
   const [svg, setSvg] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -46,7 +48,8 @@ export function MermaidBlock({ code }: MermaidBlockProps) {
     if (cached) {
       setLinear(cached.linear);
       setSvg(cached.svg);
-      setMode(cached.linear ? "step" : "diagram");
+      const defaultMode = cached.linear ? mermaidDefault : "diagram";
+      setMode(cached.svg ? defaultMode : "raw");
       return;
     }
 
@@ -64,7 +67,7 @@ export function MermaidBlock({ code }: MermaidBlockProps) {
         clearTimeout(timeout);
         setSvg(renderedSvg);
         cacheSet(code, { linear: linearResult, svg: renderedSvg });
-        setMode(linearResult ? "step" : "diagram");
+        setMode(linearResult ? mermaidDefault : "diagram");
       } catch {
         clearTimeout(timeout);
         setSvg(null);

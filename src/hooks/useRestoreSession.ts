@@ -9,8 +9,8 @@ export function useRestoreSession() {
     if (didRestore.current) return;
     didRestore.current = true;
 
-    const { folderPath, selectedFile } = useAppStore.getState();
-    if (!folderPath) return;
+    const { folderPath, selectedFile, settings } = useAppStore.getState();
+    if (!folderPath || !settings.restoreSession) return;
 
     (async () => {
       try {

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import type { TldrData } from "../../plugins/remark-tldr";
+import { useAppStore } from "../../stores/useAppStore";
 
 interface TldrCardProps {
   tldr: TldrData;
 }
 
 export function TldrCard({ tldr }: TldrCardProps) {
-  // functional setState — avoids stale closure
-  const [expanded, setExpanded] = useState(true);
+  const defaultExpanded = useAppStore((s) => s.settings.tldrExpanded);
+  const [expanded, setExpanded] = useState(defaultExpanded);
 
   return (
     <div className="mb-5 rounded-xl border border-accent-200/60 dark:border-accent-800/40 bg-accent-50 dark:bg-accent-950 p-4">

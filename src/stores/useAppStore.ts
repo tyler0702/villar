@@ -12,33 +12,68 @@ export interface FileEntry {
   path: string;
 }
 
-type Theme = "light" | "dark" | "system";
+export type Theme = "light" | "dark" | "system";
+export type FontSize = "sm" | "base" | "lg";
+export type LineHeight = "tight" | "normal" | "relaxed";
+export type ContentWidth = "narrow" | "medium" | "wide";
+export type MermaidDefault = "step" | "diagram";
+
+export interface Settings {
+  theme: Theme;
+  fontSize: FontSize;
+  lineHeight: LineHeight;
+  contentWidth: ContentWidth;
+  focusOpacity: number; // 10-50
+  tldrExpanded: boolean;
+  mermaidDefault: MermaidDefault;
+  collapseListThreshold: number;
+  collapseCodeThreshold: number;
+  restoreSession: boolean;
+}
+
+const DEFAULT_SETTINGS: Settings = {
+  theme: "system",
+  fontSize: "base",
+  lineHeight: "normal",
+  contentWidth: "medium",
+  focusOpacity: 30,
+  tldrExpanded: true,
+  mermaidDefault: "step",
+  collapseListThreshold: 5,
+  collapseCodeThreshold: 20,
+  restoreSession: true,
+};
+
+// --- Persistence ---
 
 const STORAGE_KEY = "villar-session";
+const SETTINGS_KEY = "villar-settings";
 
 interface PersistedSession {
   folderPath: string | null;
   selectedFilePath: string | null;
   selectedFileName: string | null;
-  theme: Theme;
 }
 
-function loadSession(): Partial<PersistedSession> {
+function loadJson<T>(key: string): Partial<T> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
   }
 }
 
-function saveSession(s: PersistedSession) {
+function saveJson(key: string, value: unknown) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    localStorage.setItem(key, JSON.stringify(value));
   } catch { /* ignore */ }
 }
 
-const session = loadSession();
+const session = loadJson<PersistedSession>(STORAGE_KEY);
+const savedSettings = loadJson<Settings>(SETTINGS_KEY);
+
+// --- Store ---
 
 interface AppState {
   folderPath: string | null;
@@ -47,7 +82,9 @@ interface AppState {
   fileContent: string | null;
   activeCardIndex: number;
   focusMode: boolean;
-  theme: Theme;
+  settings: Settings;
+  settingsOpen: boolean;
+  readSections: Set<string>; // "filePath:sectionIndex"
 
   setFolderPath: (path: string | null) => void;
   setTree: (tree: FsNode[]) => void;
@@ -55,10 +92,14 @@ interface AppState {
   setFileContent: (content: string | null) => void;
   setActiveCardIndex: (index: number) => void;
   toggleFocusMode: () => void;
-  setTheme: (theme: Theme) => void;
+  updateSettings: (patch: Partial<Settings>) => void;
+  setSettingsOpen: (open: boolean) => void;
+  markSectionRead: (filePath: string, sectionIndex: number) => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+const initialSettings: Settings = { ...DEFAULT_SETTINGS, ...savedSettings };
+
+export const useAppStore = create<AppState>((set, get) => ({
   folderPath: session.folderPath ?? null,
   tree: [],
   selectedFile:
@@ -68,29 +109,38 @@ export const useAppStore = create<AppState>((set) => ({
   fileContent: null,
   activeCardIndex: 0,
   focusMode: false,
-  theme: session.theme ?? "system",
+  settings: initialSettings,
+  settingsOpen: false,
+  readSections: new Set(),
 
   setFolderPath: (path) => {
     set({ folderPath: path });
-    const s = loadSession();
-    saveSession({ ...s, folderPath: path } as PersistedSession);
+    saveJson(STORAGE_KEY, { ...loadJson<PersistedSession>(STORAGE_KEY), folderPath: path });
   },
   setTree: (tree) => set({ tree }),
   setSelectedFile: (file) => {
     set({ selectedFile: file, activeCardIndex: 0 });
-    const s = loadSession();
-    saveSession({
-      ...s,
+    saveJson(STORAGE_KEY, {
+      ...loadJson<PersistedSession>(STORAGE_KEY),
       selectedFilePath: file?.path ?? null,
       selectedFileName: file?.name ?? null,
-    } as PersistedSession);
+    });
   },
   setFileContent: (content) => set({ fileContent: content }),
   setActiveCardIndex: (index) => set({ activeCardIndex: index }),
   toggleFocusMode: () => set((s) => ({ focusMode: !s.focusMode })),
-  setTheme: (theme) => {
-    set({ theme });
-    const s = loadSession();
-    saveSession({ ...s, theme } as PersistedSession);
+  updateSettings: (patch) => {
+    const next = { ...get().settings, ...patch };
+    set({ settings: next });
+    saveJson(SETTINGS_KEY, next);
+  },
+  setSettingsOpen: (open) => set({ settingsOpen: open }),
+  markSectionRead: (filePath, sectionIndex) => {
+    const key = `${filePath}:${sectionIndex}`;
+    set((s) => {
+      const next = new Set(s.readSections);
+      next.add(key);
+      return { readSections: next };
+    });
   },
 }));
