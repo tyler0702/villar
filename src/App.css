@@ -69,3 +69,24 @@ html {
 .dark .prose th {
   background: var(--color-gray-800, #1f2937);
 }
+
+/* VSCode theme override — when data-vscode-theme is set */
+[data-vscode-theme] .vs-bg { background-color: var(--vs-bg) !important; }
+[data-vscode-theme] .vs-fg { color: var(--vs-fg) !important; }
+[data-vscode-theme] .vs-sidebar { background-color: var(--vs-sidebar-bg) !important; color: var(--vs-sidebar-fg) !important; }
+[data-vscode-theme] .vs-editor { background-color: var(--vs-editor-bg) !important; color: var(--vs-editor-fg) !important; }
+[data-vscode-theme] .vs-border { border-color: var(--vs-border) !important; }
+[data-vscode-theme] .vs-accent { color: var(--vs-accent) !important; }
+
+/* Resize handle */
+.resize-handle {
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background-color 0.15s;
+  flex-shrink: 0;
+}
+.resize-handle:hover,
+.resize-handle:active {
+  background-color: var(--vs-accent, oklch(0.72 0.12 80));
+}

@@ -58,13 +58,14 @@ const SectionCard = memo(function SectionCard({
 });
 
 export function CardView({ sections }: CardViewProps) {
-  const activeIndex = useAppStore((s) => s.activeCardIndex);
+  const activeTab = useAppStore((s) => s.tabs[s.activeTabIndex] ?? null);
+  const activeIndex = activeTab?.activeCardIndex ?? 0;
   const setActiveIndex = useAppStore((s) => s.setActiveCardIndex);
   const focusMode = useAppStore((s) => s.focusMode);
   const lineHeight = useAppStore((s) => s.settings.lineHeight);
   const contentWidth = useAppStore((s) => s.settings.contentWidth);
   const focusOpacity = useAppStore((s) => s.settings.focusOpacity);
-  const selectedFilePath = useAppStore((s) => s.selectedFile?.path ?? "");
+  const selectedFilePath = activeTab?.file.path ?? "";
   const readSections = useAppStore((s) => s.readSections);
   const markSectionRead = useAppStore((s) => s.markSectionRead);
   const activeCardRef = useRef<HTMLDivElement>(null);

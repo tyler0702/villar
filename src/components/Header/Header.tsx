@@ -8,7 +8,8 @@ interface HeaderProps {
 
 export function Header({ onSearchClick }: HeaderProps) {
   const folderPath = useAppStore((s) => s.folderPath);
-  const selectedFile = useAppStore((s) => s.selectedFile);
+  const activeTab = useAppStore((s) => s.tabs[s.activeTabIndex] ?? null);
+  const selectedFile = activeTab?.file ?? null;
   const focusMode = useAppStore((s) => s.focusMode);
   const theme = useAppStore((s) => s.settings.theme);
 

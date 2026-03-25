@@ -14,6 +14,22 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
         return;
       }
 
+      // Cmd+F — find in document
+      if ((e.metaKey || e.ctrlKey) && e.key === "f") {
+        e.preventDefault();
+        const { findOpen, setFindOpen } = useAppStore.getState();
+        setFindOpen(!findOpen);
+        return;
+      }
+
+      // Cmd+W — close tab
+      if ((e.metaKey || e.ctrlKey) && e.key === "w") {
+        e.preventDefault();
+        const { tabs, activeTabIndex, closeTab } = useAppStore.getState();
+        if (tabs.length > 0) closeTab(activeTabIndex);
+        return;
+      }
+
       // Cmd+, — settings
       if ((e.metaKey || e.ctrlKey) && e.key === ",") {
         e.preventDefault();

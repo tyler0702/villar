@@ -49,9 +49,8 @@ export function SearchPanel({ onClose }: SearchPanelProps) {
 
   async function handleSelect(hit: SearchHit) {
     const file = { name: hit.file_name, path: hit.file_path };
-    useAppStore.getState().setSelectedFile(file);
     const content = await invoke<string>("read_file", { filePath: hit.file_path });
-    useAppStore.getState().setFileContent(content);
+    useAppStore.getState().openTab(file, content);
     onClose();
   }
 

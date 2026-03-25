@@ -9,7 +9,7 @@ export function useRestoreSession() {
     if (didRestore.current) return;
     didRestore.current = true;
 
-    const { folderPath, selectedFile, settings } = useAppStore.getState();
+    const { folderPath, tabs, settings } = useAppStore.getState();
     if (!folderPath || !settings.restoreSession) return;
 
     (async () => {
@@ -18,14 +18,17 @@ export function useRestoreSession() {
         useAppStore.getState().setTree(tree);
         await invoke("watch_folder", { dirPath: folderPath });
 
-        if (selectedFile) {
-          const content = await invoke<string>("read_file", { filePath: selectedFile.path });
-          useAppStore.getState().setFileContent(content);
+        // Restore content for all open tabs
+        for (const tab of tabs) {
+          try {
+            const content = await invoke<string>("read_file", { filePath: tab.file.path });
+            useAppStore.getState().setTabContent(tab.file.path, content);
+          } catch {
+            // File may have been deleted
+          }
         }
       } catch {
-        // Folder may no longer exist — clear it
         useAppStore.getState().setFolderPath(null);
-        useAppStore.getState().setSelectedFile(null);
       }
     })();
   }, []);

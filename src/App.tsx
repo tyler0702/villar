@@ -5,24 +5,35 @@ import "./App.css";
 import { Header } from "./components/Header/Header";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import { CardView } from "./components/CardView/CardView";
+import { TabBar } from "./components/TabBar/TabBar";
+import { FindBar } from "./components/FindBar/FindBar";
 import { SearchPanel } from "./components/Search/SearchPanel";
 import { SettingsPanel } from "./components/Settings/SettingsPanel";
-import { useAppStore, type FsNode } from "./stores/useAppStore";
+import { useAppStore, useActiveTab, type FsNode } from "./stores/useAppStore";
 import { useMarkdown } from "./hooks/useMarkdown";
 import { useTheme } from "./hooks/useTheme";
 import { useKeyboard } from "./hooks/useKeyboard";
 import { useRestoreSession } from "./hooks/useRestoreSession";
 import { useDragDrop } from "./hooks/useDragDrop";
+import { useVscodeTheme } from "./hooks/useVscodeTheme";
+import { useResizable } from "./hooks/useResizable";
 
 function App() {
   useTheme();
   useRestoreSession();
   useDragDrop();
-  const fileContent = useAppStore((s) => s.fileContent);
-  const setFileContent = useAppStore((s) => s.setFileContent);
+  useVscodeTheme();
+
+  const activeTab = useActiveTab();
+  const fileContent = activeTab?.content ?? null;
   const settingsOpen = useAppStore((s) => s.settingsOpen);
+  const findOpen = useAppStore((s) => s.findOpen);
   const collapseListThreshold = useAppStore((s) => s.settings.collapseListThreshold);
   const collapseCodeThreshold = useAppStore((s) => s.settings.collapseCodeThreshold);
+  const fontScale = useAppStore((s) => s.settings.fontScale);
+  const sidebarWidth = useAppStore((s) => s.settings.sidebarWidth);
+  const settingsWidth = useAppStore((s) => s.settings.settingsWidth);
+
   const sections = useMarkdown(fileContent, {
     listThreshold: collapseListThreshold,
     codeThreshold: collapseCodeThreshold,
@@ -30,16 +41,15 @@ function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   useKeyboard(sections.length, () => setSearchOpen(true));
 
-  const handleFileChanged = useCallback(
-    async (path: string) => {
-      const current = useAppStore.getState().selectedFile;
-      if (current && path === current.path) {
-        const content = await invoke<string>("read_file", { filePath: current.path });
-        setFileContent(content);
-      }
-    },
-    [setFileContent]
-  );
+  // File watcher
+  const handleFileChanged = useCallback(async (path: string) => {
+    const { tabs } = useAppStore.getState();
+    const tab = tabs.find((t) => t.file.path === path);
+    if (tab) {
+      const content = await invoke<string>("read_file", { filePath: path });
+      useAppStore.getState().setTabContent(path, content);
+    }
+  }, []);
 
   useEffect(() => {
     const unlistenFile = listen<{ path: string }>("file-changed", (event) => {
@@ -56,36 +66,61 @@ function App() {
   }, [handleFileChanged]);
 
   const hasContent = sections.length > 0;
-  const fontScale = useAppStore((s) => s.settings.fontScale);
   const zoomStyle = { zoom: fontScale / 100 };
 
+  const sidebarResize = useResizable(
+    sidebarWidth,
+    (w) => useAppStore.getState().updateSettings({ sidebarWidth: w }),
+    120, 400, "left"
+  );
+  const settingsResize = useResizable(
+    settingsWidth,
+    (w) => useAppStore.getState().updateSettings({ settingsWidth: w }),
+    200, 400, "right"
+  );
+
   return (
-    <div className="h-screen flex flex-col bg-surface-50 dark:bg-surface-900 text-gray-800 dark:text-gray-100">
+    <div className="h-screen flex flex-col bg-surface-50 dark:bg-surface-900 text-gray-800 dark:text-gray-100 vs-bg vs-fg">
       <Header onSearchClick={() => setSearchOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar sections={sections} style={zoomStyle} />
-        <main className="flex-1 overflow-hidden" style={zoomStyle}>
-          {hasContent ? (
-            <CardView sections={sections} />
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-4">
-              <p className="text-lg font-light tracking-wide">Open a folder, pick a file</p>
-              <div className="text-xs space-y-1.5 text-center opacity-60">
-                <p>
-                  <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&larr;</kbd>{" "}
-                  <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&rarr;</kbd>{" "}
-                  Navigate
-                </p>
-                <p>
-                  <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+K</kbd> Search{" "}
-                  <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">F</kbd> Focus{" "}
-                  <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">T</kbd> Theme
-                </p>
+        {/* Left sidebar */}
+        <Sidebar sections={sections} style={{ ...zoomStyle, width: sidebarWidth }} />
+        <div className="resize-handle" onMouseDown={sidebarResize} />
+
+        {/* Main area */}
+        <div className="flex-1 flex flex-col overflow-hidden" style={zoomStyle}>
+          <TabBar />
+          {findOpen ? <FindBar /> : null}
+          <main className="flex-1 overflow-hidden">
+            {hasContent ? (
+              <CardView sections={sections} />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-4">
+                <p className="text-lg font-light tracking-wide">Open a folder, pick a file</p>
+                <div className="text-xs space-y-1.5 text-center opacity-60">
+                  <p>
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&larr;</kbd>{" "}
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&rarr;</kbd>{" "}
+                    Navigate
+                  </p>
+                  <p>
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+K</kbd> Search{" "}
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+F</kbd> Find{" "}
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">F</kbd> Focus
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </main>
-        {settingsOpen ? <SettingsPanel /> : null}
+            )}
+          </main>
+        </div>
+
+        {/* Right settings sidebar */}
+        {settingsOpen ? (
+          <>
+            <div className="resize-handle" onMouseDown={settingsResize} />
+            <SettingsPanel width={settingsWidth} />
+          </>
+        ) : null}
       </div>
       {searchOpen ? <SearchPanel onClose={() => setSearchOpen(false)} /> : null}
     </div>

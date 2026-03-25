@@ -50,10 +50,9 @@ const FileNode = memo(function FileNode({
 }) {
   async function handleClick() {
     const file = { name: node.name, path: node.path };
-    useAppStore.getState().setSelectedFile(file);
     logFileOpened(file.path);
     const content = await invoke<string>("read_file", { filePath: file.path });
-    useAppStore.getState().setFileContent(content);
+    useAppStore.getState().openTab(file, content);
   }
 
   return (

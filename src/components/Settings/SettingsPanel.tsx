@@ -1,5 +1,6 @@
 import { useAppStore } from "../../stores/useAppStore";
 import type { ContentWidth, MermaidDefault } from "../../stores/useAppStore";
+import { parseVscodeTheme } from "../../hooks/useVscodeTheme";
 
 const SHORTCUTS = [
   { key: "\u2190 \u2192", action: "Navigate cards" },
@@ -73,13 +74,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export function SettingsPanel() {
+export function SettingsPanel({ width }: { width?: number }) {
   const settings = useAppStore((s) => s.settings);
   const update = useAppStore((s) => s.updateSettings);
   const close = () => useAppStore.getState().setSettingsOpen(false);
 
   return (
-    <aside style={{ fontSize: "16px" }} className="w-64 shrink-0 border-l border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm overflow-y-auto flex flex-col">
+    <aside style={{ fontSize: "16px", width: width ?? 256 }} className="shrink-0 border-l border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm overflow-y-auto flex flex-col">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <span className="text-xs font-semibold text-gray-800 dark:text-gray-100">Settings</span>
         <button
@@ -207,6 +208,52 @@ export function SettingsPanel() {
               <span className="text-[10px] text-gray-400 w-5 text-right tabular-nums">{settings.collapseCodeThreshold}</span>
             </div>
           </Row>
+        </Section>
+
+        <Section title="Theme File">
+          <div className="space-y-2">
+            {settings.vscodeTheme ? (
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-gray-500 truncate">{settings.vscodeTheme.name}</span>
+                <button
+                  onClick={() => update({ vscodeTheme: null })}
+                  className="text-[10px] text-red-500 hover:text-red-400"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : null}
+            <label className="block">
+              <span className="text-[10px] text-gray-400">Import VSCode .json theme</span>
+              <input
+                type="file"
+                accept=".json"
+                className="block w-full text-[10px] text-gray-500 mt-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-600 dark:file:text-gray-300 cursor-pointer"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const text = await file.text();
+                    const json = JSON.parse(text);
+                    const theme = parseVscodeTheme(json);
+                    if (theme) update({ vscodeTheme: theme });
+                  } catch { /* ignore invalid files */ }
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            {settings.vscodeTheme ? (
+              <div className="flex gap-1 flex-wrap">
+                {Object.entries(settings.vscodeTheme)
+                  .filter(([k, v]) => k !== "name" && typeof v === "string" && v.startsWith("#"))
+                  .map(([k, v]) => (
+                    <div key={k} className="flex items-center gap-1" title={k}>
+                      <div className="w-3 h-3 rounded-sm border border-gray-300 dark:border-gray-600" style={{ backgroundColor: v as string }} />
+                    </div>
+                  ))}
+              </div>
+            ) : null}
+          </div>
         </Section>
 
         <Section title="General">
