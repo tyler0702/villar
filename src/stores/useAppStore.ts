@@ -15,6 +15,8 @@ export interface FileEntry {
 export interface Tab {
   file: FileEntry;
   content: string | null;
+  previousContent: string | null;
+  changedSections: number[]; // indices of sections that changed
   activeCardIndex: number;
   scrollTop: number;
 }
@@ -130,6 +132,7 @@ interface AppState {
   markSectionRead: (filePath: string, sectionIndex: number) => void;
   setFindOpen: (open: boolean) => void;
   setFindQuery: (query: string) => void;
+  clearChangedSections: (path: string) => void;
 }
 
 const initialSettings: Settings = { ...DEFAULT_SETTINGS, ...savedSettings };
@@ -138,6 +141,8 @@ const initialSettings: Settings = { ...DEFAULT_SETTINGS, ...savedSettings };
 const restoredTabs: Tab[] = (session.openTabs ?? []).map((t) => ({
   file: { name: t.name, path: t.path },
   content: null,
+  previousContent: null,
+  changedSections: [],
   activeCardIndex: 0,
   scrollTop: 0,
 }));
@@ -167,13 +172,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { tabs } = get();
     const existing = tabs.findIndex((t) => t.file.path === file.path);
     if (existing >= 0) {
-      // Already open — switch to it and update content
       const updated = [...tabs];
       if (content !== null) updated[existing] = { ...updated[existing], content };
       set({ tabs: updated, activeTabIndex: existing });
     } else {
-      // New tab
-      const newTab: Tab = { file, content, activeCardIndex: 0, scrollTop: 0 };
+      const newTab: Tab = { file, content, previousContent: null, changedSections: [], activeCardIndex: 0, scrollTop: 0 };
       set({ tabs: [...tabs, newTab], activeTabIndex: tabs.length });
     }
     persistSession(get());
@@ -197,9 +200,17 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setTabContent: (path, content) => {
     const { tabs } = get();
-    const updated = tabs.map((t) =>
-      t.file.path === path ? { ...t, content } : t
-    );
+    const updated = tabs.map((t) => {
+      if (t.file.path !== path) return t;
+      // Detect which H2 sections changed
+      const changed = detectChangedSections(t.content, content);
+      return {
+        ...t,
+        previousContent: t.content,
+        content,
+        changedSections: changed,
+      };
+    });
     set({ tabs: updated });
   },
 
@@ -238,7 +249,50 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   setFindOpen: (open) => set({ findOpen: open }),
   setFindQuery: (query) => set({ findQuery: query }),
+  clearChangedSections: (path) => {
+    const { tabs } = get();
+    const updated = tabs.map((t) =>
+      t.file.path === path ? { ...t, changedSections: [] } : t
+    );
+    set({ tabs: updated });
+  },
 }));
+
+// --- Diff detection ---
+
+function splitByH2(text: string): string[] {
+  // Split markdown by H2 headings, return content per section
+  const lines = text.split("\n");
+  const sections: string[] = [];
+  let current: string[] = [];
+
+  for (const line of lines) {
+    if (/^## /.test(line) && current.length > 0) {
+      sections.push(current.join("\n"));
+      current = [];
+    }
+    current.push(line);
+  }
+  if (current.length > 0) sections.push(current.join("\n"));
+  return sections;
+}
+
+function detectChangedSections(oldContent: string | null, newContent: string): number[] {
+  if (!oldContent) return [];
+  if (oldContent === newContent) return [];
+
+  const oldSections = splitByH2(oldContent);
+  const newSections = splitByH2(newContent);
+  const changed: number[] = [];
+
+  const maxLen = Math.max(oldSections.length, newSections.length);
+  for (let i = 0; i < maxLen; i++) {
+    if ((oldSections[i] ?? "") !== (newSections[i] ?? "")) {
+      changed.push(i);
+    }
+  }
+  return changed;
+}
 
 // --- Derived helpers ---
 

@@ -16,6 +16,7 @@ const SectionCard = memo(function SectionCard({
   isFaded,
   fadeOpacity,
   isRead,
+  isChanged,
   readingStyle,
   onClick,
   cardRef,
@@ -25,6 +26,7 @@ const SectionCard = memo(function SectionCard({
   isFaded: boolean;
   fadeOpacity: number;
   isRead: boolean;
+  isChanged: boolean;
   readingStyle: React.CSSProperties;
   onClick: () => void;
   cardRef?: React.Ref<HTMLDivElement>;
@@ -37,14 +39,18 @@ const SectionCard = memo(function SectionCard({
         ...readingStyle,
         ...(isFaded ? { opacity: fadeOpacity / 100 } : undefined),
       }}
-      className={`reading-root rounded-xl border bg-white dark:bg-surface-800 p-6 cursor-pointer transition-all duration-300 ${
-        isActive
-          ? "border-accent-300 dark:border-accent-700 shadow-lg shadow-accent-200/30 dark:shadow-accent-900/20 ring-1 ring-accent-200/50 dark:ring-accent-800/50"
-          : "border-gray-200/60 dark:border-gray-700/40 shadow-sm hover:shadow-md"
+      className={`reading-root vs-card rounded-xl border bg-white dark:bg-surface-800 p-6 cursor-pointer transition-all duration-300 ${
+        isChanged
+          ? "ring-2 ring-amber-400/60 dark:ring-amber-500/40 border-amber-300 dark:border-amber-600"
+          : isActive
+            ? "vs-card-active border-accent-300 dark:border-accent-700 shadow-lg shadow-accent-200/30 dark:shadow-accent-900/20 ring-1 ring-accent-200/50 dark:ring-accent-800/50"
+            : "border-gray-200/60 dark:border-gray-700/40 shadow-sm hover:shadow-md"
       } ${!isFaded ? "opacity-100" : ""}`}
     >
       <div className="flex items-center gap-2 mb-4">
-        {isRead ? (
+        {isChanged ? (
+          <span className="px-1.5 py-0.5 text-[9px] font-semibold rounded bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 shrink-0 uppercase tracking-wider">Changed</span>
+        ) : isRead ? (
           <span className="w-4 h-4 rounded-full bg-accent-200 dark:bg-accent-800 flex items-center justify-center text-[8px] text-accent-700 dark:text-accent-300 shrink-0">&#10003;</span>
         ) : null}
         <h2 className="font-semibold text-gray-800 dark:text-gray-100 tracking-tight">
@@ -68,9 +74,19 @@ export function CardView({ sections }: CardViewProps) {
   const selectedFilePath = activeTab?.file.path ?? "";
   const readSections = useAppStore((s) => s.readSections);
   const markSectionRead = useAppStore((s) => s.markSectionRead);
+  const changedSections = activeTab?.changedSections ?? [];
   const activeCardRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Auto-clear changed indicators after 5 seconds
+  useEffect(() => {
+    if (changedSections.length === 0 || !selectedFilePath) return;
+    const timer = setTimeout(() => {
+      useAppStore.getState().clearChangedSections(selectedFilePath);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [changedSections.length, selectedFilePath]);
 
   const readingStyle = useMemo<React.CSSProperties>(() => ({
     "--reading-line-height": String(lineHeight / 100),
@@ -130,6 +146,7 @@ export function CardView({ sections }: CardViewProps) {
                 isFaded={focusMode && i !== activeIndex}
                 fadeOpacity={focusOpacity}
                 isRead={readSections.has(`${selectedFilePath}:${i}`)}
+                isChanged={changedSections.includes(i)}
                 readingStyle={readingStyle}
                 onClick={() => setActiveIndex(i)}
                 cardRef={i === activeIndex ? activeCardRef : undefined}

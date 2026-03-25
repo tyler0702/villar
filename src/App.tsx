@@ -88,7 +88,7 @@ function App() {
         <div className="resize-handle" onMouseDown={sidebarResize} />
 
         {/* Main area */}
-        <div className="flex-1 flex flex-col overflow-hidden" style={zoomStyle}>
+        <div className="flex-1 flex flex-col overflow-hidden vs-canvas" style={zoomStyle}>
           <TabBar />
           {findOpen ? <FindBar /> : null}
           <main className="flex-1 overflow-hidden">
