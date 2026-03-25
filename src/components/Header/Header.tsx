@@ -2,7 +2,6 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppStore, type FsNode } from "../../stores/useAppStore";
-import { WindowControls } from "./WindowControls";
 
 interface HeaderProps {
   onSearchClick?: () => void;
@@ -27,7 +26,6 @@ export function Header({ onSearchClick }: HeaderProps) {
   }
 
   function handleDragStart(e: React.MouseEvent) {
-    // Only drag from the header itself, not from buttons
     if ((e.target as HTMLElement).closest("button")) return;
     e.preventDefault();
     getCurrentWindow().startDragging();
@@ -38,10 +36,8 @@ export function Header({ onSearchClick }: HeaderProps) {
   return (
     <header
       onMouseDown={handleDragStart}
-      className="vs-header flex items-center gap-3 pl-4 pr-5 py-2.5 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0 select-none cursor-default"
+      className="vs-header flex items-center gap-3 pl-20 pr-5 py-3 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0 select-none cursor-default"
     >
-      <WindowControls />
-
       <button
         onClick={handleOpenFolder}
         className="vs-header-accent px-3 py-1.5 text-sm font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
