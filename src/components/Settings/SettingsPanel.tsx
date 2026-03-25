@@ -1,6 +1,5 @@
 import { useAppStore } from "../../stores/useAppStore";
 import type { ContentWidth, MermaidDefault, VscodeThemeColors } from "../../stores/useAppStore";
-import { parseVscodeTheme } from "../../hooks/useVscodeTheme";
 import { BUILTIN_THEMES } from "../../themes/builtin";
 import { FONT_OPTIONS } from "../../themes/fonts";
 
@@ -283,25 +282,6 @@ export function SettingsPanel({ width }: { width?: number }) {
               );
             })}
           </div>
-          <label className="block mt-2">
-            <span className="text-[10px] text-gray-400">Or import .json file</span>
-            <input
-              type="file"
-              accept=".json"
-              className="block w-full text-[10px] text-gray-500 mt-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-600 dark:file:text-gray-300 cursor-pointer"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                try {
-                  const text = await file.text();
-                  const json = JSON.parse(text);
-                  const parsed = parseVscodeTheme(json);
-                  if (parsed) update({ vscodeTheme: parsed });
-                } catch { /* ignore */ }
-                e.target.value = "";
-              }}
-            />
-          </label>
         </Section>
 
         <Section title="General">
