@@ -56,7 +56,12 @@ export interface ProcessedSection {
   mermaidCodes: string[];
 }
 
-export function useMarkdown(content: string | null): ProcessedSection[] {
+interface CollapseConfig {
+  listThreshold: number;
+  codeThreshold: number;
+}
+
+export function useMarkdown(content: string | null, collapseConfig?: CollapseConfig): ProcessedSection[] {
   return useMemo(() => {
     if (!content) return [];
 
@@ -76,7 +81,7 @@ export function useMarkdown(content: string | null): ProcessedSection[] {
       logTldrResult(section.title, tldr !== null);
       return {
         title: section.title,
-        html: collapseHtml(renderChildren(cleaned)),
+        html: collapseHtml(renderChildren(cleaned), collapseConfig),
         tldr,
         mermaidCodes,
       };
@@ -86,7 +91,7 @@ export function useMarkdown(content: string | null): ProcessedSection[] {
     logRenderTime(Math.round(elapsed), content.length);
 
     return result;
-  }, [content]);
+  }, [content, collapseConfig?.listThreshold, collapseConfig?.codeThreshold]);
 }
 
 export { MERMAID_PLACEHOLDER };

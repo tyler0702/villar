@@ -21,7 +21,12 @@ function App() {
   const fileContent = useAppStore((s) => s.fileContent);
   const setFileContent = useAppStore((s) => s.setFileContent);
   const settingsOpen = useAppStore((s) => s.settingsOpen);
-  const sections = useMarkdown(fileContent);
+  const collapseListThreshold = useAppStore((s) => s.settings.collapseListThreshold);
+  const collapseCodeThreshold = useAppStore((s) => s.settings.collapseCodeThreshold);
+  const sections = useMarkdown(fileContent, {
+    listThreshold: collapseListThreshold,
+    codeThreshold: collapseCodeThreshold,
+  });
   const [searchOpen, setSearchOpen] = useState(false);
   useKeyboard(sections.length, () => setSearchOpen(true));
 
@@ -51,13 +56,14 @@ function App() {
   }, [handleFileChanged]);
 
   const hasContent = sections.length > 0;
+  const fontScale = useAppStore((s) => s.settings.fontScale);
 
   return (
     <div className="h-screen flex flex-col bg-surface-50 dark:bg-surface-900 text-gray-800 dark:text-gray-100">
       <Header onSearchClick={() => setSearchOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar sections={sections} />
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden" style={{ fontSize: `${fontScale}%` }}>
           {hasContent ? (
             <CardView sections={sections} />
           ) : (
@@ -78,9 +84,9 @@ function App() {
             </div>
           )}
         </main>
+        {settingsOpen ? <SettingsPanel /> : null}
       </div>
       {searchOpen ? <SearchPanel onClose={() => setSearchOpen(false)} /> : null}
-      {settingsOpen ? <SettingsPanel /> : null}
     </div>
   );
 }

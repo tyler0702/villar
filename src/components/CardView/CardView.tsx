@@ -1,6 +1,7 @@
-import { useCallback, useRef, useEffect, memo } from "react";
+import { useCallback, useRef, useEffect, memo, useMemo, useState } from "react";
 import type { ProcessedSection } from "../../hooks/useMarkdown";
 import { useAppStore } from "../../stores/useAppStore";
+import type { LineHeight } from "../../stores/useAppStore";
 import { TldrCard } from "./TldrCard";
 import { SectionContent } from "./SectionContent";
 
@@ -8,9 +9,8 @@ interface CardViewProps {
   sections: ProcessedSection[];
 }
 
-const FONT_SIZE_MAP = { sm: "prose-sm", base: "prose-base", lg: "prose-lg" } as const;
-const LINE_HEIGHT_MAP = { tight: "leading-snug", normal: "leading-normal", relaxed: "leading-relaxed" } as const;
 const WIDTH_MAP = { narrow: "max-w-2xl", medium: "max-w-4xl", wide: "max-w-none" } as const;
+const LINE_HEIGHT_VAL: Record<LineHeight, string> = { tight: "1.4", normal: "1.65", relaxed: "2.0" };
 
 const SectionCard = memo(function SectionCard({
   section,
@@ -18,6 +18,7 @@ const SectionCard = memo(function SectionCard({
   isFaded,
   fadeOpacity,
   isRead,
+  readingStyle,
   onClick,
   cardRef,
 }: {
@@ -26,6 +27,7 @@ const SectionCard = memo(function SectionCard({
   isFaded: boolean;
   fadeOpacity: number;
   isRead: boolean;
+  readingStyle: React.CSSProperties;
   onClick: () => void;
   cardRef?: React.Ref<HTMLDivElement>;
 }) {
@@ -33,8 +35,11 @@ const SectionCard = memo(function SectionCard({
     <div
       ref={cardRef}
       onClick={onClick}
-      style={isFaded ? { opacity: fadeOpacity / 100 } : undefined}
-      className={`rounded-xl border bg-white dark:bg-surface-800 p-6 cursor-pointer transition-all duration-300 ${
+      style={{
+        ...readingStyle,
+        ...(isFaded ? { opacity: fadeOpacity / 100 } : undefined),
+      }}
+      className={`reading-root rounded-xl border bg-white dark:bg-surface-800 p-6 cursor-pointer transition-all duration-300 ${
         isActive
           ? "border-accent-300 dark:border-accent-700 shadow-lg shadow-accent-200/30 dark:shadow-accent-900/20 ring-1 ring-accent-200/50 dark:ring-accent-800/50"
           : "border-gray-200/60 dark:border-gray-700/40 shadow-sm hover:shadow-md"
@@ -42,9 +47,9 @@ const SectionCard = memo(function SectionCard({
     >
       <div className="flex items-center gap-2 mb-4">
         {isRead ? (
-          <span className="w-4 h-4 rounded-full bg-accent-200 dark:bg-accent-800 flex items-center justify-center text-[8px] text-accent-700 dark:text-accent-300">&#10003;</span>
+          <span className="w-4 h-4 rounded-full bg-accent-200 dark:bg-accent-800 flex items-center justify-center text-[8px] text-accent-700 dark:text-accent-300 shrink-0">&#10003;</span>
         ) : null}
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 tracking-tight">
+        <h2 className="font-semibold text-gray-800 dark:text-gray-100 tracking-tight">
           {section.title}
         </h2>
       </div>
@@ -58,13 +63,20 @@ export function CardView({ sections }: CardViewProps) {
   const activeIndex = useAppStore((s) => s.activeCardIndex);
   const setActiveIndex = useAppStore((s) => s.setActiveCardIndex);
   const focusMode = useAppStore((s) => s.focusMode);
-  const settings = useAppStore((s) => s.settings);
+  const lineHeight = useAppStore((s) => s.settings.lineHeight);
+  const contentWidth = useAppStore((s) => s.settings.contentWidth);
+  const focusOpacity = useAppStore((s) => s.settings.focusOpacity);
   const selectedFilePath = useAppStore((s) => s.selectedFile?.path ?? "");
   const readSections = useAppStore((s) => s.readSections);
   const markSectionRead = useAppStore((s) => s.markSectionRead);
   const activeCardRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
-  // Mark section as read when navigated to
+  const readingStyle = useMemo<React.CSSProperties>(() => ({
+    "--reading-line-height": LINE_HEIGHT_VAL[lineHeight],
+  } as React.CSSProperties), [lineHeight]);
+
   useEffect(() => {
     if (selectedFilePath && sections.length > 0) {
       markSectionRead(selectedFilePath, activeIndex);
@@ -82,14 +94,26 @@ export function CardView({ sections }: CardViewProps) {
     activeCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [activeIndex]);
 
+  // Track scroll position for progress bar
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    function handleScroll() {
+      if (!el) return;
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const max = scrollHeight - clientHeight;
+      setScrollProgress(max > 0 ? Math.round((scrollTop / max) * 100) : 0);
+    }
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
   if (sections.length === 0) return null;
 
-  const progress = Math.round(((activeIndex + 1) / sections.length) * 100);
-  const proseClass = `prose dark:prose-invert ${FONT_SIZE_MAP[settings.fontSize]} ${LINE_HEIGHT_MAP[settings.lineHeight]} max-w-none`;
+  const progress = scrollProgress;
 
   return (
     <div className="flex flex-col h-full">
-      {/* Progress bar */}
       <div className="h-0.5 bg-gray-100 dark:bg-gray-800 shrink-0">
         <div
           className="h-full bg-accent-400 dark:bg-accent-600 transition-all duration-300"
@@ -97,16 +121,17 @@ export function CardView({ sections }: CardViewProps) {
         />
       </div>
 
-      <div className={`flex-1 overflow-y-auto px-8 py-6 space-y-5 ${proseClass}`}>
-        <div className={`mx-auto ${WIDTH_MAP[settings.contentWidth]}`}>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-8 py-6">
+        <div className={`mx-auto ${WIDTH_MAP[contentWidth]}`}>
           {sections.map((section, i) => (
             <div key={i} className="mb-5">
               <SectionCard
                 section={section}
                 isActive={i === activeIndex}
                 isFaded={focusMode && i !== activeIndex}
-                fadeOpacity={settings.focusOpacity}
+                fadeOpacity={focusOpacity}
                 isRead={readSections.has(`${selectedFilePath}:${i}`)}
+                readingStyle={readingStyle}
                 onClick={() => setActiveIndex(i)}
                 cardRef={i === activeIndex ? activeCardRef : undefined}
               />
