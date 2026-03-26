@@ -38,6 +38,26 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
         return;
       }
 
+      // Cmd+= / Cmd+- — font scale
+      if ((e.metaKey || e.ctrlKey) && (e.key === "=" || e.key === "+")) {
+        e.preventDefault();
+        const { settings, updateSettings } = useAppStore.getState();
+        updateSettings({ fontScale: Math.min(150, settings.fontScale + 10) });
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "-") {
+        e.preventDefault();
+        const { settings, updateSettings } = useAppStore.getState();
+        updateSettings({ fontScale: Math.max(50, settings.fontScale - 10) });
+        return;
+      }
+      // Cmd+0 — reset font scale
+      if ((e.metaKey || e.ctrlKey) && e.key === "0") {
+        e.preventDefault();
+        useAppStore.getState().updateSettings({ fontScale: 100 });
+        return;
+      }
+
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       const { activeCardIndex, setActiveCardIndex, toggleFocusMode } =

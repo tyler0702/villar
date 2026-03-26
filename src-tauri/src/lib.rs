@@ -35,7 +35,8 @@ fn list_md_files(dir_path: String) -> Result<Vec<FsNode>, String> {
         return Err("Not a directory".into());
     }
 
-    let mut nodes = collect_tree(path).map_err(|e| e.to_string())?;
+    let mut count = 0usize;
+    let mut nodes = collect_tree_inner(path, 0, &mut count).map_err(|e| e.to_string())?;
     nodes.sort_by(|a, b| match (a.is_dir, b.is_dir) {
         (true, false) => std::cmp::Ordering::Less,
         (false, true) => std::cmp::Ordering::Greater,
@@ -44,10 +45,32 @@ fn list_md_files(dir_path: String) -> Result<Vec<FsNode>, String> {
     Ok(nodes)
 }
 
-fn collect_tree(dir: &Path) -> std::io::Result<Vec<FsNode>> {
+// Directories to always skip (large/irrelevant)
+const SKIP_DIRS: &[&str] = &[
+    "node_modules", "target", ".git", ".svn", ".hg", "dist", "build",
+    "__pycache__", ".next", ".nuxt", ".output", "vendor", "Pods",
+    ".cargo", ".rustup", "venv", ".venv", "env",
+];
+
+const MAX_DEPTH: u32 = 8;
+const MAX_FILES: usize = 5000;
+
+fn collect_tree_inner(dir: &Path, depth: u32, count: &mut usize) -> std::io::Result<Vec<FsNode>> {
+    if depth > MAX_DEPTH || *count > MAX_FILES {
+        return Ok(vec![]);
+    }
+
     let mut nodes = Vec::new();
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
+    let entries = match fs::read_dir(dir) {
+        Ok(e) => e,
+        Err(_) => return Ok(vec![]), // Permission denied etc.
+    };
+
+    for entry in entries {
+        let entry = match entry {
+            Ok(e) => e,
+            Err(_) => continue,
+        };
         let path = entry.path();
         let name = path.file_name().unwrap_or_default().to_string_lossy().into_owned();
 
@@ -56,7 +79,10 @@ fn collect_tree(dir: &Path) -> std::io::Result<Vec<FsNode>> {
         }
 
         if path.is_dir() {
-            let mut children = collect_tree(&path)?;
+            if SKIP_DIRS.contains(&name.as_str()) {
+                continue;
+            }
+            let mut children = collect_tree_inner(&path, depth + 1, count)?;
             if !children.is_empty() {
                 children.sort_by(|a, b| match (a.is_dir, b.is_dir) {
                     (true, false) => std::cmp::Ordering::Less,
@@ -71,6 +97,7 @@ fn collect_tree(dir: &Path) -> std::io::Result<Vec<FsNode>> {
                 });
             }
         } else if path.extension().is_some_and(|ext| ext == "md") {
+            *count += 1;
             nodes.push(FsNode {
                 name,
                 path: path.to_string_lossy().into_owned(),
@@ -211,7 +238,10 @@ fn search_recursive(dir: &Path, query: &str, hits: &mut Vec<SearchHit>) -> std::
         }
 
         if path.is_dir() {
-            search_recursive(&path, query, hits)?;
+            let dir_name = path.file_name().unwrap_or_default().to_string_lossy();
+            if !SKIP_DIRS.contains(&dir_name.as_ref()) {
+                search_recursive(&path, query, hits)?;
+            }
         } else if path.extension().is_some_and(|ext| ext == "md") {
             if let Ok(content) = fs::read_to_string(&path) {
                 for (i, line) in content.lines().enumerate() {
@@ -296,6 +326,10 @@ fn build_menu(app: &AppHandle) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::E
         .build()?;
 
     let view_menu = SubmenuBuilder::new(app, "View")
+        .item(&MenuItemBuilder::with_id("zoom_in", "Zoom In").accelerator("CmdOrCtrl+=").build(app)?)
+        .item(&MenuItemBuilder::with_id("zoom_out", "Zoom Out").accelerator("CmdOrCtrl+-").build(app)?)
+        .item(&MenuItemBuilder::with_id("zoom_reset", "Actual Size").accelerator("CmdOrCtrl+0").build(app)?)
+        .separator()
         .item(&MenuItemBuilder::with_id("focus_mode", "Toggle Focus Mode").accelerator("F").build(app)?)
         .separator()
         .item(&MenuItemBuilder::with_id("settings", "Settings...").accelerator("CmdOrCtrl+,").build(app)?)
