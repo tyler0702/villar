@@ -308,7 +308,7 @@
 
     .preview-body {
       display: flex;
-      height: 420px;
+      height: 440px;
     }
 
     .preview-sidebar {
@@ -317,6 +317,8 @@
       padding: 16px;
       border-right: 1px solid #313244;
       flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .preview-sidebar-item {
@@ -326,11 +328,22 @@
       color: #a6adc8;
       margin-bottom: 2px;
       font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preview-sidebar-item:hover {
+      background: #262840;
+      color: #cdd6f4;
     }
 
     .preview-sidebar-item.active {
       background: #313244;
       color: #cdd6f4;
+    }
+
+    .preview-sidebar-item.dimmed {
+      opacity: 0.35;
     }
 
     .preview-sidebar-label {
@@ -344,15 +357,36 @@
 
     .preview-content {
       flex: 1;
-      padding: 32px;
+      padding: 24px 32px;
       overflow: hidden;
+      position: relative;
     }
 
     .preview-card {
       background: #24273a;
       border-radius: 12px;
-      padding: 28px;
+      padding: 24px;
       border: 1px solid #363a4f;
+      position: absolute;
+      inset: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      pointer-events: none;
+      overflow: auto;
+    }
+
+    .preview-card.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .preview-card.exit-left {
+      opacity: 0;
+      transform: translateX(-40px);
     }
 
     .preview-card h3 {
@@ -368,6 +402,17 @@
       line-height: 1.7;
       margin-bottom: 12px;
     }
+
+    .preview-card ul {
+      color: #a6adc8;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      margin-bottom: 12px;
+      padding-left: 18px;
+    }
+
+    .preview-card li { margin-bottom: 4px; }
+    .preview-card li strong { color: #cdd6f4; }
 
     .preview-card-code {
       background: #1e1e2e;
@@ -390,6 +435,19 @@
       padding: 14px 16px;
       margin-bottom: 16px;
       border-left: 3px solid #3db8a4;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      overflow: hidden;
+    }
+
+    .preview-tldr.collapsed {
+      padding: 10px 16px;
+    }
+
+    .preview-tldr.collapsed p {
+      max-height: 0;
+      opacity: 0;
+      margin: 0;
     }
 
     .preview-tldr-label {
@@ -400,12 +458,138 @@
       margin-bottom: 6px;
       font-family: 'Inter', sans-serif;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preview-tldr.collapsed .preview-tldr-label {
+      margin-bottom: 0;
+    }
+
+    .preview-tldr-label .chevron {
+      display: inline-block;
+      transition: transform 0.25s;
+      font-size: 0.65rem;
+    }
+
+    .preview-tldr.collapsed .chevron {
+      transform: rotate(-90deg);
     }
 
     .preview-tldr p {
       color: #a8e0d4;
       font-size: 0.8rem;
       line-height: 1.6;
+      max-height: 100px;
+      opacity: 1;
+      transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.2s ease;
+    }
+
+    /* Nav arrows */
+    .preview-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 0 16px;
+      background: #181825;
+    }
+
+    .preview-nav-btn {
+      width: 32px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid #313244;
+      background: #24273a;
+      color: #a6adc8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-size: 0.75rem;
+    }
+
+    .preview-nav-btn:hover {
+      background: #313244;
+      color: #cdd6f4;
+    }
+
+    .preview-nav-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    .preview-nav-dots {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .preview-nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #45475a;
+      transition: all 0.3s;
+    }
+
+    .preview-nav-dot.active {
+      background: #89b4fa;
+      width: 18px;
+      border-radius: 3px;
+    }
+
+    .preview-progress {
+      height: 2px;
+      background: #313244;
+      position: relative;
+    }
+
+    .preview-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #3db8a4, #89b4fa);
+      transition: width 0.35s ease;
+    }
+
+    /* Focus mode toggle in preview */
+    .preview-focus-toggle {
+      margin-top: auto;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: #585b70;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .preview-focus-toggle:hover {
+      background: #262840;
+      color: #a6adc8;
+    }
+
+    .preview-focus-toggle.on {
+      color: #3db8a4;
+      border-color: #3db8a433;
+      background: #3db8a40d;
+    }
+
+    .focus-pip {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      transition: all 0.2s;
+    }
+
+    .preview-focus-toggle.on .focus-pip {
+      background: #3db8a4;
     }
 
     /* ── Features ── */
@@ -809,10 +993,10 @@
     </div>
   </section>
 
-  <!-- App Preview -->
+  <!-- App Preview (Interactive) -->
   <section class="preview">
     <div class="container">
-      <div class="preview-window">
+      <div class="preview-window" id="previewApp">
         <div class="preview-titlebar">
           <div class="preview-dot red"></div>
           <div class="preview-dot yellow"></div>
@@ -826,19 +1010,39 @@
             <div class="preview-sidebar-item">deployment.md</div>
             <div class="preview-sidebar-item">changelog.md</div>
             <div class="preview-sidebar-label" data-i18n="preview.outline">Outline</div>
-            <div class="preview-sidebar-item" style="color:#585b70" data-i18n="preview.o1">Overview</div>
-            <div class="preview-sidebar-item" style="color:#89b4fa" data-i18n="preview.o2">Authentication</div>
-            <div class="preview-sidebar-item" style="color:#585b70" data-i18n="preview.o3">Rate Limiting</div>
-            <div class="preview-sidebar-item" style="color:#585b70" data-i18n="preview.o4">Error Handling</div>
+            <div class="preview-sidebar-item outline-item active" data-card="0" data-i18n="preview.o1">Overview</div>
+            <div class="preview-sidebar-item outline-item" data-card="1" data-i18n="preview.o2">Authentication</div>
+            <div class="preview-sidebar-item outline-item" data-card="2" data-i18n="preview.o3">Rate Limiting</div>
+            <div class="preview-sidebar-item outline-item" data-card="3" data-i18n="preview.o4">Error Handling</div>
+            <div class="preview-focus-toggle" id="focusToggle">
+              <div class="focus-pip"></div>
+              <span data-i18n="preview.focus">Focus mode</span>
+            </div>
           </div>
           <div class="preview-content">
-            <div class="preview-card">
-              <div class="preview-tldr">
-                <div class="preview-tldr-label">TL;DR</div>
-                <p data-i18n="preview.tldr">OAuth 2.0 with PKCE flow. Tokens stored in secure HTTP-only cookies. Refresh tokens rotate on each use.</p>
+            <!-- Card 0: Overview -->
+            <div class="preview-card active" data-index="0">
+              <div class="preview-tldr" data-i18n-group="c0">
+                <div class="preview-tldr-label"><span class="chevron">&#9660;</span> TL;DR</div>
+                <p data-i18n="preview.c0.tldr">RESTful API with JSON responses. Versioned via URL path. Rate limited to 1000 req/min per key.</p>
+              </div>
+              <h3 data-i18n="preview.o1">Overview</h3>
+              <p data-i18n="preview.c0.body">This document describes the API design for the backend services. All endpoints follow REST conventions and return JSON responses with consistent error formats.</p>
+              <ul>
+                <li><strong>Base URL:</strong> <code style="color:#89b4fa">/api/v1</code></li>
+                <li><strong>Format:</strong> JSON</li>
+                <li><strong data-i18n="preview.c0.auth">Authentication:</strong> Bearer token</li>
+                <li><strong data-i18n="preview.c0.ver">Versioning:</strong> URL path</li>
+              </ul>
+            </div>
+            <!-- Card 1: Authentication -->
+            <div class="preview-card" data-index="1">
+              <div class="preview-tldr" data-i18n-group="c1">
+                <div class="preview-tldr-label"><span class="chevron">&#9660;</span> TL;DR</div>
+                <p data-i18n="preview.c1.tldr">OAuth 2.0 with PKCE flow. Tokens stored in secure HTTP-only cookies. Refresh tokens rotate on each use.</p>
               </div>
               <h3 data-i18n="preview.o2">Authentication</h3>
-              <p data-i18n="preview.body">The API uses OAuth 2.0 with the PKCE extension for public clients. All endpoints require a valid Bearer token in the Authorization header.</p>
+              <p data-i18n="preview.c1.body">The API uses OAuth 2.0 with the PKCE extension for public clients. All endpoints require a valid Bearer token in the Authorization header.</p>
               <div class="preview-card-code">
                 <span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/auth/token'</span>, {<br />
                 &nbsp;&nbsp;method: <span class="str">'POST'</span>,<br />
@@ -846,7 +1050,52 @@
                 });
               </div>
             </div>
+            <!-- Card 2: Rate Limiting -->
+            <div class="preview-card" data-index="2">
+              <div class="preview-tldr" data-i18n-group="c2">
+                <div class="preview-tldr-label"><span class="chevron">&#9660;</span> TL;DR</div>
+                <p data-i18n="preview.c2.tldr">Sliding window algorithm. 1000 requests/min for standard, 5000 for premium. Retry-After header on 429.</p>
+              </div>
+              <h3 data-i18n="preview.o3">Rate Limiting</h3>
+              <p data-i18n="preview.c2.body">Rate limiting uses a sliding window algorithm. Limits are applied per API key and tracked via Redis. When exceeded, the API returns 429 with a Retry-After header.</p>
+              <div class="preview-card-code">
+                <span class="cm">// Response headers</span><br />
+                X-RateLimit-Limit: <span class="str">1000</span><br />
+                X-RateLimit-Remaining: <span class="str">847</span><br />
+                X-RateLimit-Reset: <span class="str">1609459200</span>
+              </div>
+            </div>
+            <!-- Card 3: Error Handling -->
+            <div class="preview-card" data-index="3">
+              <div class="preview-tldr" data-i18n-group="c3">
+                <div class="preview-tldr-label"><span class="chevron">&#9660;</span> TL;DR</div>
+                <p data-i18n="preview.c3.tldr">Consistent error shape: code, message, details. Machine-readable codes. Human-readable messages.</p>
+              </div>
+              <h3 data-i18n="preview.o4">Error Handling</h3>
+              <p data-i18n="preview.c3.body">All errors follow a consistent JSON structure with machine-readable error codes and human-readable messages. Validation errors include field-level details.</p>
+              <div class="preview-card-code">
+                {<br />
+                &nbsp;&nbsp;<span class="fn">"error"</span>: {<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">"code"</span>: <span class="str">"RATE_LIMITED"</span>,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">"message"</span>: <span class="str">"Too many requests"</span><br />
+                &nbsp;&nbsp;}<br />
+                }
+              </div>
+            </div>
           </div>
+        </div>
+        <div class="preview-progress">
+          <div class="preview-progress-bar" id="progressBar" style="width:25%"></div>
+        </div>
+        <div class="preview-nav">
+          <button class="preview-nav-btn" id="prevBtn" disabled>&#8592;</button>
+          <div class="preview-nav-dots" id="navDots">
+            <div class="preview-nav-dot active"></div>
+            <div class="preview-nav-dot"></div>
+            <div class="preview-nav-dot"></div>
+            <div class="preview-nav-dot"></div>
+          </div>
+          <button class="preview-nav-btn" id="nextBtn">&#8594;</button>
         </div>
       </div>
     </div>
@@ -1028,6 +1277,117 @@
   </footer>
 
   <script>
+    // ── Interactive Preview ──
+    (function() {
+      const cards = document.querySelectorAll('.preview-card');
+      const outlineItems = document.querySelectorAll('.outline-item');
+      const dots = document.querySelectorAll('.preview-nav-dot');
+      const progressBar = document.getElementById('progressBar');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const focusToggle = document.getElementById('focusToggle');
+      let current = 0;
+      let focusMode = false;
+      let autoTimer = null;
+
+      function goTo(index, direction) {
+        if (index < 0 || index >= cards.length || index === current) return;
+        clearAutoPlay();
+
+        const goingForward = direction !== undefined ? direction > 0 : index > current;
+
+        // Exit current card
+        cards[current].classList.remove('active');
+        cards[current].classList.add(goingForward ? 'exit-left' : '');
+        cards[current].style.transform = goingForward ? 'translateX(-40px)' : 'translateX(40px)';
+
+        // Enter new card
+        cards[index].style.transform = goingForward ? 'translateX(40px)' : 'translateX(-40px)';
+        cards[index].classList.remove('exit-left');
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            cards[index].classList.add('active');
+            cards[index].style.transform = '';
+          });
+        });
+
+        // Update outline
+        outlineItems.forEach((item, i) => {
+          item.classList.toggle('active', i === index);
+          if (focusMode) {
+            item.classList.toggle('dimmed', i !== index);
+          }
+        });
+
+        // Update dots
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+
+        // Progress
+        progressBar.style.width = ((index + 1) / cards.length * 100) + '%';
+
+        // Nav buttons
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === cards.length - 1;
+
+        current = index;
+        startAutoPlay();
+      }
+
+      outlineItems.forEach(item => {
+        item.addEventListener('click', () => goTo(+item.dataset.card));
+      });
+
+      prevBtn.addEventListener('click', () => goTo(current - 1, -1));
+      nextBtn.addEventListener('click', () => goTo(current + 1, 1));
+
+      // TL;DR toggle
+      document.querySelectorAll('.preview-tldr').forEach(tldr => {
+        tldr.addEventListener('click', () => tldr.classList.toggle('collapsed'));
+      });
+
+      // Focus mode
+      focusToggle.addEventListener('click', () => {
+        focusMode = !focusMode;
+        focusToggle.classList.toggle('on', focusMode);
+        outlineItems.forEach((item, i) => {
+          if (focusMode) {
+            item.classList.toggle('dimmed', i !== current);
+          } else {
+            item.classList.remove('dimmed');
+          }
+        });
+      });
+
+      // Auto-play (cycles cards every 4s, stops on interaction)
+      function startAutoPlay() {
+        clearAutoPlay();
+        autoTimer = setTimeout(() => {
+          const next = (current + 1) % cards.length;
+          goTo(next, 1);
+        }, 4000);
+      }
+
+      function clearAutoPlay() {
+        if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+      }
+
+      // Pause auto-play when hovering over preview
+      const previewApp = document.getElementById('previewApp');
+      previewApp.addEventListener('mouseenter', clearAutoPlay);
+      previewApp.addEventListener('mouseleave', startAutoPlay);
+
+      // Start auto-play when preview is visible
+      const observer = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          startAutoPlay();
+          observer.disconnect();
+        }
+      }, { threshold: 0.3 });
+      observer.observe(previewApp);
+    })();
+
+    // ── i18n ──
     const i18n = {
       en: {
         "nav.features": "Features",
@@ -1041,12 +1401,21 @@
         "hero.meta3": "Read-only. Files never modified",
         "preview.files": "Files",
         "preview.outline": "Outline",
+        "preview.focus": "Focus mode",
         "preview.o1": "Overview",
         "preview.o2": "Authentication",
         "preview.o3": "Rate Limiting",
         "preview.o4": "Error Handling",
-        "preview.tldr": "OAuth 2.0 with PKCE flow. Tokens stored in secure HTTP-only cookies. Refresh tokens rotate on each use.",
-        "preview.body": "The API uses OAuth 2.0 with the PKCE extension for public clients. All endpoints require a valid Bearer token in the Authorization header.",
+        "preview.c0.tldr": "RESTful API with JSON responses. Versioned via URL path. Rate limited to 1000 req/min per key.",
+        "preview.c0.body": "This document describes the API design for the backend services. All endpoints follow REST conventions and return JSON responses with consistent error formats.",
+        "preview.c0.auth": "Authentication:",
+        "preview.c0.ver": "Versioning:",
+        "preview.c1.tldr": "OAuth 2.0 with PKCE flow. Tokens stored in secure HTTP-only cookies. Refresh tokens rotate on each use.",
+        "preview.c1.body": "The API uses OAuth 2.0 with the PKCE extension for public clients. All endpoints require a valid Bearer token in the Authorization header.",
+        "preview.c2.tldr": "Sliding window algorithm. 1000 requests/min for standard, 5000 for premium. Retry-After header on 429.",
+        "preview.c2.body": "Rate limiting uses a sliding window algorithm. Limits are applied per API key and tracked via Redis. When exceeded, the API returns 429 with a Retry-After header.",
+        "preview.c3.tldr": "Consistent error shape: code, message, details. Machine-readable codes. Human-readable messages.",
+        "preview.c3.body": "All errors follow a consistent JSON structure with machine-readable error codes and human-readable messages. Validation errors include field-level details.",
         "features.label": "Features",
         "features.title": "Everything you need to read comfortably",
         "features.desc": "villar transforms long Markdown documents into focused, navigable cards with smart summaries and syntax highlighting.",
@@ -1102,12 +1471,21 @@
         "hero.meta3": "\u8AAD\u307F\u53D6\u308A\u5C02\u7528\u3002\u30D5\u30A1\u30A4\u30EB\u3092\u5909\u66F4\u3057\u307E\u305B\u3093",
         "preview.files": "\u30D5\u30A1\u30A4\u30EB",
         "preview.outline": "\u30A2\u30A6\u30C8\u30E9\u30A4\u30F3",
+        "preview.focus": "\u30D5\u30A9\u30FC\u30AB\u30B9\u30E2\u30FC\u30C9",
         "preview.o1": "\u6982\u8981",
         "preview.o2": "\u8A8D\u8A3C",
         "preview.o3": "\u30EC\u30FC\u30C8\u5236\u9650",
         "preview.o4": "\u30A8\u30E9\u30FC\u30CF\u30F3\u30C9\u30EA\u30F3\u30B0",
-        "preview.tldr": "OAuth 2.0 + PKCE\u30D5\u30ED\u30FC\u3002\u30C8\u30FC\u30AF\u30F3\u306FHTTP-only Cookie\u306B\u4FDD\u5B58\u3002\u30EA\u30D5\u30EC\u30C3\u30B7\u30E5\u30C8\u30FC\u30AF\u30F3\u306F\u4F7F\u7528\u3054\u3068\u306B\u30ED\u30FC\u30C6\u30FC\u30B7\u30E7\u30F3\u3002",
-        "preview.body": "API\u306F\u30D1\u30D6\u30EA\u30C3\u30AF\u30AF\u30E9\u30A4\u30A2\u30F3\u30C8\u5411\u3051\u306BPKCE\u62E1\u5F35\u4ED8\u304DOAUTH 2.0\u3092\u4F7F\u7528\u3002\u3059\u3079\u3066\u306E\u30A8\u30F3\u30C9\u30DD\u30A4\u30F3\u30C8\u306BAuthorization\u30D8\u30C3\u30C0\u30FC\u306E\u6709\u52B9\u306ABearer\u30C8\u30FC\u30AF\u30F3\u304C\u5FC5\u8981\u3067\u3059\u3002",
+        "preview.c0.tldr": "REST API\u3001JSON\u30EC\u30B9\u30DD\u30F3\u30B9\u3002URL\u30D1\u30B9\u3067\u30D0\u30FC\u30B8\u30E7\u30CB\u30F3\u30B0\u3002\u30AD\u30FC\u3054\u3068\u306B1000\u30EA\u30AF\u30A8\u30B9\u30C8/\u5206\u3002",
+        "preview.c0.body": "\u3053\u306E\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\u306F\u30D0\u30C3\u30AF\u30A8\u30F3\u30C9\u30B5\u30FC\u30D3\u30B9\u306EAPI\u8A2D\u8A08\u306B\u3064\u3044\u3066\u8AAC\u660E\u3057\u307E\u3059\u3002\u3059\u3079\u3066\u306E\u30A8\u30F3\u30C9\u30DD\u30A4\u30F3\u30C8\u306FREST\u898F\u7D04\u306B\u5F93\u3044\u3001\u7D71\u4E00\u3055\u308C\u305F\u30A8\u30E9\u30FC\u30D5\u30A9\u30FC\u30DE\u30C3\u30C8\u306EJSON\u30EC\u30B9\u30DD\u30F3\u30B9\u3092\u8FD4\u3057\u307E\u3059\u3002",
+        "preview.c0.auth": "\u8A8D\u8A3C:",
+        "preview.c0.ver": "\u30D0\u30FC\u30B8\u30E7\u30CB\u30F3\u30B0:",
+        "preview.c1.tldr": "OAuth 2.0 + PKCE\u30D5\u30ED\u30FC\u3002\u30C8\u30FC\u30AF\u30F3\u306FHTTP-only Cookie\u306B\u4FDD\u5B58\u3002\u30EA\u30D5\u30EC\u30C3\u30B7\u30E5\u30C8\u30FC\u30AF\u30F3\u306F\u4F7F\u7528\u3054\u3068\u306B\u30ED\u30FC\u30C6\u30FC\u30B7\u30E7\u30F3\u3002",
+        "preview.c1.body": "API\u306F\u30D1\u30D6\u30EA\u30C3\u30AF\u30AF\u30E9\u30A4\u30A2\u30F3\u30C8\u5411\u3051\u306BPKCE\u62E1\u5F35\u4ED8\u304DのOAuth 2.0\u3092\u4F7F\u7528\u3002\u3059\u3079\u3066\u306E\u30A8\u30F3\u30C9\u30DD\u30A4\u30F3\u30C8\u306BAuthorization\u30D8\u30C3\u30C0\u30FC\u306E\u6709\u52B9\u306ABearer\u30C8\u30FC\u30AF\u30F3\u304C\u5FC5\u8981\u3067\u3059\u3002",
+        "preview.c2.tldr": "\u30B9\u30E9\u30A4\u30C7\u30A3\u30F3\u30B0\u30A6\u30A3\u30F3\u30C9\u30A6\u65B9\u5F0F\u3002\u901A\u5E38\u306F1000\u30EA\u30AF\u30A8\u30B9\u30C8/\u5206\u3001\u30D7\u30EC\u30DF\u30A2\u30E0\u306F5000\u3002429\u6642\u306BRetry-After\u30D8\u30C3\u30C0\u30FC\u3002",
+        "preview.c2.body": "\u30EC\u30FC\u30C8\u5236\u9650\u306F\u30B9\u30E9\u30A4\u30C7\u30A3\u30F3\u30B0\u30A6\u30A3\u30F3\u30C9\u30A6\u65B9\u5F0F\u3092\u4F7F\u7528\u3002API\u30AD\u30FC\u3054\u3068\u306B\u5236\u9650\u304C\u9069\u7528\u3055\u308C\u3001Redis\u3067\u8FFD\u8DE1\u3002\u8D85\u904E\u6642\u306F429\u3068Retry-After\u30D8\u30C3\u30C0\u30FC\u3092\u8FD4\u3057\u307E\u3059\u3002",
+        "preview.c3.tldr": "\u7D71\u4E00\u30A8\u30E9\u30FC\u5F62\u5F0F: code, message, details\u3002\u6A5F\u68B0\u53EF\u8AAD\u306A\u30B3\u30FC\u30C9\u3068\u4EBA\u9593\u53EF\u8AAD\u306A\u30E1\u30C3\u30BB\u30FC\u30B8\u3002",
+        "preview.c3.body": "\u3059\u3079\u3066\u306E\u30A8\u30E9\u30FC\u306F\u6A5F\u68B0\u53EF\u8AAD\u306A\u30A8\u30E9\u30FC\u30B3\u30FC\u30C9\u3068\u4EBA\u9593\u53EF\u8AAD\u306A\u30E1\u30C3\u30BB\u30FC\u30B8\u3092\u6301\u3064\u7D71\u4E00\u7684\u306AJSON\u69CB\u9020\u306B\u5F93\u3044\u307E\u3059\u3002\u30D0\u30EA\u30C7\u30FC\u30B7\u30E7\u30F3\u30A8\u30E9\u30FC\u306B\u306F\u30D5\u30A3\u30FC\u30EB\u30C9\u30EC\u30D9\u30EB\u306E\u8A73\u7D30\u304C\u542B\u307E\u308C\u307E\u3059\u3002",
         "features.label": "\u6A5F\u80FD",
         "features.title": "\u5FEB\u9069\u306B\u8AAD\u3080\u305F\u3081\u306B\u5FC5\u8981\u306A\u3059\u3079\u3066",
         "features.desc": "villar\u306F\u9577\u3044Markdown\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\u3092\u3001\u30B9\u30DE\u30FC\u30C8\u306A\u8981\u7D04\u3068\u30B7\u30F3\u30BF\u30C3\u30AF\u30B9\u30CF\u30A4\u30E9\u30A4\u30C8\u4ED8\u304D\u306E\u30CA\u30D3\u30B2\u30FC\u30D6\u30EB\u306A\u30AB\u30FC\u30C9\u306B\u5909\u63DB\u3057\u307E\u3059\u3002",
