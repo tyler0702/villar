@@ -6,6 +6,7 @@ use std::path::Path;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter, Manager};
+use tauri::menu::{MenuBuilder, SubmenuBuilder, MenuItemBuilder, PredefinedMenuItem};
 
 #[derive(Serialize, Clone)]
 pub struct FsNode {
@@ -53,7 +54,6 @@ fn collect_tree(dir: &Path) -> std::io::Result<Vec<FsNode>> {
 
         if path.is_dir() {
             let mut children = collect_tree(&path)?;
-            // Only include folders that contain at least one .md (recursively)
             if !children.is_empty() {
                 children.sort_by(|a, b| match (a.is_dir, b.is_dir) {
                     (true, false) => std::cmp::Ordering::Less,
@@ -97,7 +97,7 @@ fn get_file_meta(file_path: String) -> Result<FileMeta, String> {
     let to_epoch = |t: std::io::Result<std::time::SystemTime>| -> Option<f64> {
         let t = t.ok()?;
         let d = t.duration_since(std::time::UNIX_EPOCH).ok()?;
-        Some(d.as_secs_f64() * 1000.0) // milliseconds for JS Date
+        Some(d.as_secs_f64() * 1000.0)
     };
 
     Ok(FileMeta {
@@ -127,7 +127,6 @@ fn watch_folder(app_handle: AppHandle, dir_path: String) -> Result<(), String> {
                     return;
                 }
 
-                // Tree structure changed (file added/removed) — refresh sidebar
                 if is_create || is_remove {
                     let mut last = last_tree_emit.lock().unwrap();
                     if last.elapsed() >= debounce {
@@ -141,7 +140,6 @@ fn watch_folder(app_handle: AppHandle, dir_path: String) -> Result<(), String> {
                     }
                 }
 
-                // File content changed — refresh current document
                 if is_modify || is_create {
                     for path in &event.paths {
                         if path.extension().is_some_and(|ext| ext == "md") {
@@ -196,7 +194,7 @@ fn search_files(dir_path: String, query: String) -> Result<Vec<SearchHit>, Strin
     let query_lower = query.to_lowercase();
     let mut hits = Vec::new();
     search_recursive(path, &query_lower, &mut hits).map_err(|e| e.to_string())?;
-    hits.truncate(100); // Cap results
+    hits.truncate(100);
     Ok(hits)
 }
 
@@ -273,6 +271,52 @@ fn chrono_lite_timestamp() -> String {
     format!("{}", duration.as_secs())
 }
 
+fn build_menu(app: &AppHandle) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::Error> {
+    let file_menu = SubmenuBuilder::new(app, "File")
+        .item(&MenuItemBuilder::with_id("open_folder", "Open Folder...").accelerator("CmdOrCtrl+O").build(app)?)
+        .separator()
+        .item(&MenuItemBuilder::with_id("close_tab", "Close Tab").accelerator("CmdOrCtrl+W").build(app)?)
+        .build()?;
+
+    let edit_menu = SubmenuBuilder::new(app, "Edit")
+        .item(&PredefinedMenuItem::undo(app, None)?)
+        .item(&PredefinedMenuItem::redo(app, None)?)
+        .separator()
+        .item(&PredefinedMenuItem::cut(app, None)?)
+        .item(&PredefinedMenuItem::copy(app, None)?)
+        .item(&PredefinedMenuItem::paste(app, None)?)
+        .item(&PredefinedMenuItem::select_all(app, None)?)
+        .separator()
+        .item(&MenuItemBuilder::with_id("find", "Find in Document").accelerator("CmdOrCtrl+F").build(app)?)
+        .item(&MenuItemBuilder::with_id("search", "Search Files...").accelerator("CmdOrCtrl+K").build(app)?)
+        .build()?;
+
+    let view_menu = SubmenuBuilder::new(app, "View")
+        .item(&MenuItemBuilder::with_id("focus_mode", "Toggle Focus Mode").accelerator("F").build(app)?)
+        .separator()
+        .item(&MenuItemBuilder::with_id("settings", "Settings...").accelerator("CmdOrCtrl+,").build(app)?)
+        .separator()
+        .item(&MenuItemBuilder::with_id("prev_card", "Previous Card").accelerator("Left").build(app)?)
+        .item(&MenuItemBuilder::with_id("next_card", "Next Card").accelerator("Right").build(app)?)
+        .item(&MenuItemBuilder::with_id("first_card", "First Card").accelerator("Home").build(app)?)
+        .item(&MenuItemBuilder::with_id("last_card", "Last Card").accelerator("End").build(app)?)
+        .build()?;
+
+    let window_menu = SubmenuBuilder::new(app, "Window")
+        .item(&PredefinedMenuItem::minimize(app, None)?)
+        .item(&PredefinedMenuItem::maximize(app, None)?)
+        .separator()
+        .item(&PredefinedMenuItem::close_window(app, None)?)
+        .build()?;
+
+    MenuBuilder::new(app)
+        .item(&file_menu)
+        .item(&edit_menu)
+        .item(&view_menu)
+        .item(&window_menu)
+        .build()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -281,6 +325,17 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![list_md_files, read_file, get_file_meta, watch_folder, search_files, write_log])
+        .setup(|app| {
+            let menu = build_menu(app.handle())?;
+            app.set_menu(menu)?;
+
+            // Handle menu events
+            app.on_menu_event(move |app, event| {
+                let _ = app.emit("menu-action", event.id().0.as_str());
+            });
+
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

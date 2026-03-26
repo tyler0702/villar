@@ -39,6 +39,7 @@ export function Header({ onSearchClick }: HeaderProps) {
       className="vs-header flex items-center gap-3 pl-20 pr-5 py-1 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0 select-none cursor-default"
     >
       <button
+        data-open-folder
         onClick={handleOpenFolder}
         className="vs-header-accent px-3 py-1 text-[12px] font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
       >

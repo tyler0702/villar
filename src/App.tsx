@@ -58,9 +58,35 @@ function App() {
       const tree = await invoke<FsNode[]>("list_md_files", { dirPath: event.payload.path });
       useAppStore.getState().setTree(tree);
     });
+    const unlistenMenu = listen<string>("menu-action", (event) => {
+      const action = event.payload;
+      switch (action) {
+        case "open_folder":
+          document.querySelector<HTMLButtonElement>("[data-open-folder]")?.click();
+          break;
+        case "close_tab": {
+          const { tabs, activeTabIndex, closeTab } = useAppStore.getState();
+          if (tabs.length > 0) closeTab(activeTabIndex);
+          break;
+        }
+        case "find":
+          useAppStore.getState().setFindOpen(true);
+          break;
+        case "search":
+          setSearchOpen(true);
+          break;
+        case "focus_mode":
+          useAppStore.getState().toggleFocusMode();
+          break;
+        case "settings":
+          useAppStore.getState().setSettingsOpen(true);
+          break;
+      }
+    });
     return () => {
       unlistenFile.then((fn) => fn());
       unlistenTree.then((fn) => fn());
+      unlistenMenu.then((fn) => fn());
     };
   }, [handleFileChanged]);
 
