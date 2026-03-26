@@ -104,8 +104,10 @@ function ThemeItem({
       ) : (
         <div className="flex gap-0.5 shrink-0">
           <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: theme.bg, border: `1px solid ${theme.border}` }} />
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: theme.headingColor }} />
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: theme.linkColor }} />
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: theme.codeBg, border: `1px solid ${theme.border}` }} />
           <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: theme.accent }} />
-          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: theme.sidebarBg, border: `1px solid ${theme.border}` }} />
         </div>
       )}
       <span className={`text-[11px] truncate ${isActive ? "font-medium" : ""}`}>

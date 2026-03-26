@@ -144,11 +144,51 @@ html {
   border-color: var(--vs-accent) !important;
   box-shadow: 0 0 0 1px var(--vs-accent), 0 4px 12px color-mix(in srgb, var(--vs-accent) 15%, transparent) !important;
 }
+/* Content theming — headings, links, code, quotes, tables */
 [data-vscode-theme] .vs-card .prose {
   color: var(--vs-editor-fg) !important;
 }
-[data-vscode-theme] .vs-card h2 {
-  color: var(--vs-editor-fg) !important;
+[data-vscode-theme] .vs-card h1,
+[data-vscode-theme] .vs-card h2,
+[data-vscode-theme] .vs-card h3,
+[data-vscode-theme] .vs-card h4 {
+  color: var(--vs-heading) !important;
+}
+[data-vscode-theme] .vs-card .prose a {
+  color: var(--vs-link) !important;
+  text-decoration-color: color-mix(in srgb, var(--vs-link) 40%, transparent) !important;
+}
+[data-vscode-theme] .vs-card .prose a:hover {
+  text-decoration-color: var(--vs-link) !important;
+}
+[data-vscode-theme] .vs-card .prose pre {
+  background-color: var(--vs-code-bg) !important;
+  border: 1px solid var(--vs-border) !important;
+}
+[data-vscode-theme] .vs-card .prose code {
+  color: var(--vs-code-fg) !important;
+}
+[data-vscode-theme] .vs-card .prose :not(pre) > code {
+  background-color: color-mix(in srgb, var(--vs-code-bg) 60%, transparent) !important;
+  padding: 2px 5px !important;
+  border-radius: 3px !important;
+}
+[data-vscode-theme] .vs-card .prose blockquote {
+  border-left-color: var(--vs-blockquote-border) !important;
+  color: var(--vs-blockquote-fg) !important;
+}
+[data-vscode-theme] .vs-card .prose table th,
+[data-vscode-theme] .vs-card .prose table td {
+  border-color: var(--vs-table-border) !important;
+}
+[data-vscode-theme] .vs-card .prose table th {
+  background-color: var(--vs-table-header-bg) !important;
+}
+[data-vscode-theme] .vs-card .prose strong {
+  color: var(--vs-heading) !important;
+}
+[data-vscode-theme] .vs-card .prose hr {
+  border-color: var(--vs-border) !important;
 }
 [data-vscode-theme] .vs-border { border-color: var(--vs-border) !important; }
 [data-vscode-theme] .vs-accent { color: var(--vs-accent) !important; }

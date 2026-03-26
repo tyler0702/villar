@@ -51,6 +51,15 @@ export interface VscodeThemeColors {
   editorFg: string;
   border: string;
   selectionBg: string;
+  // Extended tokens for richer theming
+  headingColor: string;
+  linkColor: string;
+  codeBg: string;
+  codeFg: string;
+  blockquoteBorder: string;
+  blockquoteFg: string;
+  tableBorder: string;
+  tableHeaderBg: string;
 }
 
 const DEFAULT_SETTINGS: Settings = {
