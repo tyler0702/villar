@@ -304,15 +304,19 @@ fn chrono_lite_timestamp() -> String {
     format!("{}", duration.as_secs())
 }
 
-fn build_menu(app: &AppHandle) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::Error> {
-    let file_menu = SubmenuBuilder::new(app, "File")
-        .item(&MenuItemBuilder::with_id("new_window", "New Window").accelerator("CmdOrCtrl+Shift+N").build(app)?)
-        .item(&MenuItemBuilder::with_id("open_folder", "Open Folder...").accelerator("CmdOrCtrl+O").build(app)?)
+fn build_menu_with_labels(app: &AppHandle, l: &std::collections::HashMap<String, String>) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::Error> {
+    let g = |key: &str, fallback: &str| -> String {
+        l.get(key).cloned().unwrap_or_else(|| fallback.to_string())
+    };
+
+    let file_menu = SubmenuBuilder::new(app, g("menu.file", "File"))
+        .item(&MenuItemBuilder::with_id("new_window", g("menu.newWindow", "New Window")).accelerator("CmdOrCtrl+Shift+N").build(app)?)
+        .item(&MenuItemBuilder::with_id("open_folder", g("menu.openFolder", "Open Folder...")).accelerator("CmdOrCtrl+O").build(app)?)
         .separator()
-        .item(&MenuItemBuilder::with_id("close_tab", "Close Tab").accelerator("CmdOrCtrl+W").build(app)?)
+        .item(&MenuItemBuilder::with_id("close_tab", g("menu.closeTab", "Close Tab")).accelerator("CmdOrCtrl+W").build(app)?)
         .build()?;
 
-    let edit_menu = SubmenuBuilder::new(app, "Edit")
+    let edit_menu = SubmenuBuilder::new(app, g("menu.edit", "Edit"))
         .item(&PredefinedMenuItem::undo(app, None)?)
         .item(&PredefinedMenuItem::redo(app, None)?)
         .separator()
@@ -321,26 +325,26 @@ fn build_menu(app: &AppHandle) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::E
         .item(&PredefinedMenuItem::paste(app, None)?)
         .item(&PredefinedMenuItem::select_all(app, None)?)
         .separator()
-        .item(&MenuItemBuilder::with_id("find", "Find in Document").accelerator("CmdOrCtrl+F").build(app)?)
-        .item(&MenuItemBuilder::with_id("search", "Search Files...").accelerator("CmdOrCtrl+K").build(app)?)
+        .item(&MenuItemBuilder::with_id("find", g("menu.find", "Find in Document")).accelerator("CmdOrCtrl+F").build(app)?)
+        .item(&MenuItemBuilder::with_id("search", g("menu.search", "Search Files...")).accelerator("CmdOrCtrl+K").build(app)?)
         .build()?;
 
-    let view_menu = SubmenuBuilder::new(app, "View")
-        .item(&MenuItemBuilder::with_id("zoom_in", "Zoom In").accelerator("CmdOrCtrl+=").build(app)?)
-        .item(&MenuItemBuilder::with_id("zoom_out", "Zoom Out").accelerator("CmdOrCtrl+-").build(app)?)
-        .item(&MenuItemBuilder::with_id("zoom_reset", "Actual Size").accelerator("CmdOrCtrl+0").build(app)?)
+    let view_menu = SubmenuBuilder::new(app, g("menu.view", "View"))
+        .item(&MenuItemBuilder::with_id("zoom_in", g("menu.zoomIn", "Zoom In")).accelerator("CmdOrCtrl+=").build(app)?)
+        .item(&MenuItemBuilder::with_id("zoom_out", g("menu.zoomOut", "Zoom Out")).accelerator("CmdOrCtrl+-").build(app)?)
+        .item(&MenuItemBuilder::with_id("zoom_reset", g("menu.actualSize", "Actual Size")).accelerator("CmdOrCtrl+0").build(app)?)
         .separator()
-        .item(&MenuItemBuilder::with_id("focus_mode", "Toggle Focus Mode").accelerator("F").build(app)?)
+        .item(&MenuItemBuilder::with_id("focus_mode", g("menu.focusMode", "Toggle Focus Mode")).accelerator("F").build(app)?)
         .separator()
-        .item(&MenuItemBuilder::with_id("settings", "Settings...").accelerator("CmdOrCtrl+,").build(app)?)
+        .item(&MenuItemBuilder::with_id("settings", g("menu.settings", "Settings...")).accelerator("CmdOrCtrl+,").build(app)?)
         .separator()
-        .item(&MenuItemBuilder::with_id("prev_card", "Previous Card").accelerator("Left").build(app)?)
-        .item(&MenuItemBuilder::with_id("next_card", "Next Card").accelerator("Right").build(app)?)
-        .item(&MenuItemBuilder::with_id("first_card", "First Card").accelerator("Home").build(app)?)
-        .item(&MenuItemBuilder::with_id("last_card", "Last Card").accelerator("End").build(app)?)
+        .item(&MenuItemBuilder::with_id("prev_card", g("menu.prevCard", "Previous Card")).accelerator("Left").build(app)?)
+        .item(&MenuItemBuilder::with_id("next_card", g("menu.nextCard", "Next Card")).accelerator("Right").build(app)?)
+        .item(&MenuItemBuilder::with_id("first_card", g("menu.firstCard", "First Card")).accelerator("Home").build(app)?)
+        .item(&MenuItemBuilder::with_id("last_card", g("menu.lastCard", "Last Card")).accelerator("End").build(app)?)
         .build()?;
 
-    let window_menu = SubmenuBuilder::new(app, "Window")
+    let window_menu = SubmenuBuilder::new(app, g("menu.window", "Window"))
         .item(&PredefinedMenuItem::minimize(app, None)?)
         .item(&PredefinedMenuItem::maximize(app, None)?)
         .separator()
@@ -355,6 +359,13 @@ fn build_menu(app: &AppHandle) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::E
         .build()
 }
 
+#[tauri::command]
+fn update_menu(app_handle: AppHandle, labels: std::collections::HashMap<String, String>) -> Result<(), String> {
+    let menu = build_menu_with_labels(&app_handle, &labels).map_err(|e| e.to_string())?;
+    app_handle.set_menu(menu).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -362,9 +373,10 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![list_md_files, read_file, get_file_meta, watch_folder, search_files, write_log])
+        .invoke_handler(tauri::generate_handler![list_md_files, read_file, get_file_meta, watch_folder, search_files, write_log, update_menu])
         .setup(|app| {
-            let menu = build_menu(app.handle())?;
+            let labels = std::collections::HashMap::new(); // Default English
+            let menu = build_menu_with_labels(app.handle(), &labels)?;
             app.set_menu(menu)?;
 
             // Handle menu events

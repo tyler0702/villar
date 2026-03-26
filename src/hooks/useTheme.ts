@@ -1,6 +1,8 @@
 import { useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../stores/useAppStore";
 import { FONT_OPTIONS } from "../themes/fonts";
+import { translations } from "../i18n/translations";
 
 function hexLuminance(hex: string): number {
   const c = hex.replace("#", "");
@@ -14,6 +16,7 @@ function hexLuminance(hex: string): number {
 export function useTheme() {
   const vscodeTheme = useAppStore((s) => s.settings.vscodeTheme);
   const fontFamily = useAppStore((s) => s.settings.fontFamily);
+  const language = useAppStore((s) => s.settings.language);
 
   // Dark mode
   useEffect(() => {
@@ -41,4 +44,16 @@ export function useTheme() {
       document.documentElement.style.removeProperty("--reading-font");
     };
   }, [fontFamily]);
+
+  // Update menu bar when language changes
+  useEffect(() => {
+    const dict = translations[language] ?? translations.en;
+    const labels: Record<string, string> = {};
+    for (const [key, value] of Object.entries(dict)) {
+      if (key.startsWith("menu.")) {
+        labels[key] = value;
+      }
+    }
+    invoke("update_menu", { labels }).catch(() => {});
+  }, [language]);
 }
