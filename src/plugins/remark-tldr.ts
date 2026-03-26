@@ -49,18 +49,137 @@ export function extractTldr(children: Content[]): TldrData | null {
 }
 
 function extractSummary(children: Content[]): string | null {
+  const paragraphs = collectParagraphs(children);
+  if (paragraphs.length === 0) return null;
+
+  // For 3+ paragraphs, try TextRank
+  if (paragraphs.length >= 3) {
+    const textRankResult = textRankSummary(paragraphs);
+    const ruleResult = ruleBasedSummary(paragraphs[0]);
+    if (textRankResult && (!ruleResult || textRankResult.length >= ruleResult.length)) {
+      return textRankResult;
+    }
+    // Fall back to rule-based if TextRank result is shorter
+    return ruleResult;
+  }
+
+  // 1-2 paragraphs: rule-based
+  return ruleBasedSummary(paragraphs[0]);
+}
+
+function collectParagraphs(children: Content[]): string[] {
+  const result: string[] = [];
   for (const node of children) {
     if (node.type === "paragraph") {
-      const text = getPlainText(node as Paragraph);
-      // Take first 1-2 sentences
-      const sentences = text.match(/[^。.!！？?]+[。.!！？?]?/g);
-      if (sentences) {
-        return sentences.slice(0, 2).join("").trim();
-      }
-      return text.trim() || null;
+      const text = getPlainText(node as Paragraph).trim();
+      if (text) result.push(text);
     }
   }
-  return null;
+  return result;
+}
+
+function ruleBasedSummary(text: string): string | null {
+  const sentences = text.match(/[^。.!！？?]+[。.!！？?]?/g);
+  if (sentences) {
+    return sentences.slice(0, 2).join("").trim();
+  }
+  return text.trim() || null;
+}
+
+// --- TextRank ---
+
+function splitSentences(text: string): string[] {
+  const raw = text.match(/[^。.!！？?\n]+[。.!！？?]?/g);
+  if (!raw) return [];
+  return raw.map((s) => s.trim()).filter((s) => s.length > 0);
+}
+
+function tokenize(sentence: string): string[] {
+  // Simple word-level tokenization: split on whitespace and CJK boundaries
+  return sentence
+    .toLowerCase()
+    .split(/[\s,;:()[\]{}'"、，；：（）「」『』【】]+/)
+    .filter((w) => w.length > 1);
+}
+
+function sentenceSimilarity(a: string[], b: string[]): number {
+  if (a.length === 0 || b.length === 0) return 0;
+  const setB = new Set(b);
+  let common = 0;
+  for (const word of a) {
+    if (setB.has(word)) common++;
+  }
+  if (common === 0) return 0;
+  const denom = Math.log(a.length + 1) + Math.log(b.length + 1);
+  return denom > 0 ? common / denom : 0;
+}
+
+function textRankSummary(paragraphs: string[]): string | null {
+  // Collect all sentences
+  let sentences: string[] = [];
+  for (const p of paragraphs) {
+    sentences.push(...splitSentences(p));
+  }
+  if (sentences.length < 3) return null;
+
+  // Truncate to 30 if over 50
+  if (sentences.length > 50) {
+    sentences = sentences.slice(0, 30);
+  }
+
+  const n = sentences.length;
+  const tokens = sentences.map(tokenize);
+
+  // Build similarity matrix (only store edges above threshold)
+  const THRESHOLD = 0.1;
+  const edges: number[][] = Array.from({ length: n }, () => []);
+  const weights: number[][] = Array.from({ length: n }, () => []);
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const sim = sentenceSimilarity(tokens[i], tokens[j]);
+      if (sim >= THRESHOLD) {
+        edges[i].push(j);
+        weights[i].push(sim);
+        edges[j].push(i);
+        weights[j].push(sim);
+      }
+    }
+  }
+
+  // PageRank
+  const DAMPING = 0.85;
+  const ITERATIONS = 30;
+  let scores = new Float64Array(n).fill(1 / n);
+  let next = new Float64Array(n);
+
+  // Precompute outgoing weight sums
+  const outSum = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    let s = 0;
+    for (const w of weights[i]) s += w;
+    outSum[i] = s;
+  }
+
+  for (let iter = 0; iter < ITERATIONS; iter++) {
+    next.fill((1 - DAMPING) / n);
+    for (let i = 0; i < n; i++) {
+      if (outSum[i] === 0) continue;
+      const neighbors = edges[i];
+      const ws = weights[i];
+      for (let k = 0; k < neighbors.length; k++) {
+        next[neighbors[k]] += DAMPING * scores[i] * (ws[k] / outSum[i]);
+      }
+    }
+    [scores, next] = [next, scores];
+  }
+
+  // Pick top 2 sentences, maintaining original order
+  const indexed = Array.from(scores, (score, i) => ({ score, i }));
+  indexed.sort((a, b) => b.score - a.score);
+  const topIndices = indexed.slice(0, 2).map((x) => x.i).sort((a, b) => a - b);
+
+  return topIndices.map((i) => sentences[i]).join(" ").trim() || null;
 }
 
 function extractPoints(children: Content[]): string[] {
