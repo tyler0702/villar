@@ -13,7 +13,8 @@
 - **Focus Mode** - Dims inactive cards (configurable opacity)
 - **TL;DR Cards** - Auto-generated summaries per section (rule-based)
 - **Reading Progress** - Scroll-based progress bar + section read marks
-- **Split View** - View two files side by side
+- **Card Thumbnails** - Mini-cards in footer for quick section navigation
+- **File Dates** - Created/Updated timestamps displayed per file
 
 ### Markdown Support
 - **GFM** - Tables, task lists, strikethrough, autolinks
