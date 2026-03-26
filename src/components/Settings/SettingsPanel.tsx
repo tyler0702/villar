@@ -10,6 +10,9 @@ const SHORTCUTS = [
   { key: "\u2318K", action: "Search" },
   { key: "\u2318F", action: "Find in doc" },
   { key: "\u2318W", action: "Close tab" },
+  { key: "\u2318+/\u2318-", action: "Zoom in/out" },
+  { key: "\u23180", action: "Reset zoom" },
+  { key: "\u2318\u21E7N", action: "New window" },
   { key: "\u2318,", action: "Settings" },
 ];
 
