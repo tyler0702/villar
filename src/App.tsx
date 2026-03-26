@@ -33,18 +33,10 @@ function App() {
   const fontScale = useAppStore((s) => s.settings.fontScale);
   const sidebarWidth = useAppStore((s) => s.settings.sidebarWidth);
   const settingsWidth = useAppStore((s) => s.settings.settingsWidth);
-  const splitWidth = useAppStore((s) => s.settings.splitWidth);
 
   const activeFilePath = activeTab?.file.path ?? null;
   const collapseConfig = { listThreshold: collapseListThreshold, codeThreshold: collapseCodeThreshold };
   const sections = useMarkdown(fileContent, collapseConfig, activeFilePath);
-
-  // Split view
-  const splitMode = useAppStore((s) => s.splitMode);
-  const splitTab = useAppStore((s) => s.splitMode ? s.tabs[s.splitTabIndex] ?? null : null);
-  const splitContent = splitTab?.content ?? null;
-  const splitFilePath = splitTab?.file.path ?? null;
-  const splitSections = useMarkdown(splitContent, collapseConfig, splitFilePath);
   const [searchOpen, setSearchOpen] = useState(false);
   useKeyboard(sections.length, () => setSearchOpen(true));
 
@@ -85,11 +77,6 @@ function App() {
     (w) => useAppStore.getState().updateSettings({ settingsWidth: w }),
     200, 400, "right"
   );
-  const splitResize = useResizable(
-    splitWidth,
-    (w) => useAppStore.getState().updateSettings({ splitWidth: w }),
-    200, 800, "right"
-  );
 
   return (
     <div className="h-screen flex flex-col bg-surface-50 dark:bg-surface-900 text-gray-800 dark:text-gray-100 vs-bg vs-fg">
@@ -100,52 +87,30 @@ function App() {
         <div className="resize-handle" onMouseDown={sidebarResize} />
 
         {/* Main area */}
-        <div className="flex-1 flex overflow-hidden vs-canvas" style={zoomStyle}>
-          {/* Left pane */}
-          <div className={`${splitMode ? "flex-1" : "flex-1"} flex flex-col overflow-hidden`}>
-            <TabBar pane="left" />
-            {findOpen ? <FindBar /> : null}
-            <main className="flex-1 overflow-hidden">
-              {hasContent ? (
-                <CardView sections={sections} />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-4">
-                  <p className="text-lg font-light tracking-wide">Open a folder, pick a file</p>
-                  <div className="text-xs space-y-1.5 text-center opacity-60">
-                    <p>
-                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&larr;</kbd>{" "}
-                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&rarr;</kbd>{" "}
-                      Navigate
-                    </p>
-                    <p>
-                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+K</kbd> Search{" "}
-                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+F</kbd> Find{" "}
-                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">F</kbd> Focus
-                    </p>
-                  </div>
-                </div>
-              )}
-            </main>
-          </div>
-
-          {/* Right pane (split mode) */}
-          {splitMode ? (
-            <>
-              <div className="resize-handle" onMouseDown={splitResize} />
-              <div style={{ width: splitWidth }} className="shrink-0 flex flex-col overflow-hidden">
-                <TabBar pane="right" />
-                <div className="flex-1 overflow-hidden">
-                  {splitSections.length > 0 ? (
-                    <CardView sections={splitSections} />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 text-sm">
-                      Select a tab for this pane
-                    </div>
-                  )}
+        <div className="flex-1 flex flex-col overflow-hidden vs-canvas" style={zoomStyle}>
+          <TabBar />
+          {findOpen ? <FindBar /> : null}
+          <main className="flex-1 overflow-hidden">
+            {hasContent ? (
+              <CardView sections={sections} />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-4">
+                <p className="text-lg font-light tracking-wide">Open a folder, pick a file</p>
+                <div className="text-xs space-y-1.5 text-center opacity-60">
+                  <p>
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&larr;</kbd>{" "}
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&rarr;</kbd>{" "}
+                    Navigate
+                  </p>
+                  <p>
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+K</kbd> Search{" "}
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+F</kbd> Find{" "}
+                    <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">F</kbd> Focus
+                  </p>
                 </div>
               </div>
-            </>
-          ) : null}
+            )}
+          </main>
         </div>
 
         {/* Right settings sidebar */}

@@ -37,7 +37,6 @@ export interface Settings {
   restoreSession: boolean;
   sidebarWidth: number;
   settingsWidth: number;
-  splitWidth: number;
   vscodeTheme: VscodeThemeColors | null;
 }
 
@@ -67,7 +66,6 @@ const DEFAULT_SETTINGS: Settings = {
   restoreSession: true,
   sidebarWidth: 224,
   settingsWidth: 256,
-  splitWidth: 500,
   vscodeTheme: null,
 };
 
@@ -121,8 +119,6 @@ interface AppState {
   readSections: Set<string>;
   findOpen: boolean;
   findQuery: string;
-  splitMode: boolean;
-  splitTabIndex: number;
 
   setFolderPath: (path: string | null) => void;
   setTree: (tree: FsNode[]) => void;
@@ -139,10 +135,7 @@ interface AppState {
   setFindOpen: (open: boolean) => void;
   setFindQuery: (query: string) => void;
   clearChangedSections: (path: string) => void;
-  toggleSplitMode: () => void;
-  setSplitTabIndex: (index: number) => void;
   reorderTab: (from: number, to: number) => void;
-  moveTabToSplit: (tabIndex: number) => void;
 }
 
 const initialSettings: Settings = { ...DEFAULT_SETTINGS, ...savedSettings };
@@ -171,8 +164,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   readSections: new Set(),
   findOpen: false,
   findQuery: "",
-  splitMode: false,
-  splitTabIndex: -1,
 
   setFolderPath: (path) => {
     set({ folderPath: path, tabs: [], activeTabIndex: 0 });
@@ -268,39 +259,18 @@ export const useAppStore = create<AppState>((set, get) => ({
     );
     set({ tabs: updated });
   },
-  toggleSplitMode: () => {
-    const { splitMode, tabs, activeTabIndex } = get();
-    if (!splitMode && tabs.length >= 2) {
-      // Pick the other tab for split
-      const other = activeTabIndex === 0 ? 1 : 0;
-      set({ splitMode: true, splitTabIndex: other });
-    } else {
-      set({ splitMode: false, splitTabIndex: -1 });
-    }
-  },
-  setSplitTabIndex: (index) => set({ splitTabIndex: index }),
   reorderTab: (from, to) => {
-    const { tabs, activeTabIndex, splitTabIndex } = get();
+    const { tabs, activeTabIndex } = get();
     if (from === to || from < 0 || to < 0 || from >= tabs.length || to >= tabs.length) return;
     const updated = [...tabs];
     const [moved] = updated.splice(from, 1);
     updated.splice(to, 0, moved);
-    // Adjust active/split indices to follow their tabs
     let newActive = activeTabIndex;
     if (from === activeTabIndex) newActive = to;
     else if (from < activeTabIndex && to >= activeTabIndex) newActive--;
     else if (from > activeTabIndex && to <= activeTabIndex) newActive++;
-    let newSplit = splitTabIndex;
-    if (splitTabIndex >= 0) {
-      if (from === splitTabIndex) newSplit = to;
-      else if (from < splitTabIndex && to >= splitTabIndex) newSplit--;
-      else if (from > splitTabIndex && to <= splitTabIndex) newSplit++;
-    }
-    set({ tabs: updated, activeTabIndex: newActive, splitTabIndex: newSplit });
+    set({ tabs: updated, activeTabIndex: newActive });
     persistSession(get());
-  },
-  moveTabToSplit: (tabIndex) => {
-    set({ splitMode: true, splitTabIndex: tabIndex });
   },
 }));
 
