@@ -1,4 +1,4 @@
-import type { Content, Paragraph, List, ListItem, Strong, Text } from "mdast";
+import type { Content, Heading, Paragraph, List, ListItem, Strong, Text, InlineCode } from "mdast";
 
 export interface TldrData {
   summary: string | null;
@@ -9,7 +9,18 @@ export interface TldrData {
 
 const MIN_CHAR_COUNT = 50;
 const MAX_POINTS = 3;
-const CONCLUSION_PREFIXES = ["結論", "まとめ", "つまり"];
+const MAX_KEYWORDS = 8;
+const CONCLUSION_PREFIXES = [
+  // Japanese
+  "結論", "まとめ", "つまり", "要するに", "総括", "以上から", "結果として",
+  // English
+  "In conclusion", "In summary", "To summarize", "Therefore", "Thus",
+  "In short", "To sum up", "The key takeaway",
+  // Chinese
+  "总结", "综上", "总之", "简而言之",
+  // Korean
+  "결론", "요약하면", "정리하면",
+];
 
 export function extractTldr(children: Content[]): TldrData | null {
   const summary = extractSummary(children);
@@ -17,19 +28,22 @@ export function extractTldr(children: Content[]): TldrData | null {
   const keywords = extractKeywords(children);
   const conclusion = extractConclusion(children);
 
-  // Check visibility conditions
+  // Must have a summary
   if (!summary) return null;
 
+  // Summary alone >= 50 chars is enough to display
+  if (summary.length >= MIN_CHAR_COUNT) {
+    return { summary, points, keywords, conclusion };
+  }
+
+  // Otherwise check total chars
   const totalChars =
-    (summary?.length || 0) +
+    summary.length +
     points.join("").length +
     keywords.join("").length +
     (conclusion?.length || 0);
 
   if (totalChars < MIN_CHAR_COUNT) return null;
-
-  const validElements = [summary, points.length > 0 ? points : null, conclusion].filter(Boolean);
-  if (validElements.length < 1) return null;
 
   return { summary, points, keywords, conclusion };
 }
@@ -50,6 +64,7 @@ function extractSummary(children: Content[]): string | null {
 }
 
 function extractPoints(children: Content[]): string[] {
+  // Prefer bullet/ordered lists over H3 headings
   for (const node of children) {
     if (node.type === "list") {
       const list = node as List;
@@ -58,7 +73,19 @@ function extractPoints(children: Content[]): string[] {
       });
     }
   }
-  return [];
+
+  // Fallback: extract H3 headings as points
+  const h3Points: string[] = [];
+  for (const node of children) {
+    if (node.type === "heading" && (node as Heading).depth === 3) {
+      const text = (node as Heading).children
+        .map((c) => ("value" in c ? (c as Text).value : ""))
+        .join("");
+      if (text.trim()) h3Points.push(text.trim());
+      if (h3Points.length >= MAX_POINTS) break;
+    }
+  }
+  return h3Points;
 }
 
 function extractKeywords(children: Content[]): string[] {
@@ -73,6 +100,10 @@ function extractKeywords(children: Content[]): string[] {
           .join("");
         if (text.trim()) keywords.push(text.trim());
       }
+      if (node.type === "inlineCode") {
+        const text = (node as InlineCode).value.trim();
+        if (text) keywords.push(text);
+      }
       if ("children" in node && Array.isArray(node.children)) {
         walk(node.children as Content[]);
       }
@@ -80,7 +111,7 @@ function extractKeywords(children: Content[]): string[] {
   }
 
   walk(children);
-  return [...new Set(keywords)];
+  return [...new Set(keywords)].slice(0, MAX_KEYWORDS);
 }
 
 function extractConclusion(children: Content[]): string | null {
