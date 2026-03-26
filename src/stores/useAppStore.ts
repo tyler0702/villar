@@ -37,6 +37,7 @@ export interface Settings {
   restoreSession: boolean;
   sidebarWidth: number;
   settingsWidth: number;
+  splitWidth: number;
   vscodeTheme: VscodeThemeColors | null;
 }
 
@@ -66,6 +67,7 @@ const DEFAULT_SETTINGS: Settings = {
   restoreSession: true,
   sidebarWidth: 224,
   settingsWidth: 256,
+  splitWidth: 500,
   vscodeTheme: null,
 };
 

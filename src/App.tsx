@@ -33,6 +33,7 @@ function App() {
   const fontScale = useAppStore((s) => s.settings.fontScale);
   const sidebarWidth = useAppStore((s) => s.settings.sidebarWidth);
   const settingsWidth = useAppStore((s) => s.settings.settingsWidth);
+  const splitWidth = useAppStore((s) => s.settings.splitWidth);
 
   const activeFilePath = activeTab?.file.path ?? null;
   const collapseConfig = { listThreshold: collapseListThreshold, codeThreshold: collapseCodeThreshold };
@@ -84,6 +85,11 @@ function App() {
     (w) => useAppStore.getState().updateSettings({ settingsWidth: w }),
     200, 400, "right"
   );
+  const splitResize = useResizable(
+    splitWidth,
+    (w) => useAppStore.getState().updateSettings({ splitWidth: w }),
+    200, 800, "right"
+  );
 
   return (
     <div className="h-screen flex flex-col bg-surface-50 dark:bg-surface-900 text-gray-800 dark:text-gray-100 vs-bg vs-fg">
@@ -123,13 +129,19 @@ function App() {
           </div>
 
           {/* Right pane (split mode) */}
-          {splitMode && splitSections.length > 0 ? (
+          {splitMode ? (
             <>
-              <div className="w-px bg-gray-200/60 dark:bg-gray-700/60 vs-border shrink-0" />
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="resize-handle" onMouseDown={splitResize} />
+              <div style={{ width: splitWidth }} className="shrink-0 flex flex-col overflow-hidden">
                 <TabBar pane="right" />
                 <div className="flex-1 overflow-hidden">
-                  <CardView sections={splitSections} />
+                  {splitSections.length > 0 ? (
+                    <CardView sections={splitSections} />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 text-sm">
+                      Select a tab for this pane
+                    </div>
+                  )}
                 </div>
               </div>
             </>

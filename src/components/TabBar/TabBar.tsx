@@ -1,16 +1,16 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState } from "react";
 import { useAppStore } from "../../stores/useAppStore";
 
 interface TabBarProps {
-  pane?: "left" | "right";
+  pane: "left" | "right";
 }
 
 interface DragState {
   from: number;
-  insertBefore: number; // index where the tab would be inserted
-  offsetX: number; // cursor offset from tab left edge
-  tabWidth: number; // width of the dragged tab
-  translateX: number; // current translateX for the dragged tab
+  insertBefore: number;
+  offsetX: number;
+  tabWidth: number;
+  translateX: number;
 }
 
 export function TabBar({ pane }: TabBarProps) {
@@ -23,11 +23,17 @@ export function TabBar({ pane }: TabBarProps) {
   const dragRef = useRef<DragState | null>(null);
   const didDrag = useRef(false);
   const tabRectsRef = useRef<DOMRect[]>([]);
-
-  if (tabs.length <= 1 && !splitMode) return null;
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; tabIndex: number } | null>(null);
 
   const isRight = pane === "right";
   const currentActiveIndex = isRight ? splitTabIndex : activeTabIndex;
+
+  // In non-split mode, right pane TabBar doesn't render
+  if (!splitMode && isRight) return null;
+  // Show TabBar only if there are tabs
+  if (tabs.length === 0) return null;
+  // Non-split left: show only if 2+ tabs
+  if (!splitMode && !isRight && tabs.length <= 1) return null;
 
   function handleMouseDown(e: React.MouseEvent, i: number) {
     if (e.button !== 0) return;
@@ -37,15 +43,14 @@ export function TabBar({ pane }: TabBarProps) {
     const tabBar = (e.currentTarget as HTMLElement).closest("[data-tabbar]");
     if (!tabBar) return;
 
-    // Snapshot all tab positions
     const tabEls = tabBar.querySelectorAll<HTMLElement>("[data-tab-index]");
     const rects: DOMRect[] = [];
     tabEls.forEach((el) => rects.push(el.getBoundingClientRect()));
     tabRectsRef.current = rects;
 
     const tabRect = rects[i];
+    if (!tabRect) return;
     const offsetX = e.clientX - tabRect.left;
-
     didDrag.current = false;
     const startX = e.clientX;
 
@@ -63,7 +68,6 @@ export function TabBar({ pane }: TabBarProps) {
       if (!didDrag.current && Math.abs(dx) < 4) return;
       didDrag.current = true;
 
-      // Compute where to insert based on cursor position
       const rects = tabRectsRef.current;
       let insertIdx = rects.length;
       for (let j = 0; j < rects.length; j++) {
@@ -74,13 +78,7 @@ export function TabBar({ pane }: TabBarProps) {
         }
       }
 
-      // Adjust: if inserting after the source, the effective index stays the same
-      // because the source will be removed first
-      const next: DragState = {
-        ...initial,
-        translateX: dx,
-        insertBefore: insertIdx,
-      };
+      const next: DragState = { ...initial, translateX: dx, insertBefore: insertIdx };
       dragRef.current = next;
       setDragState({ ...next });
     };
@@ -93,9 +91,8 @@ export function TabBar({ pane }: TabBarProps) {
 
       const d = dragRef.current;
       if (didDrag.current && d) {
-        // Convert insertBefore to reorder target
         let to = d.insertBefore;
-        if (to > d.from) to--; // adjust for removal
+        if (to > d.from) to--;
         if (d.from !== to && to >= 0) {
           useAppStore.getState().reorderTab(d.from, to);
         }
@@ -119,22 +116,50 @@ export function TabBar({ pane }: TabBarProps) {
     document.body.style.userSelect = "none";
   }
 
+  function handleContextMenu(e: React.MouseEvent, i: number) {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, tabIndex: i });
+  }
+
   function handleClose(e: React.MouseEvent, i: number) {
     e.stopPropagation();
-    if (isRight && i === splitTabIndex) {
+    useAppStore.getState().closeTab(i);
+    // If we closed the split tab, exit split
+    if (splitMode && i === splitTabIndex) {
       useAppStore.getState().toggleSplitMode();
-    } else {
-      useAppStore.getState().closeTab(i);
     }
   }
 
-  // Compute visual shifts for each tab during drag
+  function handleSplitRight(tabIndex: number) {
+    setContextMenu(null);
+    if (!splitMode) {
+      useAppStore.getState().moveTabToSplit(tabIndex);
+    } else {
+      useAppStore.getState().setSplitTabIndex(tabIndex);
+    }
+  }
+
+  function handleMoveToLeft(tabIndex: number) {
+    setContextMenu(null);
+    useAppStore.getState().setActiveTab(tabIndex);
+  }
+
+  function handleCloseOthers(tabIndex: number) {
+    setContextMenu(null);
+    const { tabs } = useAppStore.getState();
+    // Close all except this one (iterate in reverse to keep indices stable)
+    for (let i = tabs.length - 1; i >= 0; i--) {
+      if (i !== tabIndex) {
+        useAppStore.getState().closeTab(i);
+      }
+    }
+  }
+
   function getTabStyle(i: number): React.CSSProperties | undefined {
     if (!dragState) return undefined;
     const { from, insertBefore, translateX, tabWidth } = dragState;
 
     if (i === from) {
-      // The dragged tab: follow cursor, elevate
       return {
         transform: `translateX(${translateX}px)`,
         zIndex: 10,
@@ -144,55 +169,101 @@ export function TabBar({ pane }: TabBarProps) {
       };
     }
 
-    // Other tabs: shift to make room
     const effectiveInsert = insertBefore > from ? insertBefore - 1 : insertBefore;
     let shift = 0;
-    if (from < i && i <= effectiveInsert) {
-      // Tab needs to shift left to fill the gap
-      shift = -tabWidth;
-    } else if (from > i && i >= effectiveInsert) {
-      // Tab needs to shift right to make room
-      shift = tabWidth;
-    }
+    if (from < i && i <= effectiveInsert) shift = -tabWidth;
+    else if (from > i && i >= effectiveInsert) shift = tabWidth;
 
-    if (shift !== 0) {
-      return {
-        transform: `translateX(${shift}px)`,
-        transition: "transform 0.15s ease",
-      };
-    }
-    return { transition: "transform 0.15s ease" };
+    return shift !== 0
+      ? { transform: `translateX(${shift}px)`, transition: "transform 0.15s ease" }
+      : { transition: "transform 0.15s ease" };
+  }
+
+  // Highlight which tabs belong to this pane
+  function isTabInThisPane(i: number): boolean {
+    if (!splitMode) return true;
+    if (isRight) return i === splitTabIndex;
+    return i === activeTabIndex;
   }
 
   return (
-    <div
-      data-tabbar
-      className="flex border-b border-gray-200/60 dark:border-gray-700/60 bg-gray-50/80 dark:bg-surface-900/80 overflow-x-auto shrink-0 vs-border"
-    >
-      {tabs.map((tab, i) => (
+    <>
+      <div
+        data-tabbar
+        className="flex border-b border-gray-200/60 dark:border-gray-700/60 bg-gray-50/80 dark:bg-surface-900/80 overflow-x-auto shrink-0 vs-border"
+      >
+        {tabs.map((tab, i) => {
+          const isActiveInPane = i === currentActiveIndex;
+          const dimmed = splitMode && !isTabInThisPane(i) && !isActiveInPane;
+          return (
+            <div
+              key={tab.file.path}
+              data-tab-index={i}
+              onMouseDown={(e) => handleMouseDown(e, i)}
+              onContextMenu={(e) => handleContextMenu(e, i)}
+              style={getTabStyle(i)}
+              className={`group flex items-center gap-1.5 px-3 py-1.5 text-xs border-b-2 shrink-0 select-none ${
+                dragState?.from === i ? "cursor-grabbing" : "cursor-grab"
+              } ${
+                isActiveInPane
+                  ? "border-accent-400 text-gray-800 dark:text-gray-100 bg-white/50 dark:bg-surface-800/50"
+                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+              } ${dimmed ? "opacity-40" : ""}`}
+            >
+              <span className="truncate max-w-[120px]">{tab.file.name.replace(/\.md$/, "")}</span>
+              <button
+                data-close
+                onClick={(e) => handleClose(e, i)}
+                className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-[10px] leading-none transition-opacity"
+              >
+                &times;
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Context menu */}
+      {contextMenu ? (
         <div
-          key={tab.file.path}
-          data-tab-index={i}
-          onMouseDown={(e) => handleMouseDown(e, i)}
-          style={getTabStyle(i)}
-          className={`group flex items-center gap-1.5 px-3 py-1.5 text-xs border-b-2 shrink-0 select-none ${
-            dragState?.from === i ? "cursor-grabbing" : "cursor-grab"
-          } ${
-            i === currentActiveIndex
-              ? "border-accent-400 text-gray-800 dark:text-gray-100 bg-white/50 dark:bg-surface-800/50"
-              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
-          }`}
+          className="fixed inset-0 z-50"
+          onClick={() => setContextMenu(null)}
+          onContextMenu={(e) => { e.preventDefault(); setContextMenu(null); }}
         >
-          <span className="truncate max-w-[120px]">{tab.file.name.replace(/\.md$/, "")}</span>
-          <button
-            data-close
-            onClick={(e) => handleClose(e, i)}
-            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-[10px] leading-none transition-opacity"
+          <div
+            className="absolute bg-white dark:bg-surface-800 rounded-lg shadow-lg border border-gray-200/60 dark:border-gray-700/60 py-1 min-w-[160px] text-xs"
+            style={{ left: contextMenu.x, top: contextMenu.y }}
+            onClick={(e) => e.stopPropagation()}
           >
-            &times;
-          </button>
+            <button
+              onClick={() => handleSplitRight(contextMenu.tabIndex)}
+              className="w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              Open in Split Right
+            </button>
+            {splitMode && isRight ? (
+              <button
+                onClick={() => handleMoveToLeft(contextMenu.tabIndex)}
+                className="w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                Move to Left Pane
+              </button>
+            ) : null}
+            <button
+              onClick={() => handleCloseOthers(contextMenu.tabIndex)}
+              className="w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              Close Others
+            </button>
+            <button
+              onClick={() => { setContextMenu(null); handleClose({ stopPropagation: () => {} } as React.MouseEvent, contextMenu.tabIndex); }}
+              className="w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-red-500"
+            >
+              Close
+            </button>
+          </div>
         </div>
-      ))}
-    </div>
+      ) : null}
+    </>
   );
 }
