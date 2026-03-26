@@ -88,7 +88,6 @@ const en: TranslationDict = {
   "find.noMatch": "No match",
   "find.found": "Found",
   "find.enterNext": "Enter / Shift+Enter",
-  "find.enterNext": "Enter = next",
 
   // SearchPanel
   "search.label": "Search",
