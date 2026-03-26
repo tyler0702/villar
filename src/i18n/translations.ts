@@ -3,8 +3,11 @@ export const LANGUAGES = [
   { code: "ja", label: "\u65E5\u672C\u8A9E" },
   { code: "zh-TW", label: "\u7E41\u9AD4\u4E2D\u6587" },
   { code: "zh-CN", label: "\u7B80\u4F53\u4E2D\u6587" },
+<<<<<<< HEAD
   { code: "ko", label: "\uD55C\uAD6D\uC5B4" },
   { code: "ar", label: "\u0627\u0644\u0639\u0631\u0628\u064A\u0629" },
+=======
+>>>>>>> wt3
   { code: "es", label: "Espa\u00F1ol" },
   { code: "de", label: "Deutsch" },
   { code: "ms", label: "Bahasa Melayu" },
@@ -32,7 +35,10 @@ const en: TranslationDict = {
   "settings.fontGroup.sans": "Sans-serif",
   "settings.fontGroup.serif": "Serif",
   "settings.fontGroup.mono": "Monospace",
+<<<<<<< HEAD
   "settings.fontGroup.jp": "Japanese",
+=======
+>>>>>>> wt3
 
   // Reading section
   "settings.reading": "Reading",
@@ -75,7 +81,11 @@ const en: TranslationDict = {
   "header.settingsTitle": "Settings (Cmd+,)",
 
   // Welcome screen
+<<<<<<< HEAD
   "welcome.message": "Open a folder, pick a file",
+=======
+  "welcome.title": "Open a folder, pick a file",
+>>>>>>> wt3
   "welcome.navigate": "Navigate",
   "welcome.search": "Search",
   "welcome.find": "Find",
@@ -84,9 +94,13 @@ const en: TranslationDict = {
   // FindBar
   "find.label": "Find",
   "find.placeholder": "Search in document...",
+<<<<<<< HEAD
   "find.noMatch": "No match",
   "find.found": "Found",
   "find.enterNext": "Enter / Shift+Enter",
+=======
+  "find.enterNext": "Enter = next",
+>>>>>>> wt3
 
   // SearchPanel
   "search.label": "Search",
@@ -95,6 +109,7 @@ const en: TranslationDict = {
   "search.noResults": "No results",
   "search.close": "Close",
   "search.openSearch": "Open search",
+<<<<<<< HEAD
 
   // Menu bar
   "menu.file": "File",
@@ -115,6 +130,8 @@ const en: TranslationDict = {
   "menu.firstCard": "First Card",
   "menu.lastCard": "Last Card",
   "menu.window": "Window",
+=======
+>>>>>>> wt3
 };
 
 const ja: TranslationDict = {
@@ -175,6 +192,7 @@ const ja: TranslationDict = {
   "search.noResults": "\u7D50\u679C\u306A\u3057",
   "search.close": "\u9589\u3058\u308B",
   "search.openSearch": "\u691C\u7D22\u3092\u958B\u304F",
+<<<<<<< HEAD
   "welcome.message": "\u30D5\u30A9\u30EB\u30C0\u3092\u958B\u3044\u3066\u30D5\u30A1\u30A4\u30EB\u3092\u9078\u629E",
   "find.noMatch": "\u4E00\u81F4\u306A\u3057",
   "find.found": "\u898B\u3064\u304B\u308A\u307E\u3057\u305F",
@@ -196,6 +214,8 @@ const ja: TranslationDict = {
   "menu.firstCard": "\u6700\u521D\u306E\u30AB\u30FC\u30C9",
   "menu.lastCard": "\u6700\u5F8C\u306E\u30AB\u30FC\u30C9",
   "menu.window": "\u30A6\u30A3\u30F3\u30C9\u30A6",
+=======
+>>>>>>> wt3
 };
 
 const zhTW: TranslationDict = {
@@ -452,7 +472,10 @@ const ms: TranslationDict = {
   "settings.fontGroup.sans": "Sans-serif",
   "settings.fontGroup.serif": "Serif",
   "settings.fontGroup.mono": "Monospace",
+<<<<<<< HEAD
   "settings.fontGroup.jp": "Japanese",
+=======
+>>>>>>> wt3
   "settings.reading": "Bacaan",
   "settings.focusOpacity": "Kelegapan Fokus",
   "settings.tldr": "TL;DR",
@@ -559,6 +582,7 @@ const vi: TranslationDict = {
   "search.openSearch": "M\u1EDF t\u00ECm ki\u1EBFm",
 };
 
+<<<<<<< HEAD
 const ko: TranslationDict = {
   "settings.title": "\uC124\uC815",
   "settings.display": "\uD45C\uC2DC",
@@ -619,13 +643,18 @@ const ar: TranslationDict = {
   "search.openSearch": "\u0641\u062A\u062D \u0627\u0644\u0628\u062D\u062B",
 };
 
+=======
+>>>>>>> wt3
 export const translations: Record<string, TranslationDict> = {
   en,
   ja,
   "zh-TW": zhTW,
   "zh-CN": zhCN,
+<<<<<<< HEAD
   ko,
   ar,
+=======
+>>>>>>> wt3
   es,
   de,
   ms,

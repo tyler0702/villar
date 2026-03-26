@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>villar - A beautiful Markdown reader</title>
+  <meta name="description" content="villar re-renders AI-generated Markdown into a card-based reading experience. Free, local-only, open source." />
+  <meta property="og:title" content="villar - A beautiful Markdown reader" />
+  <meta property="og:description" content="Re-renders AI-generated Markdown into a card-based reading experience." />
+  <meta property="og:image" content="logo.png" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --teal-deep: #1e3a4a;
+      --teal: #2a6f6a;
+      --teal-light: #3db8a4;
+      --teal-pale: #a8e0d4;
+      --navy: #1a2e3b;
+      --bg: #f2f4f2;
+      --bg-warm: #e9ece9;
+      --fg: #2c3e4a;
+      --fg-muted: #6b8292;
+      --white: #ffffff;
+      --border: #d4dfe5;
+      --gradient: linear-gradient(135deg, var(--teal-deep) 0%, var(--teal) 50%, var(--teal-light) 100%);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--fg);
+      background: var(--bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html[lang="ja"] body {
+      font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* ── Typography ── */
+    h1, h2, h3 {
+      font-family: 'DM Serif Display', Georgia, serif;
+      color: var(--teal-deep);
+      line-height: 1.2;
+    }
+
+    html[lang="ja"] h1,
+    html[lang="ja"] h2,
+    html[lang="ja"] .section-title {
+      font-family: 'Noto Sans JP', 'DM Serif Display', Georgia, serif;
+      font-weight: 600;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Navigation ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(242, 244, 242, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--teal-deep);
+    }
+
+    .nav-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+    }
+
+    .nav-logo span {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1.25rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--fg-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--teal);
+    }
+
+    .nav-links .btn-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--teal-deep);
+      color: var(--white);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .nav-links .btn-sm:hover {
+      background: var(--teal);
+      color: var(--white);
+    }
+
+    /* ── Language Toggle ── */
+    .lang-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: var(--white);
+    }
+
+    .lang-toggle button {
+      padding: 5px 10px;
+      border: none;
+      background: transparent;
+      color: var(--fg-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .lang-toggle button.active {
+      background: var(--teal-deep);
+      color: var(--white);
+    }
+
+    .lang-toggle button:hover:not(.active) {
+      background: var(--bg-warm);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 160px 0 100px;
+      text-align: center;
+    }
+
+    .hero-logo {
+      width: 120px;
+      height: 120px;
+      border-radius: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 8px 40px rgba(30, 58, 74, 0.12);
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero h1 .gradient-text {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.2rem;
+      color: var(--fg-muted);
+      max-width: 560px;
+      margin: 0 auto 40px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: var(--white);
+      box-shadow: 0 4px 24px rgba(42, 111, 106, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(42, 111, 106, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--white);
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+      transform: translateY(-2px);
+    }
+
+    .hero-meta {
+      margin-top: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      color: var(--fg-muted);
+      font-size: 0.85rem;
+    }
+
+    .hero-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── App Preview ── */
+    .preview {
+      padding: 0 0 80px;
+    }
+
+    .preview-window {
+      max-width: 960px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(30, 58, 74, 0.15), 0 0 0 1px rgba(30, 58, 74, 0.08);
+      background: #1e1e2e;
+    }
+
+    .preview-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: #181825;
+    }
+
+    .preview-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .preview-dot.red { background: #f38ba8; }
+    .preview-dot.yellow { background: #f9e2af; }
+    .preview-dot.green { background: #a6e3a1; }
+
+    .preview-body {
+      display: flex;
+      height: 420px;
+    }
+
+    .preview-sidebar {
+      width: 200px;
+      background: #181825;
+      padding: 16px;
+      border-right: 1px solid #313244;
+      flex-shrink: 0;
+    }
+
+    .preview-sidebar-item {
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #a6adc8;
+      margin-bottom: 2px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .preview-sidebar-item.active {
+      background: #313244;
+      color: #cdd6f4;
+    }
+
+    .preview-sidebar-label {
+      font-size: 0.7rem;
+      color: #585b70;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 12px 10px 6px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .preview-content {
+      flex: 1;
+      padding: 32px;
+      overflow: hidden;
+    }
+
+    .preview-card {
+      background: #24273a;
+      border-radius: 12px;
+      padding: 28px;
+      border: 1px solid #363a4f;
+    }
+
+    .preview-card h3 {
+      color: #89b4fa;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      font-family: 'DM Serif Display', serif;
+    }
+
+    .preview-card p {
+      color: #a6adc8;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .preview-card-code {
+      background: #1e1e2e;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: #a6e3a1;
+      border: 1px solid #313244;
+    }
+
+    .preview-card-code .kw { color: #cba6f7; }
+    .preview-card-code .fn { color: #89b4fa; }
+    .preview-card-code .str { color: #a6e3a1; }
+    .preview-card-code .cm { color: #585b70; }
+
+    .preview-tldr {
+      background: #1e3a4a;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      border-left: 3px solid #3db8a4;
+    }
+
+    .preview-tldr-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #3db8a4;
+      margin-bottom: 6px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+    }
+
+    .preview-tldr p {
+      color: #a8e0d4;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+
+    /* ── Features ── */
+    .features {
+      padding: 100px 0;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--teal);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      color: var(--fg-muted);
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin-bottom: 60px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: var(--teal-pale);
+      box-shadow: 0 8px 32px rgba(42, 111, 106, 0.08);
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      background: linear-gradient(135deg, rgba(30, 58, 74, 0.06), rgba(61, 184, 164, 0.08));
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      color: var(--teal-deep);
+    }
+
+    html[lang="ja"] .feature-card h3 {
+      font-family: 'Noto Sans JP', 'Inter', sans-serif;
+    }
+
+    .feature-card p {
+      color: var(--fg-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* ── Themes showcase ── */
+    .themes-section {
+      padding: 100px 0;
+      background: var(--bg-warm);
+    }
+
+    .themes-section .container {
+      text-align: center;
+    }
+
+    .theme-strip {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 48px;
+    }
+
+    .theme-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 100px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--fg);
+      transition: all 0.2s;
+    }
+
+    .theme-chip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .theme-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Principles ── */
+    .principles {
+      padding: 100px 0;
+    }
+
+    .principles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+      margin-top: 48px;
+    }
+
+    .principle {
+      text-align: center;
+    }
+
+    .principle-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 1.5rem;
+    }
+
+    .principle h3 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+      color: var(--teal-deep);
+    }
+
+    html[lang="ja"] .principle h3 {
+      font-family: 'Noto Sans JP', 'Inter', sans-serif;
+    }
+
+    .principle p {
+      color: var(--fg-muted);
+      font-size: 0.9rem;
+    }
+
+    /* ── Download CTA ── */
+    .download {
+      padding: 100px 0;
+      background: var(--bg-warm);
+    }
+
+    .download-box {
+      text-align: center;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 64px 48px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .download-box h2 {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .download-box p {
+      color: var(--fg-muted);
+      margin-bottom: 32px;
+      font-size: 1.05rem;
+    }
+
+    .download-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .download-buttons .btn {
+      min-width: 260px;
+      justify-content: center;
+    }
+
+    .download-note {
+      margin-top: 24px;
+      font-size: 0.82rem;
+      color: var(--fg-muted);
+    }
+
+    .download-note a {
+      color: var(--teal);
+      text-decoration: none;
+    }
+
+    .download-note a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Support ── */
+    .support {
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .support p {
+      color: var(--fg-muted);
+      font-size: 1rem;
+      margin-bottom: 24px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .support-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .support-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--fg);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .support-link:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+      transform: translateY(-2px);
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--fg-muted);
+      font-size: 0.82rem;
+    }
+
+    footer a {
+      color: var(--fg-muted);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--teal);
+    }
+
+    /* ── SVG Icons (inline) ── */
+    .icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .principles-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .preview-body {
+        height: 320px;
+      }
+
+      .preview-sidebar {
+        width: 140px;
+      }
+
+      .hero-meta {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .nav-links .hide-mobile {
+        display: none;
+      }
+
+      .download-box {
+        padding: 40px 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .preview-sidebar {
+        display: none;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="container">
+      <a href="#" class="nav-logo">
+        <img src="logo.png" alt="villar" />
+        <span>villar</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features" class="hide-mobile" data-i18n="nav.features">Features</a></li>
+        <li><a href="#themes" class="hide-mobile" data-i18n="nav.themes">Themes</a></li>
+        <li>
+          <div class="lang-toggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="ja">JA</button>
+          </div>
+        </li>
+        <li>
+          <a href="https://github.com/YOUR_USERNAME/villar" class="btn-sm" target="_blank" rel="noopener">
+            <svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <img src="logo.png" alt="villar" class="hero-logo" />
+      <h1 data-i18n="hero.title" data-i18n-html="true">A beautiful way to read <span class="gradient-text">Markdown</span></h1>
+      <p class="hero-sub" data-i18n="hero.sub">
+        villar re-renders AI-generated Markdown into a card-based reading experience.
+        Focus on content, not clutter.
+      </p>
+      <div class="hero-actions">
+        <a href="#download" class="btn btn-primary">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v7.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 11.586V4a1 1 0 011-1z"/><path d="M4 16a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z"/></svg>
+          <span data-i18n="hero.download">Download for macOS</span>
+        </a>
+        <a href="https://github.com/YOUR_USERNAME/villar" class="btn btn-secondary" target="_blank" rel="noopener" data-i18n="hero.github">
+          View on GitHub
+        </a>
+      </div>
+      <div class="hero-meta">
+        <span>
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+          <span data-i18n="hero.meta1">Free &amp; open source</span>
+        </span>
+        <span>
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+          <span data-i18n="hero.meta2">Local-only. No network requests</span>
+        </span>
+        <span>
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span data-i18n="hero.meta3">Read-only. Files never modified</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- App Preview -->
+  <section class="preview">
+    <div class="container">
+      <div class="preview-window">
+        <div class="preview-titlebar">
+          <div class="preview-dot red"></div>
+          <div class="preview-dot yellow"></div>
+          <div class="preview-dot green"></div>
+        </div>
+        <div class="preview-body">
+          <div class="preview-sidebar">
+            <div class="preview-sidebar-label" data-i18n="preview.files">Files</div>
+            <div class="preview-sidebar-item">architecture.md</div>
+            <div class="preview-sidebar-item active">api-design.md</div>
+            <div class="preview-sidebar-item">deployment.md</div>
+            <div class="preview-sidebar-item">changelog.md</div>
+            <div class="preview-sidebar-label" data-i18n="preview.outline">Outline</div>
+            <div class="preview-sidebar-item" style="color:#585b70" data-i18n="preview.o1">Overview</div>
+            <div class="preview-sidebar-item" style="color:#89b4fa" data-i18n="preview.o2">Authentication</div>
+            <div class="preview-sidebar-item" style="color:#585b70" data-i18n="preview.o3">Rate Limiting</div>
+            <div class="preview-sidebar-item" style="color:#585b70" data-i18n="preview.o4">Error Handling</div>
+          </div>
+          <div class="preview-content">
+            <div class="preview-card">
+              <div class="preview-tldr">
+                <div class="preview-tldr-label">TL;DR</div>
+                <p data-i18n="preview.tldr">OAuth 2.0 with PKCE flow. Tokens stored in secure HTTP-only cookies. Refresh tokens rotate on each use.</p>
+              </div>
+              <h3 data-i18n="preview.o2">Authentication</h3>
+              <p data-i18n="preview.body">The API uses OAuth 2.0 with the PKCE extension for public clients. All endpoints require a valid Bearer token in the Authorization header.</p>
+              <div class="preview-card-code">
+                <span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/auth/token'</span>, {<br />
+                &nbsp;&nbsp;method: <span class="str">'POST'</span>,<br />
+                &nbsp;&nbsp;body: <span class="fn">JSON.stringify</span>({ code, verifier })<br />
+                });
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-label" data-i18n="features.label">Features</div>
+      <h2 class="section-title" data-i18n="features.title">Everything you need to read comfortably</h2>
+      <p class="section-desc" data-i18n="features.desc">villar transforms long Markdown documents into focused, navigable cards with smart summaries and syntax highlighting.</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="#2a6f6a"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/></svg>
+          </div>
+          <h3 data-i18n="f.card.t">Card-based reading</h3>
+          <p data-i18n="f.card.d">Documents split by H2 headings into navigable cards. Arrow keys to move between sections.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="#2a6f6a"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+          </div>
+          <h3 data-i18n="f.tldr.t">Auto TL;DR</h3>
+          <p data-i18n="f.tldr.d">Each section gets a rule-based summary. Keywords, key points, and conclusions at a glance.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="#2a6f6a"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+          </div>
+          <h3 data-i18n="f.focus.t">Focus mode</h3>
+          <p data-i18n="f.focus.d">Dim inactive cards to concentrate on what you're reading. Adjustable opacity in settings.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="#2a6f6a"><path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </div>
+          <h3 data-i18n="f.syntax.t">Syntax highlighting</h3>
+          <p data-i18n="f.syntax.d">Code blocks with syntax highlighting and one-click copy. Supports all major languages.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="#2a6f6a"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+          </div>
+          <h3 data-i18n="f.mermaid.t">Mermaid diagrams</h3>
+          <p data-i18n="f.mermaid.d">Flowcharts rendered as step UI or diagrams. Sequence and class diagrams supported.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="#2a6f6a"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h3.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1v-2a4 4 0 00-4-4h-3V5a1 1 0 00-1-1H3zm8 3h2l3 3v1h-5V7z"/></svg>
+          </div>
+          <h3 data-i18n="f.reload.t">Live reload</h3>
+          <p data-i18n="f.reload.d">File watcher detects external changes and reloads content instantly. Changed sections highlighted.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="#2a6f6a"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+          </div>
+          <h3 data-i18n="f.tab.t">Multi-tab &amp; search</h3>
+          <p data-i18n="f.tab.d">Open multiple files in tabs. Full-text search across all files with Cmd+K.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="#2a6f6a"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          </div>
+          <h3 data-i18n="f.custom.t">Fully customizable</h3>
+          <p data-i18n="f.custom.d">46 color themes, 15+ fonts, adjustable font scale, line height, and content width.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="#2a6f6a"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l-1.593 2.39a1 1 0 01-1.374.33L7 14H5a2 2 0 01-2-2V5zm2 0h10v8H5V5z" clip-rule="evenodd"/></svg>
+          </div>
+          <h3 data-i18n="f.lang.t">8 languages</h3>
+          <p data-i18n="f.lang.d">Interface available in English, Japanese, Chinese, Korean, Spanish, French, German, and Portuguese.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Themes -->
+  <section class="themes-section" id="themes">
+    <div class="container">
+      <div class="section-label" data-i18n="themes.label">Themes</div>
+      <h2 class="section-title" data-i18n="themes.title">46 themes. Your reading, your colors.</h2>
+      <p class="section-desc" style="margin: 0 auto;" data-i18n="themes.desc">From dark favorites like Dracula and Nord to light themes like GitHub Light and Solarized. Every element adapts.</p>
+      <div class="theme-strip">
+        <div class="theme-chip"><div class="theme-dot" style="background:#bd93f9"></div>Dracula</div>
+        <div class="theme-chip"><div class="theme-dot" style="background:#88c0d0"></div>Nord</div>
+        <div class="theme-chip"><div class="theme-dot" style="background:#7aa2f7"></div>Tokyo Night</div>
+        <div class="theme-chip"><div class="theme-dot" style="background:#cba6f7"></div>Catppuccin</div>
+        <div class="theme-chip"><div class="theme-dot" style="background:#d79921"></div>Gruvbox</div>
+        <div class="theme-chip"><div class="theme-dot" style="background:#ffd866"></div>Monokai Pro</div>
+        <div class="theme-chip"><div class="theme-dot" style="background:#0969da"></div>GitHub Light</div>
+        <div class="theme-chip"><div class="theme-dot" style="background:#268bd2"></div>Solarized</div>
+        <div class="theme-chip"><div class="theme-dot" style="background:#61afef"></div>One Dark</div>
+        <div class="theme-chip"><div class="theme-dot" style="background:#f38ba8"></div>Ros&eacute; Pine</div>
+        <div class="theme-chip" style="background:var(--bg-warm); border-color:transparent; color:var(--fg-muted)" data-i18n="themes.more">+36 more</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Principles -->
+  <section class="principles">
+    <div class="container" style="text-align:center">
+      <div class="section-label" data-i18n="phil.label">Philosophy</div>
+      <h2 class="section-title" data-i18n="phil.title">Built with intention</h2>
+      <div class="principles-grid">
+        <div class="principle">
+          <div class="principle-icon">
+            <svg width="24" height="24" viewBox="0 0 20 20" fill="white"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+          </div>
+          <h3 data-i18n="phil.ro.t">Read-only</h3>
+          <p data-i18n="phil.ro.d">Your source files are never modified. villar only reads and renders.</p>
+        </div>
+        <div class="principle">
+          <div class="principle-icon">
+            <svg width="24" height="24" viewBox="0 0 20 20" fill="white"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+          </div>
+          <h3 data-i18n="phil.lo.t">Local-only</h3>
+          <p data-i18n="phil.lo.d">Zero network requests. Your documents stay on your machine, always.</p>
+        </div>
+        <div class="principle">
+          <div class="principle-icon">
+            <svg width="24" height="24" viewBox="0 0 20 20" fill="white"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          </div>
+          <h3 data-i18n="phil.fb.t">Fallback-first</h3>
+          <p data-i18n="phil.fb.d">When rendering fails, content is always shown. No blank screens, ever.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download -->
+  <section class="download" id="download">
+    <div class="container">
+      <div class="download-box">
+        <h2 data-i18n="dl.title">Try villar</h2>
+        <p data-i18n="dl.desc">Free and open source. Download for your platform.</p>
+        <div class="download-buttons">
+          <a href="https://github.com/YOUR_USERNAME/villar/releases/latest" class="btn btn-primary">
+            <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            <span data-i18n="dl.mac">Download for macOS</span>
+          </a>
+          <a href="https://github.com/YOUR_USERNAME/villar/releases/latest" class="btn btn-secondary" data-i18n="dl.other">
+            Windows &amp; Linux
+          </a>
+        </div>
+        <p class="download-note" data-i18n="dl.note" data-i18n-html="true">
+          Or build from source on <a href="https://github.com/YOUR_USERNAME/villar" target="_blank" rel="noopener">GitHub</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Support -->
+  <section class="support">
+    <div class="container">
+      <div class="section-label" data-i18n="sup.label">Support</div>
+      <h2 class="section-title" style="margin-bottom:12px" data-i18n="sup.title">Like villar?</h2>
+      <p data-i18n="sup.desc">villar is free and always will be. If it helps your workflow, consider supporting development.</p>
+      <div class="support-links">
+        <a href="https://github.com/sponsors/YOUR_USERNAME" class="support-link" target="_blank" rel="noopener">
+          <svg class="icon" viewBox="0 0 20 20" fill="#db61a2"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
+          GitHub Sponsors
+        </a>
+        <a href="https://buymeacoffee.com/YOUR_USERNAME" class="support-link" target="_blank" rel="noopener">
+          <svg class="icon" viewBox="0 0 20 20" fill="#ffdd00"><path d="M10 3.5a.75.75 0 01.75.75v1a.75.75 0 01-1.5 0v-1A.75.75 0 0110 3.5zM7.05 5.393a.75.75 0 011.06 0 .75.75 0 010 1.06l-.707.708a.75.75 0 11-1.06-1.06l.707-.708zm6.607 0a.75.75 0 010 1.06l-.707.708a.75.75 0 01-1.06-1.06l.707-.708a.75.75 0 011.06 0zM4 10h12a2 2 0 012 2 3 3 0 01-3 3h-1a2 2 0 01-2-2H8a2 2 0 01-2 2H5a3 3 0 01-3-3 2 2 0 012-2z"/></svg>
+          Buy Me a Coffee
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p data-i18n="footer" data-i18n-html="true">Built with Tauri, React, and Rust. &copy; 2025 villar</p>
+    </div>
+  </footer>
+
+  <script>
+    const i18n = {
+      en: {
+        "nav.features": "Features",
+        "nav.themes": "Themes",
+        "hero.title": 'A beautiful way to read <span class="gradient-text">Markdown</span>',
+        "hero.sub": "villar re-renders AI-generated Markdown into a card-based reading experience. Focus on content, not clutter.",
+        "hero.download": "Download for macOS",
+        "hero.github": "View on GitHub",
+        "hero.meta1": "Free & open source",
+        "hero.meta2": "Local-only. No network requests",
+        "hero.meta3": "Read-only. Files never modified",
+        "preview.files": "Files",
+        "preview.outline": "Outline",
+        "preview.o1": "Overview",
+        "preview.o2": "Authentication",
+        "preview.o3": "Rate Limiting",
+        "preview.o4": "Error Handling",
+        "preview.tldr": "OAuth 2.0 with PKCE flow. Tokens stored in secure HTTP-only cookies. Refresh tokens rotate on each use.",
+        "preview.body": "The API uses OAuth 2.0 with the PKCE extension for public clients. All endpoints require a valid Bearer token in the Authorization header.",
+        "features.label": "Features",
+        "features.title": "Everything you need to read comfortably",
+        "features.desc": "villar transforms long Markdown documents into focused, navigable cards with smart summaries and syntax highlighting.",
+        "f.card.t": "Card-based reading",
+        "f.card.d": "Documents split by H2 headings into navigable cards. Arrow keys to move between sections.",
+        "f.tldr.t": "Auto TL;DR",
+        "f.tldr.d": "Each section gets a rule-based summary. Keywords, key points, and conclusions at a glance.",
+        "f.focus.t": "Focus mode",
+        "f.focus.d": "Dim inactive cards to concentrate on what you're reading. Adjustable opacity in settings.",
+        "f.syntax.t": "Syntax highlighting",
+        "f.syntax.d": "Code blocks with syntax highlighting and one-click copy. Supports all major languages.",
+        "f.mermaid.t": "Mermaid diagrams",
+        "f.mermaid.d": "Flowcharts rendered as step UI or diagrams. Sequence and class diagrams supported.",
+        "f.reload.t": "Live reload",
+        "f.reload.d": "File watcher detects external changes and reloads content instantly. Changed sections highlighted.",
+        "f.tab.t": "Multi-tab & search",
+        "f.tab.d": "Open multiple files in tabs. Full-text search across all files with Cmd+K.",
+        "f.custom.t": "Fully customizable",
+        "f.custom.d": "46 color themes, 15+ fonts, adjustable font scale, line height, and content width.",
+        "f.lang.t": "8 languages",
+        "f.lang.d": "Interface available in English, Japanese, Chinese, Korean, Spanish, French, German, and Portuguese.",
+        "themes.label": "Themes",
+        "themes.title": "46 themes. Your reading, your colors.",
+        "themes.desc": "From dark favorites like Dracula and Nord to light themes like GitHub Light and Solarized. Every element adapts.",
+        "themes.more": "+36 more",
+        "phil.label": "Philosophy",
+        "phil.title": "Built with intention",
+        "phil.ro.t": "Read-only",
+        "phil.ro.d": "Your source files are never modified. villar only reads and renders.",
+        "phil.lo.t": "Local-only",
+        "phil.lo.d": "Zero network requests. Your documents stay on your machine, always.",
+        "phil.fb.t": "Fallback-first",
+        "phil.fb.d": "When rendering fails, content is always shown. No blank screens, ever.",
+        "dl.title": "Try villar",
+        "dl.desc": "Free and open source. Download for your platform.",
+        "dl.mac": "Download for macOS",
+        "dl.other": "Windows & Linux",
+        "dl.note": 'Or build from source on <a href="https://github.com/YOUR_USERNAME/villar" target="_blank" rel="noopener">GitHub</a>',
+        "sup.label": "Support",
+        "sup.title": "Like villar?",
+        "sup.desc": "villar is free and always will be. If it helps your workflow, consider supporting development.",
+        "footer": "Built with Tauri, React, and Rust. &copy; 2025 villar",
+      },
+      ja: {
+        "nav.features": "\u6A5F\u80FD",
+        "nav.themes": "\u30C6\u30FC\u30DE",
+        "hero.title": '<span class="gradient-text">Markdown</span>\u3092\u3001\u7F8E\u3057\u304F\u8AAD\u3080',
+        "hero.sub": "villar\u306FAI\u304C\u751F\u6210\u3057\u305FMarkdown\u3092\u30AB\u30FC\u30C9\u578B\u306E\u8AAD\u66F8\u4F53\u9A13\u306B\u5909\u63DB\u3057\u307E\u3059\u3002\u30B3\u30F3\u30C6\u30F3\u30C4\u306B\u96C6\u4E2D\u3067\u304D\u308B\u74B0\u5883\u3092\u3002",
+        "hero.download": "macOS\u7248\u3092\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
+        "hero.github": "GitHub\u3067\u898B\u308B",
+        "hero.meta1": "\u7121\u6599 & \u30AA\u30FC\u30D7\u30F3\u30BD\u30FC\u30B9",
+        "hero.meta2": "\u30ED\u30FC\u30AB\u30EB\u5B8C\u7D50\u3002\u901A\u4FE1\u306A\u3057",
+        "hero.meta3": "\u8AAD\u307F\u53D6\u308A\u5C02\u7528\u3002\u30D5\u30A1\u30A4\u30EB\u3092\u5909\u66F4\u3057\u307E\u305B\u3093",
+        "preview.files": "\u30D5\u30A1\u30A4\u30EB",
+        "preview.outline": "\u30A2\u30A6\u30C8\u30E9\u30A4\u30F3",
+        "preview.o1": "\u6982\u8981",
+        "preview.o2": "\u8A8D\u8A3C",
+        "preview.o3": "\u30EC\u30FC\u30C8\u5236\u9650",
+        "preview.o4": "\u30A8\u30E9\u30FC\u30CF\u30F3\u30C9\u30EA\u30F3\u30B0",
+        "preview.tldr": "OAuth 2.0 + PKCE\u30D5\u30ED\u30FC\u3002\u30C8\u30FC\u30AF\u30F3\u306FHTTP-only Cookie\u306B\u4FDD\u5B58\u3002\u30EA\u30D5\u30EC\u30C3\u30B7\u30E5\u30C8\u30FC\u30AF\u30F3\u306F\u4F7F\u7528\u3054\u3068\u306B\u30ED\u30FC\u30C6\u30FC\u30B7\u30E7\u30F3\u3002",
+        "preview.body": "API\u306F\u30D1\u30D6\u30EA\u30C3\u30AF\u30AF\u30E9\u30A4\u30A2\u30F3\u30C8\u5411\u3051\u306BPKCE\u62E1\u5F35\u4ED8\u304DOAUTH 2.0\u3092\u4F7F\u7528\u3002\u3059\u3079\u3066\u306E\u30A8\u30F3\u30C9\u30DD\u30A4\u30F3\u30C8\u306BAuthorization\u30D8\u30C3\u30C0\u30FC\u306E\u6709\u52B9\u306ABearer\u30C8\u30FC\u30AF\u30F3\u304C\u5FC5\u8981\u3067\u3059\u3002",
+        "features.label": "\u6A5F\u80FD",
+        "features.title": "\u5FEB\u9069\u306B\u8AAD\u3080\u305F\u3081\u306B\u5FC5\u8981\u306A\u3059\u3079\u3066",
+        "features.desc": "villar\u306F\u9577\u3044Markdown\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\u3092\u3001\u30B9\u30DE\u30FC\u30C8\u306A\u8981\u7D04\u3068\u30B7\u30F3\u30BF\u30C3\u30AF\u30B9\u30CF\u30A4\u30E9\u30A4\u30C8\u4ED8\u304D\u306E\u30CA\u30D3\u30B2\u30FC\u30D6\u30EB\u306A\u30AB\u30FC\u30C9\u306B\u5909\u63DB\u3057\u307E\u3059\u3002",
+        "f.card.t": "\u30AB\u30FC\u30C9\u578B\u30EA\u30FC\u30C0\u30FC",
+        "f.card.d": "H2\u898B\u51FA\u3057\u3067\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\u3092\u30AB\u30FC\u30C9\u306B\u5206\u5272\u3002\u77E2\u5370\u30AD\u30FC\u3067\u30BB\u30AF\u30B7\u30E7\u30F3\u9593\u3092\u79FB\u52D5\u3002",
+        "f.tldr.t": "\u81EA\u52D5TL;DR",
+        "f.tldr.d": "\u5404\u30BB\u30AF\u30B7\u30E7\u30F3\u306B\u30EB\u30FC\u30EB\u30D9\u30FC\u30B9\u306E\u8981\u7D04\u3092\u751F\u6210\u3002\u30AD\u30FC\u30EF\u30FC\u30C9\u30FB\u8981\u70B9\u30FB\u7D50\u8AD6\u3092\u4E00\u76EE\u3067\u628A\u63E1\u3002",
+        "f.focus.t": "\u30D5\u30A9\u30FC\u30AB\u30B9\u30E2\u30FC\u30C9",
+        "f.focus.d": "\u975E\u30A2\u30AF\u30C6\u30A3\u30D6\u306A\u30AB\u30FC\u30C9\u3092\u6DE1\u8272\u8868\u793A\u3057\u3001\u8AAD\u3093\u3067\u3044\u308B\u7B87\u6240\u306B\u96C6\u4E2D\u3002\u900F\u660E\u5EA6\u306F\u8A2D\u5B9A\u3067\u8ABF\u6574\u53EF\u80FD\u3002",
+        "f.syntax.t": "\u30B7\u30F3\u30BF\u30C3\u30AF\u30B9\u30CF\u30A4\u30E9\u30A4\u30C8",
+        "f.syntax.d": "\u30B3\u30FC\u30C9\u30D6\u30ED\u30C3\u30AF\u306E\u30B7\u30F3\u30BF\u30C3\u30AF\u30B9\u30CF\u30A4\u30E9\u30A4\u30C8\u3068\u30EF\u30F3\u30AF\u30EA\u30C3\u30AF\u30B3\u30D4\u30FC\u3002\u4E3B\u8981\u8A00\u8A9E\u3092\u30B5\u30DD\u30FC\u30C8\u3002",
+        "f.mermaid.t": "Mermaid\u30C0\u30A4\u30A2\u30B0\u30E9\u30E0",
+        "f.mermaid.d": "\u30D5\u30ED\u30FC\u30C1\u30E3\u30FC\u30C8\u3092\u30B9\u30C6\u30C3\u30D7UI\u307E\u305F\u306F\u56F3\u3068\u3057\u3066\u8868\u793A\u3002\u30B7\u30FC\u30B1\u30F3\u30B9\u56F3\u30FB\u30AF\u30E9\u30B9\u56F3\u306B\u3082\u5BFE\u5FDC\u3002",
+        "f.reload.t": "\u30E9\u30A4\u30D6\u30EA\u30ED\u30FC\u30C9",
+        "f.reload.d": "\u30D5\u30A1\u30A4\u30EB\u306E\u5916\u90E8\u5909\u66F4\u3092\u691C\u77E5\u3057\u3066\u5373\u5EA7\u306B\u30EA\u30ED\u30FC\u30C9\u3002\u5909\u66F4\u7B87\u6240\u3092\u30CF\u30A4\u30E9\u30A4\u30C8\u8868\u793A\u3002",
+        "f.tab.t": "\u30DE\u30EB\u30C1\u30BF\u30D6 & \u691C\u7D22",
+        "f.tab.d": "\u8907\u6570\u30D5\u30A1\u30A4\u30EB\u3092\u30BF\u30D6\u3067\u958B\u304F\u3002Cmd+K\u3067\u5168\u30D5\u30A1\u30A4\u30EB\u6A2A\u65AD\u691C\u7D22\u3002",
+        "f.custom.t": "\u5145\u5B9F\u306E\u30AB\u30B9\u30BF\u30DE\u30A4\u30BA",
+        "f.custom.d": "46\u30AB\u30E9\u30FC\u30C6\u30FC\u30DE\u300115\u4EE5\u4E0A\u306E\u30D5\u30A9\u30F3\u30C8\u3001\u30D5\u30A9\u30F3\u30C8\u30B5\u30A4\u30BA\u30FB\u884C\u9AD8\u30FB\u30B3\u30F3\u30C6\u30F3\u30C4\u5E45\u3092\u8ABF\u6574\u53EF\u80FD\u3002",
+        "f.lang.t": "8\u8A00\u8A9E\u5BFE\u5FDC",
+        "f.lang.d": "\u82F1\u8A9E\u30FB\u65E5\u672C\u8A9E\u30FB\u4E2D\u56FD\u8A9E\u30FB\u97D3\u56FD\u8A9E\u30FB\u30B9\u30DA\u30A4\u30F3\u8A9E\u30FB\u30D5\u30E9\u30F3\u30B9\u8A9E\u30FB\u30C9\u30A4\u30C4\u8A9E\u30FB\u30DD\u30EB\u30C8\u30AC\u30EB\u8A9E\u306B\u5BFE\u5FDC\u3002",
+        "themes.label": "\u30C6\u30FC\u30DE",
+        "themes.title": "46\u30C6\u30FC\u30DE\u3002\u3042\u306A\u305F\u306E\u8AAD\u66F8\u3001\u3042\u306A\u305F\u306E\u8272\u3002",
+        "themes.desc": "Dracula\u3084Nord\u306A\u3069\u306E\u30C0\u30FC\u30AF\u30C6\u30FC\u30DE\u304B\u3089GitHub Light\u3084Solarized\u306A\u3069\u306E\u30E9\u30A4\u30C8\u30C6\u30FC\u30DE\u307E\u3067\u3002\u3059\u3079\u3066\u306E\u8981\u7D20\u304C\u9069\u5FDC\u3057\u307E\u3059\u3002",
+        "themes.more": "+36\u30C6\u30FC\u30DE",
+        "phil.label": "\u54F2\u5B66",
+        "phil.title": "\u610F\u56F3\u3092\u6301\u3063\u3066\u4F5C\u3089\u308C\u305F",
+        "phil.ro.t": "\u8AAD\u307F\u53D6\u308A\u5C02\u7528",
+        "phil.ro.d": "\u30BD\u30FC\u30B9\u30D5\u30A1\u30A4\u30EB\u3092\u4E00\u5207\u5909\u66F4\u3057\u307E\u305B\u3093\u3002villar\u306F\u8AAD\u307F\u53D6\u308A\u3068\u8868\u793A\u306E\u307F\u3002",
+        "phil.lo.t": "\u30ED\u30FC\u30AB\u30EB\u5B8C\u7D50",
+        "phil.lo.d": "\u30CD\u30C3\u30C8\u30EF\u30FC\u30AF\u901A\u4FE1\u30BC\u30ED\u3002\u30C9\u30AD\u30E5\u30E1\u30F3\u30C8\u306F\u5E38\u306B\u3042\u306A\u305F\u306E\u30DE\u30B7\u30F3\u306B\u3002",
+        "phil.fb.t": "\u30D5\u30A9\u30FC\u30EB\u30D0\u30C3\u30AF\u512A\u5148",
+        "phil.fb.d": "\u30EC\u30F3\u30C0\u30EA\u30F3\u30B0\u304C\u5931\u6557\u3057\u3066\u3082\u3001\u30B3\u30F3\u30C6\u30F3\u30C4\u306F\u5FC5\u305A\u8868\u793A\u3002\u7A7A\u767D\u753B\u9762\u306F\u3042\u308A\u307E\u305B\u3093\u3002",
+        "dl.title": "villar\u3092\u8A66\u3059",
+        "dl.desc": "\u7121\u6599\u30FB\u30AA\u30FC\u30D7\u30F3\u30BD\u30FC\u30B9\u3002\u304A\u4F7F\u3044\u306E\u30D7\u30E9\u30C3\u30C8\u30D5\u30A9\u30FC\u30E0\u7528\u3092\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9\u3002",
+        "dl.mac": "macOS\u7248\u3092\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
+        "dl.other": "Windows & Linux",
+        "dl.note": '\u30BD\u30FC\u30B9\u304B\u3089\u30D3\u30EB\u30C9\u3059\u308B\u5834\u5408\u306F<a href="https://github.com/YOUR_USERNAME/villar" target="_blank" rel="noopener">GitHub</a>\u3078',
+        "sup.label": "\u30B5\u30DD\u30FC\u30C8",
+        "sup.title": "villar\u3092\u6C17\u306B\u5165\u308A\u307E\u3057\u305F\u304B\uFF1F",
+        "sup.desc": "villar\u306F\u7121\u6599\u3067\u3001\u3053\u308C\u304B\u3089\u3082\u305A\u3063\u3068\u7121\u6599\u3067\u3059\u3002\u3082\u3057\u304A\u5F79\u306B\u7ACB\u3066\u305F\u3089\u3001\u958B\u767A\u3092\u30B5\u30DD\u30FC\u30C8\u3057\u3066\u3044\u305F\u3060\u3051\u308B\u3068\u5B09\u3057\u3044\u3067\u3059\u3002",
+        "footer": "Tauri, React, Rust\u3067\u69CB\u7BC9 &copy; 2025 villar",
+      }
+    };
+
+    function setLang(lang) {
+      document.documentElement.lang = lang;
+      localStorage.setItem('villar-lang', lang);
+
+      document.querySelectorAll('.lang-toggle button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+
+      const dict = i18n[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key] !== undefined) {
+          if (el.getAttribute('data-i18n-html') === 'true') {
+            el.innerHTML = dict[key];
+          } else {
+            el.textContent = dict[key];
+          }
+        }
+      });
+
+      document.title = lang === 'ja'
+        ? 'villar - \u7F8E\u3057\u3044Markdown\u30EA\u30FC\u30C0\u30FC'
+        : 'villar - A beautiful Markdown reader';
+    }
+
+    document.querySelectorAll('.lang-toggle button').forEach(btn => {
+      btn.addEventListener('click', () => setLang(btn.dataset.lang));
+    });
+
+    // Restore saved language or detect from browser
+    const saved = localStorage.getItem('villar-lang');
+    if (saved && i18n[saved]) {
+      setLang(saved);
+    } else if (navigator.language.startsWith('ja')) {
+      setLang('ja');
+    }
+  </script>
+
+</body>
+</html>
