@@ -156,6 +156,11 @@ export function SettingsPanel({ width }: { width?: number }) {
                   <option key={f.id} value={f.id}>{f.label}</option>
                 ))}
               </optgroup>
+              <optgroup label="Japanese">
+                {FONT_OPTIONS.filter((f) => f.category === "jp").map((f) => (
+                  <option key={f.id} value={f.id}>{f.label}</option>
+                ))}
+              </optgroup>
             </select>
           </Row>
           <Row label="Font Size">
