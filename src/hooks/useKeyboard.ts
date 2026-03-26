@@ -60,8 +60,10 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
 
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-      const { activeCardIndex, setActiveCardIndex, toggleFocusMode } =
-        useAppStore.getState();
+      const state = useAppStore.getState();
+      const activeTab = state.tabs[state.activeTabIndex];
+      const activeCardIndex = activeTab?.activeCardIndex ?? 0;
+      const { setActiveCardIndex, toggleFocusMode } = state;
 
       switch (e.key) {
         case "ArrowLeft":
