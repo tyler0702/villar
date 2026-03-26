@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../../stores/useAppStore";
+import { useTranslation } from "../../i18n/useTranslation";
 
 interface SearchHit {
   file_name: string;
@@ -19,6 +20,7 @@ export function SearchPanel({ onClose }: SearchPanelProps) {
   const [searching, setSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const folderPath = useAppStore((s) => s.folderPath);
+  const t = useTranslation();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -69,24 +71,24 @@ export function SearchPanel({ onClose }: SearchPanelProps) {
         onKeyDown={handleKeyDown}
       >
         <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200/60 dark:border-gray-700/40">
-          <span className="text-gray-400 text-sm">Search</span>
+          <span className="text-gray-400 text-sm">{t("search.label")}</span>
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search in all files..."
+            placeholder={t("search.placeholder")}
             className="flex-1 bg-transparent text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none"
           />
           {searching ? (
-            <span className="text-[10px] text-gray-400 animate-pulse">Searching...</span>
+            <span className="text-[10px] text-gray-400 animate-pulse">{t("search.searching")}</span>
           ) : null}
         </div>
 
         <div className="max-h-80 overflow-y-auto">
           {results.length === 0 && query.trim() && !searching ? (
             <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-8">
-              No results
+              {t("search.noResults")}
             </p>
           ) : null}
           {results.map((hit, i) => (
@@ -109,8 +111,8 @@ export function SearchPanel({ onClose }: SearchPanelProps) {
         </div>
 
         <div className="px-4 py-2 border-t border-gray-200/60 dark:border-gray-700/40 text-[10px] text-gray-400 flex gap-3">
-          <span><kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono">Esc</kbd> Close</span>
-          <span><kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono">Cmd+K</kbd> Open search</span>
+          <span><kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono">Esc</kbd> {t("search.close")}</span>
+          <span><kbd className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono">Cmd+K</kbd> {t("search.openSearch")}</span>
         </div>
       </div>
     </div>

@@ -17,8 +17,10 @@ import { useRestoreSession } from "./hooks/useRestoreSession";
 import { useDragDrop } from "./hooks/useDragDrop";
 import { useVscodeTheme } from "./hooks/useVscodeTheme";
 import { useResizable } from "./hooks/useResizable";
+import { useTranslation } from "./i18n/useTranslation";
 
 function App() {
+  const t = useTranslation();
   useTheme();
   useRestoreSession();
   useDragDrop();
@@ -103,17 +105,17 @@ function App() {
                 <CardView sections={sections} />
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-4">
-                  <p className="text-lg font-light tracking-wide">Open a folder, pick a file</p>
+                  <p className="text-lg font-light tracking-wide">{t("welcome.title")}</p>
                   <div className="text-xs space-y-1.5 text-center opacity-60">
                     <p>
                       <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&larr;</kbd>{" "}
                       <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&rarr;</kbd>{" "}
-                      Navigate
+                      {t("welcome.navigate")}
                     </p>
                     <p>
-                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+K</kbd> Search{" "}
-                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+F</kbd> Find{" "}
-                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">F</kbd> Focus
+                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+K</kbd> {t("welcome.search")}{" "}
+                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">Cmd+F</kbd> {t("welcome.find")}{" "}
+                      <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">F</kbd> {t("welcome.focus")}
                     </p>
                   </div>
                 </div>

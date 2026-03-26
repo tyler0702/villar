@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
 import { useAppStore } from "../../stores/useAppStore";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export function FindBar() {
+  const t = useTranslation();
   const findQuery = useAppStore((s) => s.findQuery);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -37,7 +39,7 @@ export function FindBar() {
 
   return (
     <div className="flex items-center gap-2 px-4 py-1.5 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/90 dark:bg-surface-800/90 backdrop-blur-sm shrink-0">
-      <span className="text-[10px] text-gray-400">Find</span>
+      <span className="text-[10px] text-gray-400">{t("find.label")}</span>
       <input
         ref={inputRef}
         type="text"
@@ -51,10 +53,10 @@ export function FindBar() {
             } catch { /* */ }
           }
         }}
-        placeholder="Search in document..."
+        placeholder={t("find.placeholder")}
         className="flex-1 bg-transparent text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 outline-none"
       />
-      <span className="text-[10px] text-gray-400">Enter = next</span>
+      <span className="text-[10px] text-gray-400">{t("find.enterNext")}</span>
       <button
         onClick={handleClose}
         className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm"
