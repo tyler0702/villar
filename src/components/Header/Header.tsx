@@ -12,8 +12,6 @@ export function Header({ onSearchClick }: HeaderProps) {
   const activeTab = useAppStore((s) => s.tabs[s.activeTabIndex] ?? null);
   const selectedFile = activeTab?.file ?? null;
   const focusMode = useAppStore((s) => s.focusMode);
-  const splitMode = useAppStore((s) => s.splitMode);
-  const hasTabs = useAppStore((s) => s.tabs.length >= 2);
 
   async function handleOpenFolder() {
     const selected = await open({ directory: true, multiple: false });
@@ -69,19 +67,6 @@ export function Header({ onSearchClick }: HeaderProps) {
             title="Search (Cmd+K)"
           >
             Search
-          </button>
-        ) : null}
-        {hasTabs ? (
-          <button
-            onClick={() => useAppStore.getState().toggleSplitMode()}
-            className={`px-3 py-1 text-[12px] font-medium rounded-lg transition-all ${
-              splitMode
-                ? "vs-header-accent bg-accent-200 dark:bg-accent-800 text-accent-800 dark:text-accent-100"
-                : "opacity-60 hover:opacity-100 hover:bg-white/10"
-            }`}
-            title="Split view"
-          >
-            Split
           </button>
         ) : null}
         <button

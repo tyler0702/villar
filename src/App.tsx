@@ -38,12 +38,6 @@ function App() {
   const collapseConfig = { listThreshold: collapseListThreshold, codeThreshold: collapseCodeThreshold };
   const sections = useMarkdown(fileContent, collapseConfig, activeFilePath);
 
-  // Split view
-  const splitMode = useAppStore((s) => s.splitMode);
-  const splitTab = useAppStore((s) => s.splitMode ? s.tabs[s.splitTabIndex] ?? null : null);
-  const splitContent = splitTab?.content ?? null;
-  const splitFilePath = splitTab?.file.path ?? null;
-  const splitSections = useMarkdown(splitContent, collapseConfig, splitFilePath);
   const [searchOpen, setSearchOpen] = useState(false);
   useKeyboard(sections.length, () => setSearchOpen(true));
 
@@ -97,8 +91,8 @@ function App() {
         <div className="flex-1 flex flex-col overflow-hidden vs-canvas" style={zoomStyle}>
           <TabBar />
           {findOpen ? <FindBar /> : null}
-          <div className={`flex-1 overflow-hidden ${splitMode ? "flex" : ""}`}>
-            <main className={`${splitMode ? "flex-1" : ""} h-full overflow-hidden`}>
+          <div className="flex-1 overflow-hidden">
+            <main className="h-full overflow-hidden">
               {hasContent ? (
                 <CardView sections={sections} />
               ) : (
@@ -119,14 +113,6 @@ function App() {
                 </div>
               )}
             </main>
-            {splitMode && splitSections.length > 0 ? (
-              <>
-                <div className="w-px bg-gray-200/60 dark:bg-gray-700/60 vs-border shrink-0" />
-                <div className="flex-1 h-full overflow-hidden">
-                  <CardView sections={splitSections} />
-                </div>
-              </>
-            ) : null}
           </div>
         </div>
 

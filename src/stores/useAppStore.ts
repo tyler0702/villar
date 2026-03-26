@@ -119,8 +119,6 @@ interface AppState {
   readSections: Set<string>;
   findOpen: boolean;
   findQuery: string;
-  splitMode: boolean;
-  splitTabIndex: number;
 
   setFolderPath: (path: string | null) => void;
   setTree: (tree: FsNode[]) => void;
@@ -137,8 +135,6 @@ interface AppState {
   setFindOpen: (open: boolean) => void;
   setFindQuery: (query: string) => void;
   clearChangedSections: (path: string) => void;
-  toggleSplitMode: () => void;
-  setSplitTabIndex: (index: number) => void;
 }
 
 const initialSettings: Settings = { ...DEFAULT_SETTINGS, ...savedSettings };
@@ -167,8 +163,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   readSections: new Set(),
   findOpen: false,
   findQuery: "",
-  splitMode: false,
-  splitTabIndex: -1,
 
   setFolderPath: (path) => {
     set({ folderPath: path, tabs: [], activeTabIndex: 0 });
@@ -264,17 +258,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     );
     set({ tabs: updated });
   },
-  toggleSplitMode: () => {
-    const { splitMode, tabs, activeTabIndex } = get();
-    if (!splitMode && tabs.length >= 2) {
-      // Pick the other tab for split
-      const other = activeTabIndex === 0 ? 1 : 0;
-      set({ splitMode: true, splitTabIndex: other });
-    } else {
-      set({ splitMode: false, splitTabIndex: -1 });
-    }
-  },
-  setSplitTabIndex: (index) => set({ splitTabIndex: index }),
 }));
 
 // --- Diff detection ---

@@ -16,7 +16,7 @@ npm run tauri build  # Production build
 
 ### Frontend (React + TypeScript)
 
-The Markdown pipeline: `remark-parse` -> `remark-section` (custom) -> `remark-rehype` -> `rehype-highlight` -> `rehype-stringify`, then `collapseHtml` post-processing.
+The Markdown pipeline: `remark-parse` -> `remark-gfm` -> `remark-section` (custom) -> `remark-rehype` -> `rehype-highlight` -> `rehype-stringify`, then `collapseHtml` post-processing. Relative image paths are resolved to Tauri asset URLs via `convertFileSrc`.
 
 Key custom plugins in `src/plugins/`:
 - `remark-section.ts` - H2-based splitting, stores sections in tree.data.sections
@@ -24,14 +24,21 @@ Key custom plugins in `src/plugins/`:
 - `mermaid-linear.ts` - Parses flowchart text, checks if graph is linear (all degrees <= 1)
 - `remark-collapse.ts` - HTML post-processing to wrap long lists/code in `<details>`
 
+Additional frontend features:
+- H3+ sub-heading outline in sidebar (extracted per section, shown under active card)
+- Code copy button injected into `<pre>` blocks by `SectionContent.tsx`
+- Multi-tab support with session restore, drag & drop, and file diff indicators
+- Full-text search (Cmd+K) and in-page find (Cmd+F)
+- VSCode theme import and 10+ built-in color themes
+
 State is managed via Zustand (`src/stores/useAppStore.ts`).
 
 ### Backend (Rust / Tauri)
 
 All in `src-tauri/src/lib.rs`:
-- `list_md_files` - Recursively lists .md files in a directory
+- `list_md_files` - Recursively lists .md files as an `FsNode` tree (name, path, is_dir, children)
 - `read_file` - Reads file content
-- `watch_folder` - Uses `notify` crate with 300ms debounce, emits `file-changed` events
+- `watch_folder` - Uses `notify` crate with 300ms debounce, emits `file-changed` and `tree-changed` events
 - `write_log` - Appends JSONL metrics to app log directory
 
 ### Mermaid Handling
@@ -48,7 +55,10 @@ Mermaid code blocks are extracted before HTML rendering (replaced with placehold
 
 ## Testing
 
-Tests are in `src/plugins/__tests__/`. Performance tests verify the pipeline stays within budget:
+Plugin tests in `src/plugins/__tests__/` (5 files): remark-section, remark-tldr, remark-collapse, mermaid-linear, performance.
+Component tests in `src/components/__tests__/` (4 files): TldrCard, Outline, FileTree, TabBar.
+
+Performance tests verify the pipeline stays within budget:
 - Full pipeline: < 500ms for 50KB+ documents
 - Section splitting: < 50ms
 - TL;DR per section: < 10ms
