@@ -2,6 +2,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppStore, type FsNode } from "../../stores/useAppStore";
+import { useTranslation } from "../../i18n/useTranslation";
 
 interface HeaderProps {
   onSearchClick?: () => void;
@@ -12,6 +13,7 @@ export function Header({ onSearchClick }: HeaderProps) {
   const activeTab = useAppStore((s) => s.tabs[s.activeTabIndex] ?? null);
   const selectedFile = activeTab?.file ?? null;
   const focusMode = useAppStore((s) => s.focusMode);
+  const t = useTranslation();
 
   async function handleOpenFolder() {
     const selected = await open({ directory: true, multiple: false });
@@ -43,7 +45,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         onClick={handleOpenFolder}
         className="vs-header-accent px-3 py-1 text-[12px] font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
       >
-        Open
+        {t("header.open")}
       </button>
 
       <div className="flex items-center gap-1.5 min-w-0 flex-1">
@@ -65,9 +67,9 @@ export function Header({ onSearchClick }: HeaderProps) {
           <button
             onClick={onSearchClick}
             className="px-3 py-1 text-[12px] font-medium rounded-lg opacity-60 hover:opacity-100 hover:bg-white/10 transition-all"
-            title="Search (Cmd+K)"
+            title={t("header.searchTitle")}
           >
-            Search
+            {t("header.search")}
           </button>
         ) : null}
         <button
@@ -77,9 +79,9 @@ export function Header({ onSearchClick }: HeaderProps) {
               ? "vs-header-accent bg-accent-200 dark:bg-accent-800 text-accent-800 dark:text-accent-100"
               : "opacity-60 hover:opacity-100 hover:bg-white/10"
           }`}
-          title="Toggle focus mode (F)"
+          title={t("header.focusTitle")}
         >
-          Focus
+          {t("header.focus")}
         </button>
         <button
           onClick={() => useAppStore.getState().setSettingsOpen(true)}

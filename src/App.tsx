@@ -17,8 +17,10 @@ import { useRestoreSession } from "./hooks/useRestoreSession";
 import { useDragDrop } from "./hooks/useDragDrop";
 import { useVscodeTheme } from "./hooks/useVscodeTheme";
 import { useResizable } from "./hooks/useResizable";
+import { useTranslation } from "./i18n/useTranslation";
 
 function App() {
+  const t = useTranslation();
   useTheme();
   useRestoreSession();
   useDragDrop();
@@ -81,6 +83,19 @@ function App() {
         case "settings":
           useAppStore.getState().setSettingsOpen(true);
           break;
+        case "zoom_in": {
+          const s = useAppStore.getState().settings;
+          useAppStore.getState().updateSettings({ fontScale: Math.min(150, s.fontScale + 10) });
+          break;
+        }
+        case "zoom_out": {
+          const s = useAppStore.getState().settings;
+          useAppStore.getState().updateSettings({ fontScale: Math.max(50, s.fontScale - 10) });
+          break;
+        }
+        case "zoom_reset":
+          useAppStore.getState().updateSettings({ fontScale: 100 });
+          break;
       }
     });
     return () => {
@@ -121,7 +136,7 @@ function App() {
               <CardView sections={sections} />
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-4">
-                <p className="text-lg font-light tracking-wide">Open a folder, pick a file</p>
+                <p className="text-lg font-light tracking-wide">{t("welcome.message")}</p>
                 <div className="text-xs space-y-1.5 text-center opacity-60">
                   <p>
                     <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 font-mono text-[10px]">&larr;</kbd>{" "}

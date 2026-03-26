@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../../stores/useAppStore";
+import { useTranslation } from "../../i18n/useTranslation";
 
 interface SearchHit {
   file_name: string;
@@ -14,6 +15,7 @@ interface SearchPanelProps {
 }
 
 export function SearchPanel({ onClose }: SearchPanelProps) {
+  const t = useTranslation();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchHit[]>([]);
   const [searching, setSearching] = useState(false);
@@ -70,7 +72,7 @@ export function SearchPanel({ onClose }: SearchPanelProps) {
         onKeyDown={handleKeyDown}
       >
         <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200/60 dark:border-gray-700/40">
-          <span className="text-gray-400 text-sm">Search</span>
+          <span className="text-gray-400 text-sm">{t("search.label")}</span>
           <input
             ref={inputRef}
             type="text"
@@ -78,18 +80,18 @@ export function SearchPanel({ onClose }: SearchPanelProps) {
             onChange={(e) => setQuery(e.target.value)}
             onCompositionStart={() => { composingRef.current = true; }}
             onCompositionEnd={(e) => { composingRef.current = false; setQuery((e.target as HTMLInputElement).value); }}
-            placeholder="Search in all files..."
+            placeholder={t("search.placeholder")}
             className="flex-1 bg-transparent text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none"
           />
           {searching ? (
-            <span className="text-[10px] text-gray-400 animate-pulse">Searching...</span>
+            <span className="text-[10px] text-gray-400 animate-pulse">{t("search.searching")}</span>
           ) : null}
         </div>
 
         <div className="max-h-80 overflow-y-auto">
           {results.length === 0 && query.trim() && !searching ? (
             <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-8">
-              No results
+              {t("search.noResults")}
             </p>
           ) : null}
           {results.map((hit, i) => (

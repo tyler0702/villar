@@ -180,6 +180,26 @@ export function SettingsPanel({ width }: { width?: number }) {
                   <option key={f.id} value={f.id}>{f.label}</option>
                 ))}
               </optgroup>
+              <optgroup label="Chinese">
+                {FONT_OPTIONS.filter((f) => f.category === "zh").map((f) => (
+                  <option key={f.id} value={f.id}>{f.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="Korean">
+                {FONT_OPTIONS.filter((f) => f.category === "ko").map((f) => (
+                  <option key={f.id} value={f.id}>{f.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="Arabic">
+                {FONT_OPTIONS.filter((f) => f.category === "ar").map((f) => (
+                  <option key={f.id} value={f.id}>{f.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="International">
+                {FONT_OPTIONS.filter((f) => f.category === "intl").map((f) => (
+                  <option key={f.id} value={f.id}>{f.label}</option>
+                ))}
+              </optgroup>
             </select>
           </Row>
           <Row label="Font Size">

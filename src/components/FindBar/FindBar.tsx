@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useAppStore } from "../../stores/useAppStore";
+import { useTranslation } from "../../i18n/useTranslation";
 
 export function FindBar() {
+  const t = useTranslation();
   const findQuery = useAppStore((s) => s.findQuery);
   const inputRef = useRef<HTMLInputElement>(null);
   const composingRef = useRef(false);
@@ -46,7 +48,7 @@ export function FindBar() {
 
   return (
     <div className="flex items-center gap-2 px-4 py-1.5 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/90 dark:bg-surface-800/90 backdrop-blur-sm shrink-0">
-      <span className="text-[10px] text-gray-400">Find</span>
+      <span className="text-[10px] text-gray-400">{t("find.label")}</span>
       <input
         ref={inputRef}
         type="text"
@@ -62,16 +64,16 @@ export function FindBar() {
           useAppStore.getState().setFindQuery((e.target as HTMLInputElement).value);
         }}
         onKeyDown={handleKeyDown}
-        placeholder="Search in document..."
+        placeholder={t("find.placeholder")}
         className="flex-1 bg-transparent text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 outline-none"
       />
       <div className="flex items-center gap-1.5">
         {matchCount === 0 ? (
-          <span className="text-[10px] text-red-400">No match</span>
+          <span className="text-[10px] text-red-400">{t("find.noMatch")}</span>
         ) : matchCount === -1 ? (
-          <span className="text-[10px] text-green-500">Found</span>
+          <span className="text-[10px] text-green-500">{t("find.found")}</span>
         ) : null}
-        <span className="text-[10px] text-gray-400">Enter / Shift+Enter</span>
+        <span className="text-[10px] text-gray-400">{t("find.enterNext")}</span>
       </div>
       <button
         onClick={handleClose}
