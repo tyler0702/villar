@@ -1,6 +1,10 @@
-# villar
+<p align="center">
+  <img src="docs/logo.png" alt="villar" width="180" />
+</p>
 
-AI-generated Markdown reader. Restructures long md files into a card-based reading experience.
+<h1 align="center">villar</h1>
+
+<p align="center">AI-generated Markdown reader. Restructures long md files into a card-based reading experience.</p>
 
 ## Features
 
