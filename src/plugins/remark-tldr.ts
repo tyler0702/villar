@@ -1,4 +1,4 @@
-import type { Content, Heading, Paragraph, List, ListItem, Strong, Text } from "mdast";
+import type { Content, Paragraph, List, ListItem, Strong, Text } from "mdast";
 
 export interface TldrData {
   summary: string | null;

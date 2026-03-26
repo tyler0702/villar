@@ -1,29 +1,5 @@
 import { useEffect } from "react";
-import { useAppStore, type VscodeThemeColors } from "../stores/useAppStore";
-
-export function parseVscodeTheme(json: unknown): VscodeThemeColors | null {
-  try {
-    const obj = json as Record<string, unknown>;
-    const name = (obj.name as string) || "Custom Theme";
-    const colors = obj.colors as Record<string, string> | undefined;
-    if (!colors) return null;
-
-    return {
-      name,
-      bg: colors["editor.background"] || "#1e1e1e",
-      fg: colors["editor.foreground"] || "#d4d4d4",
-      accent: colors["focusBorder"] || colors["button.background"] || colors["progressBar.background"] || "#007acc",
-      sidebarBg: colors["sideBar.background"] || colors["editor.background"] || "#252526",
-      sidebarFg: colors["sideBar.foreground"] || colors["editor.foreground"] || "#cccccc",
-      editorBg: colors["editor.background"] || "#1e1e1e",
-      editorFg: colors["editor.foreground"] || "#d4d4d4",
-      border: colors["sideBar.border"] || colors["panel.border"] || "#333333",
-      selectionBg: colors["editor.selectionBackground"] || "#264f78",
-    };
-  } catch {
-    return null;
-  }
-}
+import { useAppStore } from "../stores/useAppStore";
 
 export function useVscodeTheme() {
   const themeColors = useAppStore((s) => s.settings.vscodeTheme);
