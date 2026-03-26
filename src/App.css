@@ -165,14 +165,3 @@ html {
 .resize-handle:active {
   background-color: var(--vs-accent, oklch(0.72 0.12 80));
 }
-
-/* Window drag region */
-.titlebar-drag {
-  -webkit-app-region: drag;
-  app-region: drag;
-  user-select: none;
-}
-.titlebar-nodrag {
-  -webkit-app-region: no-drag;
-  app-region: no-drag;
-}
