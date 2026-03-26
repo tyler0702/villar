@@ -2,6 +2,8 @@ import { useAppStore } from "../../stores/useAppStore";
 import type { ContentWidth, MermaidDefault, VscodeThemeColors } from "../../stores/useAppStore";
 import { BUILTIN_THEMES } from "../../themes/builtin";
 import { FONT_OPTIONS } from "../../themes/fonts";
+import { LANGUAGES } from "../../i18n/translations";
+import { useTranslation } from "../../i18n/useTranslation";
 
 const SHORTCUTS = [
   { key: "\u2190 \u2192", action: "Navigate cards" },
@@ -125,11 +127,12 @@ export function SettingsPanel({ width }: { width?: number }) {
   const settings = useAppStore((s) => s.settings);
   const update = useAppStore((s) => s.updateSettings);
   const close = () => useAppStore.getState().setSettingsOpen(false);
+  const t = useTranslation();
 
   return (
     <aside style={{ fontSize: "16px", width: width ?? 256 }} className="shrink-0 border-l border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm overflow-y-auto flex flex-col">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
-        <span className="text-xs font-semibold text-gray-800 dark:text-gray-100">Settings</span>
+        <span className="text-xs font-semibold text-gray-800 dark:text-gray-100">{t("settings.title")}</span>
         <button
           onClick={close}
           className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm leading-none"
@@ -139,8 +142,19 @@ export function SettingsPanel({ width }: { width?: number }) {
       </div>
 
       <div className="px-4 py-3 space-y-5 flex-1">
-        <Section title="Display">
-          <Row label="Font">
+        <Section title={t("settings.display")}>
+          <Row label={t("settings.language")}>
+            <select
+              value={settings.language}
+              onChange={(e) => update({ language: e.target.value })}
+              className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg px-2 py-1 outline-none cursor-pointer w-28"
+            >
+              {LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>{lang.label}</option>
+              ))}
+            </select>
+          </Row>
+          <Row label={t("settings.font")}>
             <select
               value={settings.fontFamily}
               onChange={(e) => update({ fontFamily: e.target.value })}
