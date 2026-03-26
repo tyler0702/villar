@@ -18,6 +18,7 @@ export function SearchPanel({ onClose }: SearchPanelProps) {
   const [results, setResults] = useState<SearchHit[]>([]);
   const [searching, setSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const composingRef = useRef(false);
   const folderPath = useAppStore((s) => s.folderPath);
 
   useEffect(() => {
@@ -25,8 +26,8 @@ export function SearchPanel({ onClose }: SearchPanelProps) {
   }, []);
 
   useEffect(() => {
-    if (!query.trim() || !folderPath) {
-      setResults([]);
+    if (!query.trim() || !folderPath || composingRef.current) {
+      if (!query.trim()) setResults([]);
       return;
     }
 
@@ -75,6 +76,8 @@ export function SearchPanel({ onClose }: SearchPanelProps) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onCompositionStart={() => { composingRef.current = true; }}
+            onCompositionEnd={(e) => { composingRef.current = false; setQuery((e.target as HTMLInputElement).value); }}
             placeholder="Search in all files..."
             className="flex-1 bg-transparent text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none"
           />
