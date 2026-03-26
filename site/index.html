@@ -1005,10 +1005,10 @@
         <div class="preview-body">
           <div class="preview-sidebar">
             <div class="preview-sidebar-label" data-i18n="preview.files">Files</div>
-            <div class="preview-sidebar-item">architecture.md</div>
-            <div class="preview-sidebar-item active">api-design.md</div>
-            <div class="preview-sidebar-item">deployment.md</div>
-            <div class="preview-sidebar-item">changelog.md</div>
+            <div class="preview-sidebar-item file-item">architecture.md</div>
+            <div class="preview-sidebar-item file-item active">api-design.md</div>
+            <div class="preview-sidebar-item file-item">deployment.md</div>
+            <div class="preview-sidebar-item file-item">changelog.md</div>
             <div class="preview-sidebar-label" data-i18n="preview.outline">Outline</div>
             <div class="preview-sidebar-item outline-item active" data-card="0" data-i18n="preview.o1">Overview</div>
             <div class="preview-sidebar-item outline-item" data-card="1" data-i18n="preview.o2">Authentication</div>
@@ -1385,6 +1385,46 @@
         }
       }, { threshold: 0.3 });
       observer.observe(previewApp);
+
+      // File items: simulate file switching
+      const fileItems = document.querySelectorAll('.file-item');
+      const contentArea = document.querySelector('.preview-content');
+
+      fileItems.forEach(item => {
+        item.addEventListener('click', () => {
+          if (item.classList.contains('active')) return;
+
+          // Update active file
+          fileItems.forEach(f => f.classList.remove('active'));
+          item.classList.add('active');
+
+          // Flash content to simulate file loading
+          contentArea.style.opacity = '0';
+          contentArea.style.transition = 'opacity 0.15s';
+
+          setTimeout(() => {
+            // Reset to card 0
+            cards.forEach(c => {
+              c.classList.remove('active', 'exit-left');
+              c.style.transform = '';
+            });
+            cards[0].classList.add('active');
+            current = 0;
+
+            outlineItems.forEach((o, i) => {
+              o.classList.toggle('active', i === 0);
+              if (focusMode) o.classList.toggle('dimmed', i !== 0);
+            });
+            dots.forEach((d, i) => d.classList.toggle('active', i === 0));
+            progressBar.style.width = '25%';
+            prevBtn.disabled = true;
+            nextBtn.disabled = false;
+
+            contentArea.style.opacity = '1';
+            startAutoPlay();
+          }, 150);
+        });
+      });
     })();
 
     // ── i18n ──

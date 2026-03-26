@@ -96,6 +96,22 @@ function App() {
         case "zoom_reset":
           useAppStore.getState().updateSettings({ fontScale: 100 });
           break;
+        case "prev_card": {
+          const idx = useAppStore.getState().tabs[useAppStore.getState().activeTabIndex]?.activeCardIndex ?? 0;
+          if (idx > 0) useAppStore.getState().setActiveCardIndex(idx - 1);
+          break;
+        }
+        case "next_card": {
+          const idx2 = useAppStore.getState().tabs[useAppStore.getState().activeTabIndex]?.activeCardIndex ?? 0;
+          useAppStore.getState().setActiveCardIndex(idx2 + 1);
+          break;
+        }
+        case "first_card":
+          useAppStore.getState().setActiveCardIndex(0);
+          break;
+        case "last_card":
+          useAppStore.getState().setActiveCardIndex(999);
+          break;
       }
     });
     return () => {
