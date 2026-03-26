@@ -86,47 +86,23 @@ fn read_file(file_path: String) -> Result<String, String> {
 
 #[derive(Serialize)]
 struct FileMeta {
-    modified: Option<String>,
-    created: Option<String>,
+    modified: Option<f64>,
+    created: Option<f64>,
 }
 
 #[tauri::command]
 fn get_file_meta(file_path: String) -> Result<FileMeta, String> {
     let meta = fs::metadata(&file_path).map_err(|e| e.to_string())?;
 
-    let format_time = |t: std::io::Result<std::time::SystemTime>| -> Option<String> {
+    let to_epoch = |t: std::io::Result<std::time::SystemTime>| -> Option<f64> {
         let t = t.ok()?;
         let d = t.duration_since(std::time::UNIX_EPOCH).ok()?;
-        let secs = d.as_secs() as i64;
-        // Simple UTC formatting: YYYY/MM/DD HH:mm
-        let days = secs / 86400;
-        let time_of_day = secs % 86400;
-        let hours = time_of_day / 3600;
-        let minutes = (time_of_day % 3600) / 60;
-
-        // Days since epoch to date (simplified)
-        let mut y = 1970i64;
-        let mut remaining = days;
-        loop {
-            let days_in_year = if y % 4 == 0 && (y % 100 != 0 || y % 400 == 0) { 366 } else { 365 };
-            if remaining < days_in_year { break; }
-            remaining -= days_in_year;
-            y += 1;
-        }
-        let leap = y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
-        let month_days = [31, if leap { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-        let mut m = 0usize;
-        for &md in &month_days {
-            if remaining < md { break; }
-            remaining -= md;
-            m += 1;
-        }
-        Some(format!("{:04}/{:02}/{:02} {:02}:{:02}", y, m + 1, remaining + 1, hours, minutes))
+        Some(d.as_secs_f64() * 1000.0) // milliseconds for JS Date
     };
 
     Ok(FileMeta {
-        modified: format_time(meta.modified()),
-        created: format_time(meta.created()),
+        modified: to_epoch(meta.modified()),
+        created: to_epoch(meta.created()),
     })
 }
 

@@ -184,21 +184,25 @@ export function CardView({ sections }: CardViewProps) {
 
       {/* Card thumbnails */}
       {sections.length > 1 ? (
-        <div className="flex items-center justify-center gap-1 py-1 border-t border-gray-100/60 dark:border-gray-800/60 shrink-0 overflow-x-auto px-4">
-          {sections.map((section, i) => (
-            <button
-              key={i}
-              onClick={() => setActiveIndex(i)}
-              title={section.title}
-              className={`h-2 rounded-full transition-all ${
-                i === activeIndex
-                  ? "w-6 bg-accent-400 dark:bg-accent-500"
-                  : readSections.has(`${selectedFilePath}:${i}`)
-                    ? "w-3 bg-accent-200 dark:bg-accent-800 hover:bg-accent-300 dark:hover:bg-accent-700"
-                    : "w-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
-              }`}
-            />
-          ))}
+        <div className="flex items-center gap-1.5 py-1.5 px-4 border-t border-gray-100/60 dark:border-gray-800/60 shrink-0 overflow-x-auto">
+          {sections.map((section, i) => {
+            const isRead = readSections.has(`${selectedFilePath}:${i}`);
+            return (
+              <button
+                key={i}
+                onClick={() => setActiveIndex(i)}
+                className={`px-2 py-0.5 text-[9px] rounded border shrink-0 transition-all truncate max-w-[100px] ${
+                  i === activeIndex
+                    ? "border-accent-400 bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium"
+                    : isRead
+                      ? "border-accent-200/50 dark:border-accent-800/50 text-gray-500 dark:text-gray-400 bg-accent-50/30 dark:bg-accent-950/20"
+                      : "border-gray-200/60 dark:border-gray-700/40 text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                }`}
+              >
+                {section.title}
+              </button>
+            );
+          })}
         </div>
       ) : null}
     </div>
