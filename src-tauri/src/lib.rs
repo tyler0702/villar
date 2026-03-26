@@ -84,6 +84,52 @@ fn read_file(file_path: String) -> Result<String, String> {
     fs::read_to_string(&file_path).map_err(|e| e.to_string())
 }
 
+#[derive(Serialize)]
+struct FileMeta {
+    modified: Option<String>,
+    created: Option<String>,
+}
+
+#[tauri::command]
+fn get_file_meta(file_path: String) -> Result<FileMeta, String> {
+    let meta = fs::metadata(&file_path).map_err(|e| e.to_string())?;
+
+    let format_time = |t: std::io::Result<std::time::SystemTime>| -> Option<String> {
+        let t = t.ok()?;
+        let d = t.duration_since(std::time::UNIX_EPOCH).ok()?;
+        let secs = d.as_secs() as i64;
+        // Simple UTC formatting: YYYY/MM/DD HH:mm
+        let days = secs / 86400;
+        let time_of_day = secs % 86400;
+        let hours = time_of_day / 3600;
+        let minutes = (time_of_day % 3600) / 60;
+
+        // Days since epoch to date (simplified)
+        let mut y = 1970i64;
+        let mut remaining = days;
+        loop {
+            let days_in_year = if y % 4 == 0 && (y % 100 != 0 || y % 400 == 0) { 366 } else { 365 };
+            if remaining < days_in_year { break; }
+            remaining -= days_in_year;
+            y += 1;
+        }
+        let leap = y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+        let month_days = [31, if leap { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        let mut m = 0usize;
+        for &md in &month_days {
+            if remaining < md { break; }
+            remaining -= md;
+            m += 1;
+        }
+        Some(format!("{:04}/{:02}/{:02} {:02}:{:02}", y, m + 1, remaining + 1, hours, minutes))
+    };
+
+    Ok(FileMeta {
+        modified: format_time(meta.modified()),
+        created: format_time(meta.created()),
+    })
+}
+
 #[tauri::command]
 fn watch_folder(app_handle: AppHandle, dir_path: String) -> Result<(), String> {
     let state = app_handle.state::<Mutex<WatcherState>>();
@@ -258,7 +304,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![list_md_files, read_file, watch_folder, search_files, write_log])
+        .invoke_handler(tauri::generate_handler![list_md_files, read_file, get_file_meta, watch_folder, search_files, write_log])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

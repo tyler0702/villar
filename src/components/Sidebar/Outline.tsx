@@ -1,12 +1,13 @@
 import type { ProcessedSection } from "../../hooks/useMarkdown";
 
 interface OutlineProps {
+  docTitle: string | null;
   sections: ProcessedSection[];
   activeIndex: number;
   onSelect: (index: number) => void;
 }
 
-export function Outline({ sections, activeIndex, onSelect }: OutlineProps) {
+export function Outline({ docTitle, sections, activeIndex, onSelect }: OutlineProps) {
   if (sections.length === 0) return null;
 
   return (
@@ -15,6 +16,11 @@ export function Outline({ sections, activeIndex, onSelect }: OutlineProps) {
         Outline
       </span>
       <div className="mt-1 space-y-0.5">
+        {docTitle ? (
+          <div className="px-3 py-1 text-[11px] font-semibold text-gray-600 dark:text-gray-300 truncate">
+            {docTitle}
+          </div>
+        ) : null}
         {sections.map((section, i) => (
           <div key={i}>
             <button
@@ -24,6 +30,7 @@ export function Outline({ sections, activeIndex, onSelect }: OutlineProps) {
                   ? "bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium"
                   : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               }`}
+              style={{ paddingLeft: docTitle ? "20px" : undefined }}
             >
               {section.title}
             </button>
@@ -33,7 +40,7 @@ export function Outline({ sections, activeIndex, onSelect }: OutlineProps) {
                   <div
                     key={j}
                     className="text-[10px] text-gray-400 dark:text-gray-500 truncate py-0.5"
-                    style={{ paddingLeft: `${(sub.depth - 3) * 8 + 12}px` }}
+                    style={{ paddingLeft: `${(sub.depth - 3) * 8 + (docTitle ? 20 : 12)}px` }}
                   >
                     {sub.title}
                   </div>

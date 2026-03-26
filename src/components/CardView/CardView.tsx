@@ -3,6 +3,7 @@ import type { ProcessedSection } from "../../hooks/useMarkdown";
 import { useAppStore } from "../../stores/useAppStore";
 import { TldrCard } from "./TldrCard";
 import { SectionContent } from "./SectionContent";
+import { FileMeta } from "./FileMeta";
 
 interface CardViewProps {
   sections: ProcessedSection[];
@@ -129,11 +130,16 @@ export function CardView({ sections }: CardViewProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="h-0.5 bg-gray-100 dark:bg-gray-800 shrink-0">
-        <div
-          className="h-full bg-accent-400 dark:bg-accent-600 transition-all duration-300"
-          style={{ width: `${progress}%` }}
-        />
+      <div className="flex items-center shrink-0">
+        <div className="flex-1 h-0.5 bg-gray-100 dark:bg-gray-800">
+          <div
+            className="h-full bg-accent-400 dark:bg-accent-600 transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="px-3 shrink-0">
+          <FileMeta filePath={selectedFilePath || null} />
+        </div>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-8 py-6">
@@ -175,6 +181,26 @@ export function CardView({ sections }: CardViewProps) {
           Next &rarr;
         </button>
       </div>
+
+      {/* Card thumbnails */}
+      {sections.length > 1 ? (
+        <div className="flex items-center justify-center gap-1 py-1 border-t border-gray-100/60 dark:border-gray-800/60 shrink-0 overflow-x-auto px-4">
+          {sections.map((section, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIndex(i)}
+              title={section.title}
+              className={`h-2 rounded-full transition-all ${
+                i === activeIndex
+                  ? "w-6 bg-accent-400 dark:bg-accent-500"
+                  : readSections.has(`${selectedFilePath}:${i}`)
+                    ? "w-3 bg-accent-200 dark:bg-accent-800 hover:bg-accent-300 dark:hover:bg-accent-700"
+                    : "w-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
+              }`}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

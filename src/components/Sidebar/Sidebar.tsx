@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useAppStore } from "../../stores/useAppStore";
 import { Outline } from "./Outline";
 import { FileTree } from "./FileTree";
@@ -8,12 +9,20 @@ interface SidebarProps {
   style?: React.CSSProperties;
 }
 
+function extractDocTitle(content: string | null): string | null {
+  if (!content) return null;
+  const match = content.match(/^# (.+)$/m);
+  return match ? match[1].trim() : null;
+}
+
 export function Sidebar({ sections, style }: SidebarProps) {
   const tree = useAppStore((s) => s.tree);
   const activeTab = useAppStore((s) => s.tabs[s.activeTabIndex] ?? null);
   const selectedPath = activeTab?.file.path ?? null;
   const activeCardIndex = activeTab?.activeCardIndex ?? 0;
   const setActiveCardIndex = useAppStore((s) => s.setActiveCardIndex);
+
+  const docTitle = useMemo(() => extractDocTitle(activeTab?.content ?? null), [activeTab?.content]);
 
   return (
     <aside style={style} className="shrink-0 border-r border-gray-200/60 dark:border-gray-700/60 bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm overflow-y-auto flex flex-col vs-sidebar vs-border">
@@ -32,6 +41,7 @@ export function Sidebar({ sections, style }: SidebarProps) {
         )}
       </nav>
       <Outline
+        docTitle={docTitle}
         sections={sections}
         activeIndex={activeCardIndex}
         onSelect={setActiveCardIndex}
