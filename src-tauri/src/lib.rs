@@ -5,8 +5,11 @@ use std::io::Write;
 use std::path::Path;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
 use tauri::menu::{MenuBuilder, SubmenuBuilder, MenuItemBuilder, PredefinedMenuItem};
+use std::sync::atomic::{AtomicU32, Ordering};
+
+static WINDOW_COUNTER: AtomicU32 = AtomicU32::new(1);
 
 #[derive(Serialize, Clone)]
 pub struct FsNode {
@@ -273,6 +276,7 @@ fn chrono_lite_timestamp() -> String {
 
 fn build_menu(app: &AppHandle) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::Error> {
     let file_menu = SubmenuBuilder::new(app, "File")
+        .item(&MenuItemBuilder::with_id("new_window", "New Window").accelerator("CmdOrCtrl+Shift+N").build(app)?)
         .item(&MenuItemBuilder::with_id("open_folder", "Open Folder...").accelerator("CmdOrCtrl+O").build(app)?)
         .separator()
         .item(&MenuItemBuilder::with_id("close_tab", "Close Tab").accelerator("CmdOrCtrl+W").build(app)?)
@@ -331,7 +335,19 @@ pub fn run() {
 
             // Handle menu events
             app.on_menu_event(move |app, event| {
-                let _ = app.emit("menu-action", event.id().0.as_str());
+                let id = event.id().0.as_str();
+                if id == "new_window" {
+                    let count = WINDOW_COUNTER.fetch_add(1, Ordering::SeqCst);
+                    let label = format!("villar-{}", count);
+                    let _ = WebviewWindowBuilder::new(app, &label, WebviewUrl::default())
+                        .title("villar")
+                        .inner_size(1200.0, 800.0)
+                        .title_bar_style(tauri::TitleBarStyle::Overlay)
+                        .hidden_title(true)
+                        .build();
+                } else {
+                    let _ = app.emit("menu-action", id);
+                }
             });
 
             Ok(())
