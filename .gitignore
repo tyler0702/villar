@@ -1,3 +1,10 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+
 # Logs
 logs
 *.log
@@ -7,32 +14,46 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Tauri
+src-tauri/target/
+src-tauri/gen/
 
-# Editor directories and files
+# Test artifacts
+test-results/
+playwright-report/
+
+# Editor / IDE
 .vscode
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Tauri
-src-tauri/target/
-src-tauri/gen/
-test-results/
+# OS files
+.DS_Store
+Thumbs.db
+*.local
 
-# Agent skills
-.agents/skills
-.claude/skills
-.kiro/skills
+# Agent / AI tools
+.agents/
+.claude/
+.kiro/
+skills-lock.json
 
-# Docs (local only)
-docs
+# Local docs (not for public repo)
+docs/
 CLAUDE.md
 SPEC-V2.md
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+credentials.*
+
+# Misc
+*.tsbuildinfo
