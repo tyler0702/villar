@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo.png" alt="villar" width="180" />
+  <img src="public/logo.png" alt="villar" width="180" />
 </p>
 
 <h1 align="center">villar</h1>
