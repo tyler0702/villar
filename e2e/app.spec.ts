@@ -35,6 +35,48 @@ const SAMPLE_MD_2 = [
   "Detailed analysis section here.",
 ].join("\n");
 
+// Rich document with GFM table, long list, long code, and TL;DR-worthy content
+const RICH_MD = [
+  "## Architecture Overview",
+  "",
+  "This section provides a comprehensive overview of the system architecture including all **key components** and their interactions across services.",
+  "",
+  "- Component A handles user authentication",
+  "- Component B manages data persistence",
+  "- Component C orchestrates message passing",
+  "",
+  "| Feature | Status | Owner |",
+  "|---------|--------|-------|",
+  "| Auth    | Done   | Alice |",
+  "| API     | WIP    | Bob   |",
+  "| UI      | Done   | Carol |",
+  "",
+  "```typescript",
+  'const config = {',
+  '  host: "localhost",',
+  '  port: 3000,',
+  '  debug: true,',
+  '};',
+  "```",
+  "",
+  "## Implementation Details",
+  "",
+  "The implementation follows standard patterns with sufficient detail for proper TL;DR generation across multiple paragraphs.",
+  "",
+  "- Item 1: First long list entry",
+  "- Item 2: Second long list entry",
+  "- Item 3: Third long list entry",
+  "- Item 4: Fourth long list entry",
+  "- Item 5: Fifth long list entry",
+  "- Item 6: Sixth long list entry",
+  "- Item 7: Seventh long list entry",
+  "- Item 8: Eighth long list entry",
+  "",
+  "```python",
+  ...Array.from({ length: 25 }, (_, i) => `line_${i + 1} = compute(${i})`),
+  "```",
+].join("\n");
+
 function injectContent(md: string, name = "test.md", path = "/mock/test.md") {
   return `
     const store = window.__villarStore;
@@ -271,5 +313,208 @@ test.describe("Card thumbnails", () => {
     );
     // Conclusion is the last section — should be >= 2
     expect(activeIdx).toBeGreaterThanOrEqual(2);
+  });
+});
+
+test.describe("Markdown rendering - GFM and code", () => {
+  test("GFM table renders as <table>", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(RICH_MD));
+
+    // Table should be rendered
+    const table = page.locator("main table");
+    await expect(table.first()).toBeVisible();
+
+    // Check table headers
+    await expect(table.first().locator("th", { hasText: "Feature" })).toBeVisible();
+    await expect(table.first().locator("td", { hasText: "Alice" })).toBeVisible();
+  });
+
+  test("code block has syntax highlight classes", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(RICH_MD));
+
+    // rehype-highlight adds hljs classes to code elements
+    const codeEl = page.locator("main pre code.hljs").first();
+    await expect(codeEl).toBeVisible();
+  });
+
+  test("code block has Copy button with data-copy", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(RICH_MD));
+
+    // Copy button injected inside <pre> by addCopyButtonsToHtml
+    const copyBtn = page.locator("main pre button[data-copy]").first();
+    await expect(copyBtn).toBeVisible();
+    await expect(copyBtn).toHaveText("Copy");
+  });
+});
+
+test.describe("TL;DR card", () => {
+  test("TL;DR card displays with summary text", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(RICH_MD));
+
+    // TL;DR button should be visible
+    const tldrBtn = page.locator("button", { hasText: "TL;DR" }).first();
+    await expect(tldrBtn).toBeVisible();
+
+    // Summary text should be visible (default expanded)
+    await expect(page.getByText("comprehensive overview").first()).toBeVisible();
+  });
+
+  test("TL;DR toggle collapses and expands", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(RICH_MD));
+
+    // TL;DR card container (has the rounded-xl border class)
+    const tldrCard = page.locator(".rounded-xl.border").first();
+    const tldrBtn = tldrCard.locator("button", { hasText: "TL;DR" });
+
+    // TL;DR is expanded by default — content div should be visible
+    const contentDiv = tldrCard.locator(".mt-3");
+    await expect(contentDiv).toBeVisible();
+
+    // Click TL;DR button to collapse
+    await tldrBtn.click();
+
+    // Content should be hidden
+    await expect(contentDiv).not.toBeVisible();
+
+    // Click again to expand
+    await tldrBtn.click();
+    await expect(contentDiv).toBeVisible();
+  });
+});
+
+test.describe("Collapsible blocks", () => {
+  test("long list is collapsed with expand button", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(RICH_MD));
+
+    // Navigate to Implementation Details section (second section)
+    await page.getByRole("button", { name: /Next/ }).click();
+
+    // Should show collapse button for the 8-item list
+    const collapseBtn = page.locator("button", { hasText: /List.*items.*click to expand/ });
+    await expect(collapseBtn).toBeVisible();
+  });
+
+  test("clicking collapse button expands the content", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(RICH_MD));
+
+    // Navigate to Implementation Details
+    await page.getByRole("button", { name: /Next/ }).click();
+
+    // The collapsed list items should NOT be visible initially
+    await expect(page.getByText("Eighth long list entry")).not.toBeVisible();
+
+    // Click to expand
+    const collapseBtn = page.locator("button", { hasText: /click to expand/ }).first();
+    await collapseBtn.click();
+
+    // Now the list items should be visible
+    await expect(page.getByText("Eighth long list entry")).toBeVisible();
+  });
+});
+
+test.describe("Search with mock results", () => {
+  test("search shows results from mock and clicking opens tab", async ({ page }) => {
+    await page.goto("/");
+
+    // Set up folder path and mock search results
+    await page.evaluate(() => {
+      const w = window as unknown as Record<string, unknown>;
+      w.__TAURI_MOCK_DATA__ = {
+        files: [],
+        fileContents: { "/mock/result.md": "## Found\n\nContent from search result." },
+        searchResults: [
+          { file_name: "result.md", file_path: "/mock/result.md", line_number: 1, line_text: "Found matching content" },
+        ],
+      };
+      const store = w.__villarStore as { getState: () => { setFolderPath: (p: string) => void; setTree: (t: unknown[]) => void } };
+      store.getState().setFolderPath("/mock/folder");
+      store.getState().setTree([]);
+    });
+
+    // Open search
+    await page.keyboard.press("Meta+k");
+    const searchInput = page.locator("input[placeholder*='Search in all files']");
+    await expect(searchInput).toBeVisible();
+
+    // Type query
+    await searchInput.fill("Found");
+
+    // Wait for debounced results (200ms + render)
+    const resultBtn = page.locator("button", { hasText: "result" });
+    await expect(resultBtn).toBeVisible({ timeout: 3000 });
+    await expect(page.getByText("Found matching content")).toBeVisible();
+
+    // Click result to open file
+    await resultBtn.click();
+
+    // Search modal should close and tab should be opened
+    await expect(searchInput).not.toBeVisible();
+    await expect(page.getByRole("heading", { name: "Found" }).first()).toBeVisible();
+  });
+});
+
+test.describe("FindBar advanced", () => {
+  test("FindBar shows Found/No match after Enter", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(RICH_MD));
+
+    // Open FindBar
+    await page.keyboard.press("Meta+f");
+    const findInput = page.locator("input[placeholder*='Search in document']");
+    await expect(findInput).toBeVisible();
+
+    // Type existing text and press Enter
+    await findInput.fill("Architecture");
+    await findInput.press("Enter");
+    await expect(page.getByText("Found")).toBeVisible();
+
+    // Clear and type non-existing text
+    await findInput.fill("xyznonexistent");
+    await findInput.press("Enter");
+    await expect(page.getByText("No match")).toBeVisible();
+
+    // Escape to close
+    await page.keyboard.press("Escape");
+    await expect(findInput).not.toBeVisible();
+  });
+
+  test("IME compositionStart prevents search during composition", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(RICH_MD));
+
+    // Open FindBar
+    await page.keyboard.press("Meta+f");
+    const findInput = page.locator("input[placeholder*='Search in document']");
+    await expect(findInput).toBeVisible();
+
+    // Simulate compositionStart
+    await findInput.dispatchEvent("compositionstart");
+
+    // Type text during composition — should not trigger search
+    await findInput.fill("テスト");
+    await findInput.press("Enter");
+
+    // During composition, Enter should not trigger find (composingRef is true)
+    // Verify no Found/No match indicators appear
+    const foundIndicator = page.getByText("Found");
+    const noMatchIndicator = page.getByText("No match");
+    // Neither indicator should be visible because composing blocks Enter
+    await expect(foundIndicator).not.toBeVisible({ timeout: 500 });
+    await expect(noMatchIndicator).not.toBeVisible({ timeout: 500 });
+
+    // End composition
+    await findInput.dispatchEvent("compositionend");
+
+    // Now Enter should work
+    await findInput.press("Enter");
+    // "テスト" is not in the document so should show No match
+    await expect(noMatchIndicator).toBeVisible();
   });
 });
