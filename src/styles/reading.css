@@ -1,0 +1,23 @@
+/* Reading settings — applied via CSS variables on .reading-root */
+.reading-root {
+  font-family: var(--reading-font, inherit);
+  font-size: var(--reading-font-size, 1rem);
+  line-height: var(--reading-line-height, 1.6);
+}
+.reading-root h1 {
+  font-size: calc(var(--reading-font-size, 1rem) * 1.5);
+  line-height: 1.3;
+}
+.reading-root h2 {
+  font-size: calc(var(--reading-font-size, 1rem) * 1.3);
+  line-height: 1.3;
+}
+/* Force prose to inherit line-height from reading-root */
+.reading-root .prose {
+  line-height: inherit !important;
+}
+.reading-root .prose p,
+.reading-root .prose li,
+.reading-root .prose blockquote {
+  line-height: inherit !important;
+}

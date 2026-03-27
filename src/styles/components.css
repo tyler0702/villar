@@ -1,0 +1,72 @@
+/* Image styling */
+.prose img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+}
+
+/* Code block copy button */
+.prose pre {
+  position: relative !important;
+  overflow: hidden !important;
+}
+.code-copy-btn {
+  all: unset !important;
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  padding: 3px 10px !important;
+  font-size: 11px !important;
+  font-family: inherit !important;
+  border-radius: 4px !important;
+  background: rgba(128,128,128,0.4) !important;
+  color: #e0e0e0 !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+  line-height: 1.4 !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+}
+.code-copy-btn:hover {
+  background: rgba(128,128,128,0.6) !important;
+  color: #fff !important;
+}
+
+/* GFM table styling within prose */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: inherit;
+}
+.prose th,
+.prose td {
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.prose th {
+  background: var(--color-gray-50, #f9fafb);
+  font-weight: 600;
+}
+.dark .prose th,
+.dark .prose td {
+  border-color: var(--color-gray-700, #374151);
+}
+.dark .prose th {
+  background: var(--color-gray-800, #1f2937);
+}
+
+/* Resize handle */
+.resize-handle {
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background-color 0.15s;
+  flex-shrink: 0;
+}
+.resize-handle:hover,
+.resize-handle:active {
+  background-color: var(--vs-accent, oklch(0.72 0.12 80));
+}
