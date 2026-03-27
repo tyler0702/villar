@@ -10,22 +10,23 @@
 
 ### Reading Experience
 - **H2 Card View** - Splits documents by H2 headings into navigable cards
-- **Focus Mode** - Dims inactive cards (configurable opacity)
-- **TL;DR Cards** - Auto-generated summaries per section (rule-based)
+- **Focus Mode** - Dims inactive cards (configurable opacity, toggle with F)
+- **TL;DR Cards** - Auto-generated summaries per section (rule-based + TextRank for longer content)
 - **Reading Progress** - Scroll-based progress bar + section read marks
 - **Card Thumbnails** - Mini-cards in footer for quick section navigation
 - **File Dates** - Created/Updated timestamps displayed per file
+- **H1/H2/H3 Outline** - Sidebar outline with click-to-navigate
 
 ### Markdown Support
 - **GFM** - Tables, task lists, strikethrough, autolinks
-- **Mermaid** - Flowchart (linear step UI + diagram), sequence, class diagrams
+- **Mermaid** - Linear flowchart step UI + mermaid.js diagram fallback + raw text fallback
 - **Code Highlight** - Syntax highlighting with copy button
-- **Auto Collapse** - Long lists and code blocks folded by default
+- **Auto Collapse** - Long lists (>5 items) and code blocks (>20 lines) folded by default
 - **Image Preview** - Local images resolved and displayed
 
 ### File Management
 - **Folder Tree** - Hierarchical file/folder sidebar with live updates
-- **Multi-Tab** - Open multiple files with tab bar
+- **Multi-Tab** - Open multiple files with drag-and-drop reordering and context menu
 - **Full-Text Search** - Cmd+K to search across all files
 - **In-Document Search** - Cmd+F to find within current document
 - **Drag & Drop** - Drop files or folders to open
@@ -33,17 +34,19 @@
 - **File Watcher** - Live reload when source files change externally
 
 ### Customization
-- **25 Color Themes** - Dracula, Nord, Tokyo Night, Catppuccin, Gruvbox, and more
-- **11 Font Families** - Sans-serif, serif, and monospace options
-- **Font Scale** - 50%-150% zoom for content area
+- **46 Color Themes** - Dracula, Nord, Tokyo Night, Catppuccin, Gruvbox, Material, Night Owl, Vitesse, and more
+- **46 Font Families** - Sans-serif, serif, and monospace options including CJK fonts
+- **Font Scale** - 50%-150% zoom for content area (Cmd+=/-, Cmd+0 to reset)
 - **Line Height** - 100%-250% adjustable
 - **Content Width** - Narrow, medium, or wide layout
+- **10 Languages** - English, Japanese, Chinese (Simplified/Traditional), Korean, Spanish, German, Vietnamese, Malay, Arabic
 - **Settings Sidebar** - All options accessible via Cmd+, or gear icon
 
 ### Window
-- **Overlay Title Bar** - Themed header with native macOS traffic lights
+- **Custom Menu Bar** - Native Tauri menu with themed overlay title bar
 - **Resizable Sidebars** - Drag to resize file tree and settings panel
 - **Diff Indicators** - Changed sections highlighted on external file update
+- **New Window** - Cmd+Shift+N to open a new instance
 
 ## Design Principles
 
@@ -60,9 +63,9 @@
 | Markdown | remark + rehype + remark-gfm (custom plugins) |
 | Mermaid | mermaid.js (dynamic import + LRU cache) |
 | Styling | Tailwind CSS v4 |
-| State | Zustand |
-| Unit Tests | Vitest (75 tests) |
-| E2E Tests | Playwright (6 tests) |
+| State | Zustand (slice pattern) |
+| Unit Tests | Vitest (96 tests) |
+| E2E Tests | Playwright (51 tests) |
 
 ## Getting Started
 
@@ -75,6 +78,9 @@ npm run tauri dev
 
 # Run unit tests
 npm test
+
+# Type check
+npm run typecheck
 
 # Run E2E tests (needs dev server running)
 npm run test:e2e
@@ -100,30 +106,46 @@ npm run tauri build
 | `Cmd+F` | Find in document |
 | `Cmd+W` | Close tab |
 | `Cmd+,` | Open settings |
+| `Cmd+=` / `Cmd+-` | Zoom in / out |
+| `Cmd+0` | Reset zoom |
+| `Cmd+Shift+N` | New window |
 
 ## Project Structure
 
 ```
 src/
   components/
-    CardView/       # Card display, TL;DR, Mermaid, SectionContent
-    Header/         # Themed header with window controls
+    CardView/       # Card display, TL;DR, Mermaid, SectionContent, FileMeta
+    Header/         # Themed header with native menu
     Sidebar/        # File tree + outline
-    TabBar/         # Multi-tab navigation
+    TabBar/         # Multi-tab with drag reordering
     FindBar/        # In-document search
     Search/         # Full-text search modal
     Settings/       # Settings right sidebar
-  hooks/            # useMarkdown, useTheme, useKeyboard, useDragDrop, etc.
+  hooks/            # useMarkdown, useTheme, useKeyboard, useFileWatcher, useMenuActions, etc.
   plugins/          # Custom remark/rehype plugins
     remark-section.ts   # H2-based document splitting
-    remark-tldr.ts      # TL;DR extraction
+    remark-tldr.ts      # TL;DR extraction (rule-based + TextRank)
     remark-collapse.ts  # Auto-collapse with React markers
     mermaid-linear.ts   # Linear flowchart detection
+    textrank.ts         # TextRank sentence ranking
   stores/           # Zustand state management
-  themes/           # 25 built-in color themes + 11 font presets
+    useAppStore.ts      # Main store (UI state)
+    settingsSlice.ts    # Settings + persistence
+    tabSlice.ts         # Tab operations + session
+  i18n/             # Internationalization
+    locales/            # 10 language files
+    translations.ts     # Translation key types
+    useTranslation.ts   # Translation hook
+  themes/           # 46 color themes + 46 font presets
 src-tauri/
   src/lib.rs        # Rust commands (file tree, watcher, search, logging)
-e2e/                # Playwright E2E tests
+e2e/                # Playwright E2E tests with Tauri API mocking
 docs/
   mvp.md            # MVP specification
+  v2concept.md      # V2 implementation guide
 ```
+
+## License
+
+[MIT](LICENSE)
