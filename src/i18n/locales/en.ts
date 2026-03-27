@@ -104,4 +104,10 @@ export const en: TranslationDict = {
   "menu.firstCard": "First Card",
   "menu.lastCard": "Last Card",
   "menu.window": "Window",
+
+  // Update banner
+  "update.available": "New version available: {version}",
+  "update.download": "Download",
+  "update.later": "Later",
+  "update.skip": "Skip this version",
 };
