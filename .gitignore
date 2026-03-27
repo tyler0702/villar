@@ -13,8 +13,7 @@ dist-ssr
 *.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+.vscode
 .idea
 .DS_Store
 *.suo
@@ -27,3 +26,13 @@ dist-ssr
 src-tauri/target/
 src-tauri/gen/
 test-results/
+
+# Agent skills
+.agents/skills
+.claude/skills
+.kiro/skills
+
+# Docs (local only)
+docs
+CLAUDE.md
+SPEC-V2.md
