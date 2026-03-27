@@ -125,7 +125,7 @@ function ThemeItem({
   );
 }
 
-export function SettingsPanel({ width }: { width?: number }) {
+export function SettingsPanel({ width, onRestartTutorial }: { width?: number; onRestartTutorial?: () => void }) {
   const settings = useAppStore((s) => s.settings);
   const update = useAppStore((s) => s.updateSettings);
   const close = () => useAppStore.getState().setSettingsOpen(false);
@@ -335,6 +335,16 @@ export function SettingsPanel({ width }: { width?: number }) {
           <Row label={t("settings.restoreSession")}>
             <Toggle value={settings.restoreSession} onChange={(v) => update({ restoreSession: v })} />
           </Row>
+          {onRestartTutorial ? (
+            <Row label={t("settings.tutorial")}>
+              <button
+                onClick={onRestartTutorial}
+                className="px-3 py-1 text-[11px] font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
+              >
+                &#9654;
+              </button>
+            </Row>
+          ) : null}
         </Section>
 
         <Section title={t("settings.shortcuts")}>

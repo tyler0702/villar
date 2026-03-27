@@ -42,6 +42,7 @@ export function Header({ onSearchClick }: HeaderProps) {
     >
       <button
         data-open-folder
+        data-onboarding="open"
         onClick={handleOpenFolder}
         className="vs-header-accent px-3 py-1 text-[12px] font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
       >
@@ -62,7 +63,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         ) : null}
       </div>
 
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5" data-onboarding="search">
         {folderPath ? (
           <button
             onClick={onSearchClick}
@@ -84,6 +85,7 @@ export function Header({ onSearchClick }: HeaderProps) {
           {t("header.focus")}
         </button>
         <button
+          data-onboarding="settings"
           onClick={() => useAppStore.getState().setSettingsOpen(true)}
           className="px-2 py-1 text-[16px] leading-none opacity-50 hover:opacity-100 hover:bg-white/10 rounded-lg transition-all"
           title="Settings (Cmd+,)"
