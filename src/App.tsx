@@ -78,7 +78,15 @@ function App() {
         {settingsOpen ? (<><div className="resize-handle" onMouseDown={settingsResize} /><SettingsPanel width={settingsWidth} onRestartTutorial={onboarding.restart} /></>) : null}
       </div>
       {searchOpen ? <SearchPanel onClose={() => setSearchOpen(false)} /> : null}
-      {onboarding.visible ? <OnboardingOverlay step={onboarding.step} totalSteps={onboarding.totalSteps} onNext={onboarding.next} onPrev={onboarding.prev} onSkip={onboarding.skip} /> : null}
+      {onboarding.visible ? (
+        <OnboardingOverlay
+          step={onboarding.step}
+          totalSteps={onboarding.totalSteps}
+          onNext={onboarding.next}
+          onPrev={onboarding.prev}
+          onSkip={onboarding.skip}
+        />
+      ) : null}
     </div>
   );
 }

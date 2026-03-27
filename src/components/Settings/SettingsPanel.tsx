@@ -338,8 +338,9 @@ export function SettingsPanel({ width, onRestartTutorial }: { width?: number; on
           {onRestartTutorial ? (
             <Row label={t("settings.tutorial")}>
               <button
-                onClick={onRestartTutorial}
+                onClick={() => { onRestartTutorial(); close(); }}
                 className="px-3 py-1 text-[11px] font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
+                data-testid="restart-onboarding"
               >
                 &#9654;
               </button>

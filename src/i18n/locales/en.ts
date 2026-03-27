@@ -38,6 +38,8 @@ export const en: TranslationDict = {
   // General section
   "settings.general": "General",
   "settings.restoreSession": "Restore Session",
+  "settings.showOnboarding": "Onboarding",
+  "settings.showOnboardingBtn": "Show Onboarding",
 
   // Shortcuts section
   "settings.shortcuts": "Shortcuts",
