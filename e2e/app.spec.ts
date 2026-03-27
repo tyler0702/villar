@@ -1063,3 +1063,148 @@ test.describe("Card display", () => {
     await expect(page.getByText(/Updated/).first()).toBeVisible();
   });
 });
+
+// --- Onboarding Tests ---
+
+test.describe("Onboarding", () => {
+  // These tests need onboarding to show — override the fixture default
+  const enableOnboarding = async (page: any) => {
+    await page.addInitScript(() => {
+      localStorage.removeItem("villar-onboarding-done");
+    });
+  };
+
+  test("shows onboarding overlay on first launch", async ({ page }) => {
+    await enableOnboarding(page);
+    await page.goto("/");
+    await expect(page.getByText("Welcome to villar!")).toBeVisible();
+  });
+
+  test("Next button advances to next step", async ({ page }) => {
+    await enableOnboarding(page);
+    await page.goto("/");
+    await expect(page.getByText("1 / 7")).toBeVisible();
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect(page.getByText("2 / 7")).toBeVisible();
+  });
+
+  test("step indicator updates correctly", async ({ page }) => {
+    await enableOnboarding(page);
+    await page.goto("/");
+    await expect(page.getByText("1 / 7")).toBeVisible();
+
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect(page.getByText("2 / 7")).toBeVisible();
+
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect(page.getByText("3 / 7")).toBeVisible();
+  });
+
+  test("Skip button closes onboarding", async ({ page }) => {
+    await enableOnboarding(page);
+    await page.goto("/");
+    await expect(page.getByText("Welcome to villar!")).toBeVisible();
+
+    await page.getByRole("button", { name: "Skip" }).click();
+    await expect(page.getByText("Welcome to villar!")).not.toBeVisible();
+  });
+
+  test("onboarding does not reappear when localStorage flag is set", async ({ page }) => {
+    // Default fixture sets villar-onboarding-done = "true"
+    await page.goto("/");
+    await page.waitForTimeout(300);
+    // Onboarding should NOT appear
+    await expect(page.getByText("Welcome to villar!")).not.toBeVisible();
+
+    // Verify the localStorage flag is what prevents it
+    const done = await page.evaluate(() => localStorage.getItem("villar-onboarding-done"));
+    expect(done).toBe("true");
+  });
+
+  test("Show Onboarding button in Settings resets and re-shows onboarding", async ({ page }) => {
+    // Start with onboarding already done (fixture default)
+    await page.goto("/");
+    await expect(page.getByText("Welcome to villar!")).not.toBeVisible();
+
+    // Open settings
+    await page.getByTitle("Settings (Cmd+,)").click();
+
+    // Click "Show Onboarding" button
+    await page.getByTestId("restart-onboarding").click();
+
+    // Onboarding should reappear
+    await expect(page.getByText("Welcome to villar!")).toBeVisible();
+    await expect(page.getByText("1 / 7")).toBeVisible();
+  });
+});
+
+// --- Update Banner Tests ---
+
+test.describe("Update Banner", () => {
+  // Helper to mock GitHub releases API
+  const mockFetchUpdate = async (page: any) => {
+    await page.addInitScript(() => {
+      const origFetch = window.fetch;
+      window.fetch = async (url: string | URL | Request, opts?: RequestInit) => {
+        if (typeof url === "string" && url.includes("api.github.com/repos")) {
+          return new Response(JSON.stringify({
+            tag_name: "v99.0.0",
+            html_url: "https://github.com/tyler0702/villar/releases/tag/v99.0.0",
+          }), { status: 200 });
+        }
+        return origFetch(url, opts);
+      };
+    });
+  };
+
+  test("shows UpdateBanner when new version is available (mocked fetch)", async ({ page }) => {
+    await mockFetchUpdate(page);
+    await page.goto("/");
+
+    await expect(page.getByText(/New version available.*v99\.0\.0/)).toBeVisible();
+  });
+
+  test("Later button dismisses banner", async ({ page }) => {
+    await mockFetchUpdate(page);
+    await page.goto("/");
+
+    await expect(page.getByText(/New version available/)).toBeVisible();
+    await page.getByRole("button", { name: "Later" }).click();
+    await expect(page.getByText(/New version available/)).not.toBeVisible();
+  });
+
+  test("Skip this version saves to localStorage", async ({ page }) => {
+    await mockFetchUpdate(page);
+    await page.goto("/");
+
+    await expect(page.getByText(/New version available/)).toBeVisible();
+    await page.getByRole("button", { name: "Skip this version" }).click();
+
+    await expect(page.getByText(/New version available/)).not.toBeVisible();
+
+    const skipped = await page.evaluate(() => localStorage.getItem("villar-skip-version"));
+    expect(skipped).toBe("v99.0.0");
+  });
+
+  test("skipped version does not show banner", async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("villar-skip-version", "v99.0.0");
+
+      const origFetch = window.fetch;
+      window.fetch = async (url: string | URL | Request, opts?: RequestInit) => {
+        if (typeof url === "string" && url.includes("api.github.com/repos")) {
+          return new Response(JSON.stringify({
+            tag_name: "v99.0.0",
+            html_url: "https://github.com/tyler0702/villar/releases/tag/v99.0.0",
+          }), { status: 200 });
+        }
+        return origFetch(url, opts);
+      };
+    });
+
+    await page.goto("/");
+    await page.waitForTimeout(500);
+
+    await expect(page.getByText(/New version available/)).not.toBeVisible();
+  });
+});

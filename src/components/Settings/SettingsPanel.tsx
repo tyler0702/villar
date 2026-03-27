@@ -125,7 +125,7 @@ function ThemeItem({
   );
 }
 
-export function SettingsPanel({ width }: { width?: number }) {
+export function SettingsPanel({ width, onRestartOnboarding }: { width?: number; onRestartOnboarding?: () => void }) {
   const settings = useAppStore((s) => s.settings);
   const update = useAppStore((s) => s.updateSettings);
   const close = () => useAppStore.getState().setSettingsOpen(false);
@@ -335,6 +335,17 @@ export function SettingsPanel({ width }: { width?: number }) {
           <Row label={t("settings.restoreSession")}>
             <Toggle value={settings.restoreSession} onChange={(v) => update({ restoreSession: v })} />
           </Row>
+          {onRestartOnboarding ? (
+            <Row label={t("settings.showOnboarding")}>
+              <button
+                onClick={() => { onRestartOnboarding(); close(); }}
+                className="text-[11px] font-medium text-accent-600 dark:text-accent-400 hover:underline"
+                data-testid="restart-onboarding"
+              >
+                {t("settings.showOnboardingBtn")}
+              </button>
+            </Row>
+          ) : null}
         </Section>
 
         <Section title={t("settings.shortcuts")}>

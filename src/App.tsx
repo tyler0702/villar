@@ -19,6 +19,8 @@ import { useFileWatcher } from "./hooks/useFileWatcher";
 import { useMenuActions } from "./hooks/useMenuActions";
 import { useTranslation } from "./i18n/useTranslation";
 import { UpdateBanner } from "./components/UpdateBanner/UpdateBanner";
+import { OnboardingOverlay } from "./components/Onboarding/OnboardingOverlay";
+import { useOnboarding } from "./hooks/useOnboarding";
 
 function App() {
   const t = useTranslation();
@@ -27,6 +29,7 @@ function App() {
   useDragDrop();
   useVscodeTheme();
   const [searchOpen, setSearchOpen] = useState(false);
+  const onboarding = useOnboarding();
 
   const activeTab = useActiveTab();
   const settingsOpen = useAppStore((s) => s.settingsOpen);
@@ -72,9 +75,18 @@ function App() {
             )}
           </main>
         </div>
-        {settingsOpen ? (<><div className="resize-handle" onMouseDown={settingsResize} /><SettingsPanel width={settingsWidth} /></>) : null}
+        {settingsOpen ? (<><div className="resize-handle" onMouseDown={settingsResize} /><SettingsPanel width={settingsWidth} onRestartOnboarding={onboarding.restart} /></>) : null}
       </div>
       {searchOpen ? <SearchPanel onClose={() => setSearchOpen(false)} /> : null}
+      {onboarding.visible ? (
+        <OnboardingOverlay
+          step={onboarding.step}
+          totalSteps={onboarding.totalSteps}
+          onNext={onboarding.next}
+          onPrev={onboarding.prev}
+          onSkip={onboarding.skip}
+        />
+      ) : null}
     </div>
   );
 }
