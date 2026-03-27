@@ -28,4 +28,33 @@ export const ko: TranslationDict = {
   "search.noResults": "\uACB0\uACFC \uC5C6\uC74C",
   "search.close": "\uB2EB\uAE30",
   "search.openSearch": "\uAC80\uC0C9 \uC5F4\uAE30",
+
+  // Menu bar
+  "menu.file": "\uD30C\uC77C",
+  "menu.newWindow": "\uC0C8 \uCC3D",
+  "menu.openFolder": "\uD3F4\uB354 \uC5F4\uAE30...",
+  "menu.closeTab": "\uD0ED \uB2EB\uAE30",
+  "menu.edit": "\uD3B8\uC9D1",
+  "menu.find": "\uBB38\uC11C \uB0B4 \uAC80\uC0C9",
+  "menu.search": "\uD30C\uC77C \uAC80\uC0C9...",
+  "menu.view": "\uBCF4\uAE30",
+  "menu.zoomIn": "\uD655\uB300",
+  "menu.zoomOut": "\uCD95\uC18C",
+  "menu.actualSize": "\uC2E4\uC81C \uD06C\uAE30",
+  "menu.focusMode": "\uC9D1\uC911 \uBAA8\uB4DC \uC804\uD658",
+  "menu.settings": "\uC124\uC815...",
+  "menu.prevCard": "\uC774\uC804 \uCE74\uB4DC",
+  "menu.nextCard": "\uB2E4\uC74C \uCE74\uB4DC",
+  "menu.firstCard": "\uCCAB \uBC88\uC9F8 \uCE74\uB4DC",
+  "menu.lastCard": "\uB9C8\uC9C0\uB9C9 \uCE74\uB4DC",
+  "menu.window": "\uC708\uB3C4\uC6B0",
+  "menu.help": "\uB3C4\uC6C0\uB9D0",
+  "menu.about": "villar \uC815\uBCF4",
+  "menu.aboutDesc": "\uC544\uB984\uB2E4\uC6B4 Markdown \uB9AC\uB354",
+  "menu.website": "villar \uC6F9\uC0AC\uC774\uD2B8",
+  "menu.github": "GitHub \uC800\uC7A5\uC18C",
+
+  // About dialog
+  "about.version": "\uBC84\uC804",
+  "about.desc": "AI\uAC00 \uC0DD\uC131\uD55C Markdown\uC744 \uC544\uB984\uB2F5\uAC8C \uC77D\uB294 \uBC29\uBC95. \uBB34\uB8CC, \uB85C\uCEEC \uC804\uC6A9, \uC624\uD508\uC18C\uC2A4.",
 };

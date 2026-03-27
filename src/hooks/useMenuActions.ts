@@ -56,6 +56,15 @@ export function useMenuActions(onSearch: () => void) {
         case "last_card":
           useAppStore.getState().setActiveCardIndex(999);
           break;
+        case "about_villar":
+          useAppStore.getState().setAboutOpen(true);
+          break;
+        case "open_website":
+          import("@tauri-apps/plugin-opener").then(m => m.openUrl("https://tyler0702.github.io/villar/"));
+          break;
+        case "open_github":
+          import("@tauri-apps/plugin-opener").then(m => m.openUrl("https://github.com/tyler0702/villar"));
+          break;
       }
     });
     return () => { unlisten.then((fn) => fn()); };

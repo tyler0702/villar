@@ -17,6 +17,7 @@ interface UiSlice {
   tree: FsNode[];
   focusMode: boolean;
   settingsOpen: boolean;
+  aboutOpen: boolean;
   readSections: Set<string>;
   findOpen: boolean;
   findQuery: string;
@@ -24,6 +25,7 @@ interface UiSlice {
   setTree: (tree: FsNode[]) => void;
   toggleFocusMode: () => void;
   setSettingsOpen: (open: boolean) => void;
+  setAboutOpen: (open: boolean) => void;
   markSectionRead: (filePath: string, sectionIndex: number) => void;
   setFindOpen: (open: boolean) => void;
   setFindQuery: (query: string) => void;
@@ -36,6 +38,7 @@ export const useAppStore = create<AppState>((...a) => ({
   tree: [],
   focusMode: false,
   settingsOpen: false,
+  aboutOpen: false,
   readSections: new Set<string>(),
   findOpen: false,
   findQuery: "",
@@ -43,6 +46,7 @@ export const useAppStore = create<AppState>((...a) => ({
   setTree: (tree) => a[0]({ tree }),
   toggleFocusMode: () => a[0]((s) => ({ focusMode: !s.focusMode })),
   setSettingsOpen: (open) => a[0]({ settingsOpen: open }),
+  setAboutOpen: (open) => a[0]({ aboutOpen: open }),
   markSectionRead: (filePath, sectionIndex) => {
     const key = `${filePath}:${sectionIndex}`;
     a[0]((s) => {

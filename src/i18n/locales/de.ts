@@ -58,4 +58,33 @@ export const de: TranslationDict = {
   "search.noResults": "Keine Ergebnisse",
   "search.close": "Schlie\u00DFen",
   "search.openSearch": "Suche \u00F6ffnen",
+
+  // Menu bar
+  "menu.file": "Datei",
+  "menu.newWindow": "Neues Fenster",
+  "menu.openFolder": "Ordner \u00F6ffnen...",
+  "menu.closeTab": "Tab schlie\u00DFen",
+  "menu.edit": "Bearbeiten",
+  "menu.find": "Im Dokument suchen",
+  "menu.search": "Dateien durchsuchen...",
+  "menu.view": "Ansicht",
+  "menu.zoomIn": "Vergr\u00F6\u00DFern",
+  "menu.zoomOut": "Verkleinern",
+  "menu.actualSize": "Tats\u00E4chliche Gr\u00F6\u00DFe",
+  "menu.focusMode": "Fokusmodus umschalten",
+  "menu.settings": "Einstellungen...",
+  "menu.prevCard": "Vorherige Karte",
+  "menu.nextCard": "N\u00E4chste Karte",
+  "menu.firstCard": "Erste Karte",
+  "menu.lastCard": "Letzte Karte",
+  "menu.window": "Fenster",
+  "menu.help": "Hilfe",
+  "menu.about": "\u00DCber villar",
+  "menu.aboutDesc": "Ein sch\u00F6ner Markdown-Reader",
+  "menu.website": "villar Webseite",
+  "menu.github": "GitHub Repository",
+
+  // About dialog
+  "about.version": "Version",
+  "about.desc": "Eine sch\u00F6ne Art, KI-generiertes Markdown zu lesen. Kostenlos, lokal, Open Source.",
 };

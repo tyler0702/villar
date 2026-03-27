@@ -101,6 +101,15 @@ export const ja: TranslationDict = {
   "menu.firstCard": "\u6700\u521D\u306E\u30AB\u30FC\u30C9",
   "menu.lastCard": "\u6700\u5F8C\u306E\u30AB\u30FC\u30C9",
   "menu.window": "\u30A6\u30A3\u30F3\u30C9\u30A6",
+  "menu.help": "\u30D8\u30EB\u30D7",
+  "menu.about": "villar\u306B\u3064\u3044\u3066",
+  "menu.aboutDesc": "\u7F8E\u3057\u3044Markdown\u30EA\u30FC\u30C0\u30FC",
+  "menu.website": "villar\u516C\u5F0F\u30B5\u30A4\u30C8",
+  "menu.github": "GitHub\u30EA\u30DD\u30B8\u30C8\u30EA",
+
+  // About dialog
+  "about.version": "\u30D0\u30FC\u30B8\u30E7\u30F3",
+  "about.desc": "AI\u304C\u751F\u6210\u3057\u305FMarkdown\u3092\u7F8E\u3057\u304F\u8AAD\u3080\u305F\u3081\u306E\u30A2\u30D7\u30EA\u3002\u7121\u6599\u30FB\u30ED\u30FC\u30AB\u30EB\u5B8C\u7D50\u30FB\u30AA\u30FC\u30D7\u30F3\u30BD\u30FC\u30B9\u3002",
 
   // Update banner
   "update.available": "\u65B0\u30D0\u30FC\u30B8\u30E7\u30F3\u304C\u5229\u7528\u53EF\u80FD: {version}",

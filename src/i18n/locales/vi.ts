@@ -58,4 +58,33 @@ export const vi: TranslationDict = {
   "search.noResults": "Kh\u00F4ng c\u00F3 k\u1EBFt qu\u1EA3",
   "search.close": "\u0110\u00F3ng",
   "search.openSearch": "M\u1EDF t\u00ECm ki\u1EBFm",
+
+  // Menu bar
+  "menu.file": "T\u1EC7p",
+  "menu.newWindow": "C\u1EEDa s\u1ED5 m\u1EDBi",
+  "menu.openFolder": "M\u1EDF th\u01B0 m\u1EE5c...",
+  "menu.closeTab": "\u0110\u00F3ng tab",
+  "menu.edit": "Ch\u1EC9nh s\u1EEDa",
+  "menu.find": "T\u00ECm trong t\u00E0i li\u1EC7u",
+  "menu.search": "T\u00ECm t\u1EC7p...",
+  "menu.view": "Xem",
+  "menu.zoomIn": "Ph\u00F3ng to",
+  "menu.zoomOut": "Thu nh\u1ECF",
+  "menu.actualSize": "K\u00EDch th\u01B0\u1EDBc th\u1EF1c",
+  "menu.focusMode": "B\u1EADt/t\u1EAFt ch\u1EBF \u0111\u1ED9 t\u1EADp trung",
+  "menu.settings": "C\u00E0i \u0111\u1EB7t...",
+  "menu.prevCard": "Th\u1EBB tr\u01B0\u1EDBc",
+  "menu.nextCard": "Th\u1EBB ti\u1EBFp",
+  "menu.firstCard": "Th\u1EBB \u0111\u1EA7u ti\u00EAn",
+  "menu.lastCard": "Th\u1EBB cu\u1ED1i c\u00F9ng",
+  "menu.window": "C\u1EEDa s\u1ED5",
+  "menu.help": "Tr\u1EE3 gi\u00FAp",
+  "menu.about": "V\u1EC1 villar",
+  "menu.aboutDesc": "Tr\u00ECnh \u0111\u1ECDc Markdown \u0111\u1EB9p",
+  "menu.website": "Trang web villar",
+  "menu.github": "Kho l\u01B0u tr\u1EEF GitHub",
+
+  // About dialog
+  "about.version": "Phi\u00EAn b\u1EA3n",
+  "about.desc": "C\u00E1ch \u0111\u1EB9p \u0111\u1EC3 \u0111\u1ECDc Markdown do AI t\u1EA1o. Mi\u1EC5n ph\u00ED, ch\u1EA1y c\u1EE5c b\u1ED9, m\u00E3 ngu\u1ED3n m\u1EDF.",
 };

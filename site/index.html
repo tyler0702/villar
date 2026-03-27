@@ -1009,7 +1009,7 @@
         Focus on content, not clutter.
       </p>
       <div class="hero-actions">
-        <a href="#download" class="btn btn-primary">
+        <a id="hero-dl" href="https://github.com/tyler0702/villar/releases/latest" class="btn btn-primary">
           <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v7.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 11.586V4a1 1 0 011-1z"/><path d="M4 16a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z"/></svg>
           <span data-i18n="hero.download">Download for macOS</span>
         </a>
@@ -1276,12 +1276,12 @@
         <h2 data-i18n="dl.title">Try villar</h2>
         <p data-i18n="dl.desc">Free and open source. Download for your platform.</p>
         <div class="download-buttons">
-          <a href="https://github.com/tyler0702/villar/releases/latest" class="btn btn-primary">
+          <a id="dl-primary" href="https://github.com/tyler0702/villar/releases/latest" class="btn btn-primary">
             <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-            <span data-i18n="dl.mac">Download for macOS</span>
+            <span id="dl-primary-label" data-i18n="dl.mac">Download for macOS</span>
           </a>
-          <a href="https://github.com/tyler0702/villar/releases/latest" class="btn btn-secondary" data-i18n="dl.other">
-            Windows &amp; Linux
+          <a id="dl-secondary" href="https://github.com/tyler0702/villar/releases/latest" class="btn btn-secondary">
+            <span id="dl-secondary-label" data-i18n="dl.other">Windows &amp; Linux</span>
           </a>
         </div>
         <p class="download-note" data-i18n="dl.note" data-i18n-html="true">
@@ -1544,6 +1544,9 @@
         "dl.title": "Try villar",
         "dl.desc": "Free and open source. Download for your platform.",
         "dl.mac": "Download for macOS",
+        "dl.primary": "Download for macOS",
+        "dl.hero": "Download for macOS",
+        "dl.secondary": "Windows & Linux",
         "dl.other": "Windows & Linux",
         "dl.note": 'Or build from source on <a href="https://github.com/tyler0702/villar" target="_blank" rel="noopener">GitHub</a>',
         "rel.label": "Releases",
@@ -1617,6 +1620,9 @@
         "dl.title": "villar\u3092\u8A66\u3059",
         "dl.desc": "\u7121\u6599\u30FB\u30AA\u30FC\u30D7\u30F3\u30BD\u30FC\u30B9\u3002\u304A\u4F7F\u3044\u306E\u74B0\u5883\u306B\u5408\u308F\u305B\u3066\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9\u3002",
         "dl.mac": "macOS\u7248\u3092\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
+        "dl.primary": "macOS\u7248\u3092\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
+        "dl.hero": "macOS\u7248\u3092\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
+        "dl.secondary": "Windows & Linux",
         "dl.other": "Windows & Linux",
         "dl.note": '\u30BD\u30FC\u30B9\u304B\u3089\u30D3\u30EB\u30C9\u3059\u308B\u5834\u5408\u306F<a href="https://github.com/tyler0702/villar" target="_blank" rel="noopener">GitHub</a>\u3078',
         "rel.label": "\u30EA\u30EA\u30FC\u30B9",
@@ -1665,6 +1671,107 @@
     } else if (navigator.language.startsWith('ja')) {
       setLang('ja');
     }
+
+    // ── Dynamic Download Links ──
+    (async function setupDownloads() {
+      var ua = navigator.userAgent.toLowerCase();
+      var platform = navigator.platform?.toLowerCase() || '';
+
+      // Detect OS
+      var os = 'mac';
+      if (ua.includes('win') || platform.includes('win')) os = 'win';
+      else if (ua.includes('linux') || platform.includes('linux')) os = 'linux';
+
+      // Detect Apple Silicon vs Intel (for macOS)
+      var isArm = false;
+      if (os === 'mac') {
+        // navigator.userAgentData is available in newer browsers
+        if (navigator.userAgentData && navigator.userAgentData.architecture) {
+          isArm = navigator.userAgentData.architecture === 'arm';
+        } else {
+          // Heuristic: Apple Silicon Macs report "MacIntel" but we can check via GL renderer
+          try {
+            var canvas = document.createElement('canvas');
+            var gl = canvas.getContext('webgl');
+            if (gl) {
+              var dbg = gl.getExtension('WEBGL_debug_renderer_info');
+              if (dbg) {
+                var renderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL).toLowerCase();
+                isArm = renderer.includes('apple') && !renderer.includes('intel');
+              }
+            }
+          } catch(e) {}
+        }
+      }
+
+      // Asset matching: pick the right binary per OS + arch
+      function findAsset(assets) {
+        if (os === 'mac') {
+          var suffix = isArm ? '_aarch64.dmg' : '_x64.dmg';
+          var a = assets.find(function(a) { return a.name.endsWith(suffix); });
+          return a || assets.find(function(a) { return a.name.endsWith('.dmg'); });
+        }
+        if (os === 'win') {
+          return assets.find(function(a) { return a.name.endsWith('-setup.exe'); })
+            || assets.find(function(a) { return a.name.endsWith('.msi'); });
+        }
+        // Linux
+        return assets.find(function(a) { return a.name.endsWith('.AppImage'); })
+          || assets.find(function(a) { return a.name.endsWith('.deb'); });
+      }
+
+      var labels = {
+        mac: { en: 'Download for macOS', ja: 'macOS版をダウンロード' },
+        win: { en: 'Download for Windows', ja: 'Windows版をダウンロード' },
+        linux: { en: 'Download for Linux', ja: 'Linux版をダウンロード' },
+      };
+      var secondaryLabels = {
+        mac: { en: 'Windows & Linux', ja: 'Windows & Linux' },
+        win: { en: 'macOS & Linux', ja: 'macOS & Linux' },
+        linux: { en: 'macOS & Windows', ja: 'macOS & Windows' },
+      };
+
+      // Update i18n dictionaries with OS-specific labels
+      Object.keys(i18n).forEach(function(langKey) {
+        var t = i18n[langKey];
+        if (!t) return;
+        t['dl.primary'] = labels[os][langKey] || labels[os]['en'];
+        t['dl.hero'] = labels[os][langKey] || labels[os]['en'];
+        t['dl.secondary'] = secondaryLabels[os][langKey] || secondaryLabels[os]['en'];
+        t['hero.download'] = labels[os][langKey] || labels[os]['en'];
+        t['dl.mac'] = labels[os][langKey] || labels[os]['en'];
+        t['dl.other'] = secondaryLabels[os][langKey] || secondaryLabels[os]['en'];
+      });
+
+      // Update visible text now
+      var lang = document.documentElement.lang === 'ja' ? 'ja' : 'en';
+      var primaryLabel = document.getElementById('dl-primary-label');
+      var secondaryLabel = document.getElementById('dl-secondary-label');
+      var heroLabel = document.querySelector('[data-i18n="hero.download"]');
+      if (primaryLabel) primaryLabel.textContent = labels[os][lang];
+      if (secondaryLabel) secondaryLabel.textContent = secondaryLabels[os][lang];
+      if (heroLabel) heroLabel.textContent = labels[os][lang];
+
+      // Fetch latest release and set direct download URLs
+      try {
+        var res = await fetch('https://api.github.com/repos/tyler0702/villar/releases/latest');
+        if (!res.ok) return;
+        var release = await res.json();
+        var assets = release.assets || [];
+        var asset = findAsset(assets);
+        var url = asset ? asset.browser_download_url : release.html_url;
+
+        var heroBtn = document.getElementById('hero-dl');
+        var primaryBtn = document.getElementById('dl-primary');
+        var secondaryBtn = document.getElementById('dl-secondary');
+
+        if (heroBtn) heroBtn.href = url;
+        if (primaryBtn) primaryBtn.href = url;
+        if (secondaryBtn) secondaryBtn.href = release.html_url;
+      } catch(e) {
+        // Fallback: buttons keep releases/latest URL from HTML
+      }
+    })();
 
     // ── Release Notes (fetched from GitHub API) ──
     (async function loadReleases() {

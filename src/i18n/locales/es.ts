@@ -58,4 +58,33 @@ export const es: TranslationDict = {
   "search.noResults": "Sin resultados",
   "search.close": "Cerrar",
   "search.openSearch": "Abrir b\u00FAsqueda",
+
+  // Menu bar
+  "menu.file": "Archivo",
+  "menu.newWindow": "Nueva ventana",
+  "menu.openFolder": "Abrir carpeta...",
+  "menu.closeTab": "Cerrar pesta\u00F1a",
+  "menu.edit": "Editar",
+  "menu.find": "Buscar en documento",
+  "menu.search": "Buscar archivos...",
+  "menu.view": "Vista",
+  "menu.zoomIn": "Ampliar",
+  "menu.zoomOut": "Reducir",
+  "menu.actualSize": "Tama\u00F1o real",
+  "menu.focusMode": "Alternar modo enfoque",
+  "menu.settings": "Ajustes...",
+  "menu.prevCard": "Tarjeta anterior",
+  "menu.nextCard": "Tarjeta siguiente",
+  "menu.firstCard": "Primera tarjeta",
+  "menu.lastCard": "\u00DAltima tarjeta",
+  "menu.window": "Ventana",
+  "menu.help": "Ayuda",
+  "menu.about": "Acerca de villar",
+  "menu.aboutDesc": "Un hermoso lector de Markdown",
+  "menu.website": "Sitio web de villar",
+  "menu.github": "Repositorio GitHub",
+
+  // About dialog
+  "about.version": "Versi\u00F3n",
+  "about.desc": "Una forma hermosa de leer Markdown generado por IA. Gratuito, local, c\u00F3digo abierto.",
 };

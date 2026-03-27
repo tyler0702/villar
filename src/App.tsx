@@ -20,6 +20,7 @@ import { useMenuActions } from "./hooks/useMenuActions";
 import { useTranslation } from "./i18n/useTranslation";
 import { UpdateBanner } from "./components/UpdateBanner/UpdateBanner";
 import { OnboardingOverlay } from "./components/Onboarding/OnboardingOverlay";
+import { AboutDialog } from "./components/AboutDialog/AboutDialog";
 import { useOnboarding } from "./hooks/useOnboarding";
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
 
   const activeTab = useActiveTab();
   const settingsOpen = useAppStore((s) => s.settingsOpen);
+  const aboutOpen = useAppStore((s) => s.aboutOpen);
   const findOpen = useAppStore((s) => s.findOpen);
   const fontScale = useAppStore((s) => s.settings.fontScale);
   const sidebarWidth = useAppStore((s) => s.settings.sidebarWidth);
@@ -78,6 +80,7 @@ function App() {
         {settingsOpen ? (<><div className="resize-handle" onMouseDown={settingsResize} /><SettingsPanel width={settingsWidth} onRestartTutorial={onboarding.restart} /></>) : null}
       </div>
       {searchOpen ? <SearchPanel onClose={() => setSearchOpen(false)} /> : null}
+      {aboutOpen ? <AboutDialog /> : null}
       {onboarding.visible ? (
         <OnboardingOverlay
           step={onboarding.step}

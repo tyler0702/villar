@@ -129,6 +129,15 @@ export const en: TranslationDict = {
   "menu.firstCard": "First Card",
   "menu.lastCard": "Last Card",
   "menu.window": "Window",
+  "menu.help": "Help",
+  "menu.about": "About villar",
+  "menu.aboutDesc": "A beautiful Markdown reader",
+  "menu.website": "villar Website",
+  "menu.github": "GitHub Repository",
+
+  // About dialog
+  "about.version": "Version",
+  "about.desc": "A beautiful way to read AI-generated Markdown. Free, local-only, open source.",
 
   // Update banner
   "update.available": "New version available: {version}",

@@ -59,4 +59,33 @@ export const ms: TranslationDict = {
   "search.noResults": "Tiada hasil",
   "search.close": "Tutup",
   "search.openSearch": "Buka carian",
+
+  // Menu bar
+  "menu.file": "Fail",
+  "menu.newWindow": "Tetingkap Baharu",
+  "menu.openFolder": "Buka Folder...",
+  "menu.closeTab": "Tutup Tab",
+  "menu.edit": "Edit",
+  "menu.find": "Cari dalam Dokumen",
+  "menu.search": "Cari Fail...",
+  "menu.view": "Paparan",
+  "menu.zoomIn": "Zum Masuk",
+  "menu.zoomOut": "Zum Keluar",
+  "menu.actualSize": "Saiz Sebenar",
+  "menu.focusMode": "Togol Mod Fokus",
+  "menu.settings": "Tetapan...",
+  "menu.prevCard": "Kad Sebelumnya",
+  "menu.nextCard": "Kad Seterusnya",
+  "menu.firstCard": "Kad Pertama",
+  "menu.lastCard": "Kad Terakhir",
+  "menu.window": "Tetingkap",
+  "menu.help": "Bantuan",
+  "menu.about": "Tentang villar",
+  "menu.aboutDesc": "Pembaca Markdown yang cantik",
+  "menu.website": "Laman Web villar",
+  "menu.github": "Repositori GitHub",
+
+  // About dialog
+  "about.version": "Versi",
+  "about.desc": "Cara yang cantik untuk membaca Markdown yang dijana AI. Percuma, tempatan sahaja, sumber terbuka.",
 };

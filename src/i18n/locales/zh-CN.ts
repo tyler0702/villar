@@ -58,4 +58,33 @@ export const zhCN: TranslationDict = {
   "search.noResults": "\u65E0\u7ED3\u679C",
   "search.close": "\u5173\u95ED",
   "search.openSearch": "\u6253\u5F00\u641C\u7D22",
+
+  // Menu bar
+  "menu.file": "\u6587\u4EF6",
+  "menu.newWindow": "\u65B0\u5EFA\u7A97\u53E3",
+  "menu.openFolder": "\u6253\u5F00\u6587\u4EF6\u5939...",
+  "menu.closeTab": "\u5173\u95ED\u6807\u7B7E\u9875",
+  "menu.edit": "\u7F16\u8F91",
+  "menu.find": "\u6587\u6863\u5185\u641C\u7D22",
+  "menu.search": "\u641C\u7D22\u6587\u4EF6...",
+  "menu.view": "\u89C6\u56FE",
+  "menu.zoomIn": "\u653E\u5927",
+  "menu.zoomOut": "\u7F29\u5C0F",
+  "menu.actualSize": "\u5B9E\u9645\u5927\u5C0F",
+  "menu.focusMode": "\u5207\u6362\u4E13\u6CE8\u6A21\u5F0F",
+  "menu.settings": "\u8BBE\u7F6E...",
+  "menu.prevCard": "\u4E0A\u4E00\u5F20\u5361\u7247",
+  "menu.nextCard": "\u4E0B\u4E00\u5F20\u5361\u7247",
+  "menu.firstCard": "\u7B2C\u4E00\u5F20\u5361\u7247",
+  "menu.lastCard": "\u6700\u540E\u4E00\u5F20\u5361\u7247",
+  "menu.window": "\u7A97\u53E3",
+  "menu.help": "\u5E2E\u52A9",
+  "menu.about": "\u5173\u4E8E villar",
+  "menu.aboutDesc": "\u4F18\u7F8E\u7684 Markdown \u9605\u8BFB\u5668",
+  "menu.website": "villar \u5B98\u65B9\u7F51\u7AD9",
+  "menu.github": "GitHub \u4ED3\u5E93",
+
+  // About dialog
+  "about.version": "\u7248\u672C",
+  "about.desc": "\u4F18\u7F8E\u5730\u9605\u8BFB AI \u751F\u6210\u7684 Markdown\u3002\u514D\u8D39\u3001\u672C\u5730\u8FD0\u884C\u3001\u5F00\u6E90\u3002",
 };

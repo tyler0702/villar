@@ -309,6 +309,31 @@ fn build_menu_with_labels(app: &AppHandle, l: &std::collections::HashMap<String,
         l.get(key).cloned().unwrap_or_else(|| fallback.to_string())
     };
 
+    let version = env!("CARGO_PKG_VERSION");
+
+    // App menu (macOS shows this as "villar" menu)
+    let app_menu = SubmenuBuilder::new(app, "villar")
+        .about(Some(tauri::menu::AboutMetadata {
+            name: Some("villar".to_string()),
+            version: Some(version.to_string()),
+            short_version: None,
+            authors: None,
+            comments: Some(g("menu.aboutDesc", "A beautiful Markdown reader")),
+            copyright: None,
+            license: None,
+            website: Some("https://tyler0702.github.io/villar/".to_string()),
+            website_label: Some("Website".to_string()),
+            credits: None,
+            icon: None,
+        }))
+        .separator()
+        .item(&PredefinedMenuItem::hide(app, None)?)
+        .item(&PredefinedMenuItem::hide_others(app, None)?)
+        .item(&PredefinedMenuItem::show_all(app, None)?)
+        .separator()
+        .item(&PredefinedMenuItem::quit(app, None)?)
+        .build()?;
+
     let file_menu = SubmenuBuilder::new(app, g("menu.file", "File"))
         .item(&MenuItemBuilder::with_id("new_window", g("menu.newWindow", "New Window")).accelerator("CmdOrCtrl+Shift+N").build(app)?)
         .item(&MenuItemBuilder::with_id("open_folder", g("menu.openFolder", "Open Folder...")).accelerator("CmdOrCtrl+O").build(app)?)
@@ -351,11 +376,20 @@ fn build_menu_with_labels(app: &AppHandle, l: &std::collections::HashMap<String,
         .item(&PredefinedMenuItem::close_window(app, None)?)
         .build()?;
 
+    let help_menu = SubmenuBuilder::new(app, g("menu.help", "Help"))
+        .item(&MenuItemBuilder::with_id("about_villar", g("menu.about", "About villar")).build(app)?)
+        .separator()
+        .item(&MenuItemBuilder::with_id("open_website", g("menu.website", "villar Website")).build(app)?)
+        .item(&MenuItemBuilder::with_id("open_github", g("menu.github", "GitHub Repository")).build(app)?)
+        .build()?;
+
     MenuBuilder::new(app)
+        .item(&app_menu)
         .item(&file_menu)
         .item(&edit_menu)
         .item(&view_menu)
         .item(&window_menu)
+        .item(&help_menu)
         .build()
 }
 
@@ -395,6 +429,13 @@ pub fn run() {
                             .hidden_title(true);
                     }
                     let _ = builder.build();
+                } else if id == "open_website" {
+                    let _ = app.emit("menu-action", id);
+                } else if id == "open_github" {
+                    let _ = app.emit("menu-action", id);
+                } else if id == "about_villar" {
+                    // Emit to frontend to show about dialog
+                    let _ = app.emit("menu-action", id);
                 } else {
                     let _ = app.emit("menu-action", id);
                 }

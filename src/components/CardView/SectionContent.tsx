@@ -30,6 +30,17 @@ function CollapsibleBlock({ block }: { block: CollapsedBlock }) {
 function HtmlBlock({ html }: { html: string }) {
   const handleClick = useCallback(async (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
+
+    // Open links in external browser
+    const anchor = target.closest("a") as HTMLAnchorElement | null;
+    if (anchor?.href) {
+      e.preventDefault();
+      e.stopPropagation();
+      const { openUrl } = await import("@tauri-apps/plugin-opener");
+      openUrl(anchor.href);
+      return;
+    }
+
     const btn = target.closest("[data-copy]") as HTMLElement | null;
     if (!btn) return;
 
