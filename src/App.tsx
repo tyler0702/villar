@@ -18,6 +18,7 @@ import { useResizable } from "./hooks/useResizable";
 import { useFileWatcher } from "./hooks/useFileWatcher";
 import { useMenuActions } from "./hooks/useMenuActions";
 import { useTranslation } from "./i18n/useTranslation";
+import { UpdateBanner } from "./components/UpdateBanner/UpdateBanner";
 
 function App() {
   const t = useTranslation();
@@ -47,6 +48,7 @@ function App() {
   return (
     <div className="h-screen flex flex-col bg-surface-50 dark:bg-surface-900 text-gray-800 dark:text-gray-100 vs-bg vs-fg">
       <Header onSearchClick={() => setSearchOpen(true)} />
+      <UpdateBanner />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar sections={sections} style={{ ...zoomStyle, width: sidebarWidth }} />
         <div className="resize-handle" onMouseDown={sidebarResize} />
