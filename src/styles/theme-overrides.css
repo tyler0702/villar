@@ -1,0 +1,81 @@
+/* VSCode theme override — when data-vscode-theme is set */
+/* Outer shell uses the base bg */
+[data-vscode-theme] .vs-bg { background-color: var(--vs-bg) !important; }
+[data-vscode-theme] .vs-fg { color: var(--vs-fg) !important; }
+[data-vscode-theme] .vs-sidebar { background-color: var(--vs-sidebar-bg) !important; color: var(--vs-sidebar-fg) !important; }
+/* Header bar */
+[data-vscode-theme] .vs-header {
+  background-color: var(--vs-bg) !important;
+  border-color: var(--vs-border) !important;
+  color: var(--vs-fg) !important;
+}
+[data-vscode-theme] .vs-header button {
+  color: var(--vs-fg) !important;
+}
+[data-vscode-theme] .vs-header .vs-header-accent {
+  background-color: color-mix(in srgb, var(--vs-accent) 20%, transparent) !important;
+  color: var(--vs-accent) !important;
+}
+[data-vscode-theme] .vs-header .vs-header-accent:hover {
+  background-color: color-mix(in srgb, var(--vs-accent) 30%, transparent) !important;
+}
+/* Main content area uses sidebar bg — creates contrast against cards */
+[data-vscode-theme] .vs-canvas { background-color: var(--vs-sidebar-bg) !important; color: var(--vs-editor-fg) !important; }
+/* Cards use editor bg — visually "elevated" from canvas */
+[data-vscode-theme] .vs-card {
+  background-color: var(--vs-editor-bg) !important;
+  border-color: var(--vs-border) !important;
+  color: var(--vs-editor-fg) !important;
+}
+[data-vscode-theme] .vs-card-active {
+  border-color: var(--vs-accent) !important;
+  box-shadow: 0 0 0 1px var(--vs-accent), 0 4px 12px color-mix(in srgb, var(--vs-accent) 15%, transparent) !important;
+}
+/* Content theming — headings, links, code, quotes, tables */
+[data-vscode-theme] .vs-card .prose {
+  color: var(--vs-editor-fg) !important;
+}
+[data-vscode-theme] .vs-card h1,
+[data-vscode-theme] .vs-card h2,
+[data-vscode-theme] .vs-card h3,
+[data-vscode-theme] .vs-card h4 {
+  color: var(--vs-heading) !important;
+}
+[data-vscode-theme] .vs-card .prose a {
+  color: var(--vs-link) !important;
+  text-decoration-color: color-mix(in srgb, var(--vs-link) 40%, transparent) !important;
+}
+[data-vscode-theme] .vs-card .prose a:hover {
+  text-decoration-color: var(--vs-link) !important;
+}
+[data-vscode-theme] .vs-card .prose pre {
+  background-color: var(--vs-code-bg) !important;
+  border: 1px solid var(--vs-border) !important;
+}
+[data-vscode-theme] .vs-card .prose code {
+  color: var(--vs-code-fg) !important;
+}
+[data-vscode-theme] .vs-card .prose :not(pre) > code {
+  background-color: color-mix(in srgb, var(--vs-code-bg) 60%, transparent) !important;
+  padding: 2px 5px !important;
+  border-radius: 3px !important;
+}
+[data-vscode-theme] .vs-card .prose blockquote {
+  border-left-color: var(--vs-blockquote-border) !important;
+  color: var(--vs-blockquote-fg) !important;
+}
+[data-vscode-theme] .vs-card .prose table th,
+[data-vscode-theme] .vs-card .prose table td {
+  border-color: var(--vs-table-border) !important;
+}
+[data-vscode-theme] .vs-card .prose table th {
+  background-color: var(--vs-table-header-bg) !important;
+}
+[data-vscode-theme] .vs-card .prose strong {
+  color: var(--vs-heading) !important;
+}
+[data-vscode-theme] .vs-card .prose hr {
+  border-color: var(--vs-border) !important;
+}
+[data-vscode-theme] .vs-border { border-color: var(--vs-border) !important; }
+[data-vscode-theme] .vs-accent { color: var(--vs-accent) !important; }
