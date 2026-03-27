@@ -22,6 +22,9 @@ src-tauri/gen/
 test-results/
 playwright-report/
 
+# Marketing assets (not deployed)
+site/assets/
+
 # Editor / IDE
 .vscode
 .idea
