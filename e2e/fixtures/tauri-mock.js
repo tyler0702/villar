@@ -57,6 +57,10 @@
         return (mockData.fileContents || {})[args?.filePath] || "";
       case "watch_folder":
         return null;
+      case "search_files":
+        return mockData.searchResults || [];
+      case "update_menu":
+        return null;
       case "write_log":
         return null;
       default:
