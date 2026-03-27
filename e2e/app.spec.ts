@@ -516,6 +516,9 @@ test.describe("FindBar advanced", () => {
     await findInput.press("Enter");
     // "テスト" is not in the document so should show No match
     await expect(noMatchIndicator).toBeVisible();
+  });
+});
+
 // --- Theme & Settings Tests ---
 
 test.describe("Theme switching", () => {
@@ -839,5 +842,224 @@ test.describe("Session restore", () => {
       getComputedStyle(document.documentElement).getPropertyValue("--vs-bg").trim()
     );
     expect(bgAfter).toBe("#282a36");
+  });
+});
+
+// ============================================================
+// Helper data and functions for file-management / tab / card tests
+// ============================================================
+
+const SAMPLE_MD_3 = [
+  "# Third Doc",
+  "",
+  "## Alpha",
+  "",
+  "Alpha content paragraph with enough text here.",
+  "",
+  "## Beta",
+  "",
+  "Beta content paragraph with enough text here.",
+].join("\n");
+
+const ALPHA_MD = [
+  "# Alpha Doc",
+  "",
+  "## Section A",
+  "",
+  "Alpha section A content with enough text for TL;DR.",
+  "",
+  "## Section B",
+  "",
+  "Alpha section B content.",
+].join("\n");
+
+const BETA_MD = [
+  "# Beta Doc",
+  "",
+  "## Part One",
+  "",
+  "Beta part one content text.",
+  "",
+  "## Part Two",
+  "",
+  "Beta part two content.",
+].join("\n");
+
+const MOCK_TREE = [
+  { name: "alpha.md", path: "/mock/folder/alpha.md", is_dir: false, children: [] },
+  { name: "beta.md", path: "/mock/folder/beta.md", is_dir: false, children: [] },
+];
+
+function setupMockFolder(page: import("@playwright/test").Page) {
+  return page.evaluate(({ alphaMd, betaMd, tree }) => {
+    (window as any).__TAURI_MOCK_DATA__ = {
+      files: tree,
+      fileContents: {
+        "/mock/folder/alpha.md": alphaMd,
+        "/mock/folder/beta.md": betaMd,
+      },
+    };
+    const store = (window as any).__villarStore;
+    store.getState().setFolderPath("/mock/folder");
+    store.getState().setTree(tree);
+  }, { alphaMd: ALPHA_MD, betaMd: BETA_MD, tree: MOCK_TREE });
+}
+
+// ============================================================
+// File management tests
+// ============================================================
+
+test.describe("File management", () => {
+  test("sidebar shows file tree after folder selection", async ({ page }) => {
+    await page.goto("/");
+    await setupMockFolder(page);
+    await expect(page.getByText("alpha")).toBeVisible();
+    await expect(page.getByText("beta")).toBeVisible();
+  });
+
+  test("clicking a file in sidebar opens it as card view", async ({ page }) => {
+    await page.goto("/");
+    await setupMockFolder(page);
+    await page.getByText("alpha").click();
+    const main = page.locator("main");
+    await expect(main.getByRole("heading", { name: "Section A" }).first()).toBeVisible();
+  });
+
+  test("outline shows H1 title and H2 sections", async ({ page }) => {
+    await page.goto("/");
+    await setupMockFolder(page);
+    await page.getByText("alpha").click();
+
+    await expect(page.getByText("Outline")).toBeVisible();
+    await expect(page.getByText("Alpha Doc", { exact: true }).first()).toBeVisible();
+    // Scope to sidebar to avoid card thumbnail buttons
+    const sidebar = page.getByRole("complementary");
+    await expect(sidebar.getByRole("button", { name: "Section A" })).toBeVisible();
+    await expect(sidebar.getByRole("button", { name: "Section B" })).toBeVisible();
+  });
+});
+
+// ============================================================
+// Tab tests
+// ============================================================
+
+test.describe("Tab management", () => {
+  test("two files open shows two tabs", async ({ page }) => {
+    await page.goto("/");
+    await setupMockFolder(page);
+    await page.getByText("alpha").click();
+    await page.getByText("beta").click();
+
+    const tabBar = page.locator("[data-tabbar]");
+    await expect(tabBar).toBeVisible();
+    await expect(tabBar.locator("[data-tab-index='0']")).toBeVisible();
+    await expect(tabBar.locator("[data-tab-index='1']")).toBeVisible();
+  });
+
+  test("tab click switches displayed content", async ({ page }) => {
+    await page.goto("/");
+    await setupMockFolder(page);
+    await page.getByText("alpha").click();
+    await page.getByText("beta").click();
+
+    const main = page.locator("main");
+    await expect(main.getByRole("heading", { name: "Part One" }).first()).toBeVisible();
+    const tabBar = page.locator("[data-tabbar]");
+    await tabBar.locator("[data-tab-index='0']").click();
+    await expect(main.getByRole("heading", { name: "Section A" }).first()).toBeVisible();
+  });
+
+  test("Cmd+W closes active tab", async ({ page }) => {
+    await page.goto("/");
+    await setupMockFolder(page);
+    await page.getByText("alpha").click();
+    await page.getByText("beta").click();
+
+    const tabBar = page.locator("[data-tabbar]");
+    await expect(tabBar).toBeVisible();
+    await page.keyboard.press("Meta+w");
+    await expect(tabBar).not.toBeVisible();
+    const main = page.locator("main");
+    await expect(main.getByRole("heading", { name: "Section A" }).first()).toBeVisible();
+  });
+
+  test("context menu Close Others closes other tabs", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(SAMPLE_MD, "first.md", "/mock/first.md"));
+    await page.evaluate(injectContent(SAMPLE_MD_2, "second.md", "/mock/second.md"));
+    await page.evaluate(injectContent(SAMPLE_MD_3, "third.md", "/mock/third.md"));
+
+    const tabBar = page.locator("[data-tabbar]");
+    await expect(tabBar).toBeVisible();
+    await tabBar.locator("[data-tab-index='2']").click({ button: "right" });
+    await expect(page.getByText("Close Others")).toBeVisible();
+    await page.getByText("Close Others").click();
+    await expect(tabBar).not.toBeVisible();
+    const main = page.locator("main");
+    await expect(main.getByRole("heading", { name: "Alpha" }).first()).toBeVisible();
+  });
+});
+
+// ============================================================
+// Card display tests
+// ============================================================
+
+test.describe("Card display", () => {
+  test("H2 splitting produces multiple section cards", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(SAMPLE_MD));
+    await expect(page.getByText(/1 \/ [3-9]/)).toBeVisible();
+  });
+
+  test("Prev/Next navigation changes card content", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(SAMPLE_MD));
+    await expect(page.getByText(/1 \/ /)).toBeVisible();
+    await page.getByRole("button", { name: /Next/ }).click();
+    await expect(page.getByText(/2 \/ /)).toBeVisible();
+    await page.getByRole("button", { name: /Next/ }).click();
+    await expect(page.getByText(/3 \/ /)).toBeVisible();
+    await page.getByRole("button", { name: /Prev/ }).click();
+    await expect(page.getByText(/2 \/ /)).toBeVisible();
+  });
+
+  test("focus mode toggles opacity on inactive cards", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(SAMPLE_MD));
+    await expect(page.getByText(/1 \/ /)).toBeVisible();
+
+    await page.keyboard.press("f");
+    await expect.poll(() =>
+      page.evaluate(() => (window as any).__villarStore.getState().focusMode)
+    ).toBe(true);
+
+    const cards = page.locator(".vs-card");
+    expect(await cards.count()).toBeGreaterThanOrEqual(2);
+    await expect(cards.nth(1)).toHaveCSS("opacity", /^0\./);
+    await expect(cards.nth(0)).toHaveCSS("opacity", "1");
+
+    await page.keyboard.press("f");
+    await expect.poll(() =>
+      page.evaluate(() => (window as any).__villarStore.getState().focusMode)
+    ).toBe(false);
+  });
+
+  test("read mark appears after visiting a card", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(SAMPLE_MD));
+    await page.getByRole("button", { name: /Next/ }).click();
+    await expect(page.getByText(/2 \/ /)).toBeVisible();
+    await page.getByRole("button", { name: /Prev/ }).click();
+    const readCount = await page.evaluate(() =>
+      (window as any).__villarStore.getState().readSections.size
+    );
+    expect(readCount).toBeGreaterThanOrEqual(2);
+  });
+
+  test("file dates shown when file is open", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(SAMPLE_MD));
+    await expect(page.getByText(/Created/).first()).toBeVisible();
+    await expect(page.getByText(/Updated/).first()).toBeVisible();
   });
 });
