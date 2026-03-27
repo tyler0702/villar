@@ -5,17 +5,17 @@ import { FONT_OPTIONS } from "../../themes/fonts";
 import { LANGUAGES } from "../../i18n/translations";
 import { useTranslation } from "../../i18n/useTranslation";
 
-const SHORTCUTS = [
-  { key: "\u2190 \u2192", action: "Navigate cards" },
-  { key: "Home / End", action: "First / Last" },
-  { key: "F", action: "Focus mode" },
-  { key: "\u2318K", action: "Search" },
-  { key: "\u2318F", action: "Find in doc" },
-  { key: "\u2318W", action: "Close tab" },
-  { key: "\u2318+/\u2318-", action: "Zoom in/out" },
-  { key: "\u23180", action: "Reset zoom" },
-  { key: "\u2318\u21E7N", action: "New window" },
-  { key: "\u2318,", action: "Settings" },
+const SHORTCUT_KEYS = [
+  { key: "\u2190 \u2192", tKey: "shortcut.navigate" },
+  { key: "Home / End", tKey: "shortcut.firstLast" },
+  { key: "F", tKey: "shortcut.focusMode" },
+  { key: "\u2318K", tKey: "shortcut.search" },
+  { key: "\u2318F", tKey: "shortcut.find" },
+  { key: "\u2318W", tKey: "shortcut.closeTab" },
+  { key: "\u2318+/\u2318-", tKey: "shortcut.zoomInOut" },
+  { key: "\u23180", tKey: "shortcut.resetZoom" },
+  { key: "\u2318\u21E7N", tKey: "shortcut.newWindow" },
+  { key: "\u2318,", tKey: "shortcut.settings" },
 ];
 
 function SegmentControl<T extends string>({
@@ -85,11 +85,13 @@ function ThemeItem({
   theme,
   isDefault,
   isActive,
+  activeLabel,
   onSelect,
 }: {
   theme: VscodeThemeColors;
   isDefault: boolean;
   isActive: boolean;
+  activeLabel: string;
   onSelect: () => void;
 }) {
   return (
@@ -118,7 +120,7 @@ function ThemeItem({
       <span className={`text-[11px] truncate ${isActive ? "font-medium" : ""}`}>
         {theme.name}
       </span>
-      {isActive ? <span className="text-[9px] text-accent-500 ml-auto shrink-0">Active</span> : null}
+      {isActive ? <span className="text-[9px] text-accent-500 ml-auto shrink-0">{activeLabel}</span> : null}
     </button>
   );
 }
@@ -202,7 +204,7 @@ export function SettingsPanel({ width }: { width?: number }) {
               </optgroup>
             </select>
           </Row>
-          <Row label="Font Size">
+          <Row label={t("settings.fontSize")}>
             <div className="flex items-center gap-1.5">
               <input
                 type="range"
@@ -216,7 +218,7 @@ export function SettingsPanel({ width }: { width?: number }) {
               <span className="text-[10px] text-gray-400 w-8 text-right tabular-nums">{settings.fontScale}%</span>
             </div>
           </Row>
-          <Row label="Line Height">
+          <Row label={t("settings.lineHeight")}>
             <div className="flex items-center gap-1.5">
               <input
                 type="range"
@@ -230,21 +232,21 @@ export function SettingsPanel({ width }: { width?: number }) {
               <span className="text-[10px] text-gray-400 w-8 text-right tabular-nums">{settings.lineHeight}%</span>
             </div>
           </Row>
-          <Row label="Width">
+          <Row label={t("settings.width")}>
             <SegmentControl<ContentWidth>
               value={settings.contentWidth}
               options={[
-                { value: "narrow", label: "Narrow" },
-                { value: "medium", label: "Mid" },
-                { value: "wide", label: "Wide" },
+                { value: "narrow", label: t("settings.width.narrow") },
+                { value: "medium", label: t("settings.width.mid") },
+                { value: "wide", label: t("settings.width.wide") },
               ]}
               onChange={(v) => update({ contentWidth: v })}
             />
           </Row>
         </Section>
 
-        <Section title="Reading">
-          <Row label="Focus Opacity">
+        <Section title={t("settings.reading")}>
+          <Row label={t("settings.focusOpacity")}>
             <div className="flex items-center gap-1.5">
               <input
                 type="range"
@@ -258,27 +260,27 @@ export function SettingsPanel({ width }: { width?: number }) {
               <span className="text-[10px] text-gray-400 w-7 text-right tabular-nums">{settings.focusOpacity}%</span>
             </div>
           </Row>
-          <Row label="TL;DR">
+          <Row label={t("settings.tldr")}>
             <SegmentControl
               value={settings.tldrExpanded ? "open" : "closed"}
               options={[
-                { value: "open", label: "Open" },
-                { value: "closed", label: "Closed" },
+                { value: "open", label: t("settings.tldr.open") },
+                { value: "closed", label: t("settings.tldr.closed") },
               ]}
               onChange={(v) => update({ tldrExpanded: v === "open" })}
             />
           </Row>
-          <Row label="Mermaid">
+          <Row label={t("settings.mermaid")}>
             <SegmentControl<MermaidDefault>
               value={settings.mermaidDefault}
               options={[
-                { value: "step", label: "Steps" },
-                { value: "diagram", label: "Diagram" },
+                { value: "step", label: t("settings.mermaid.steps") },
+                { value: "diagram", label: t("settings.mermaid.diagram") },
               ]}
               onChange={(v) => update({ mermaidDefault: v })}
             />
           </Row>
-          <Row label="Fold Lists >">
+          <Row label={t("settings.foldLists")}>
             <div className="flex items-center gap-1.5">
               <input
                 type="range"
@@ -292,7 +294,7 @@ export function SettingsPanel({ width }: { width?: number }) {
               <span className="text-[10px] text-gray-400 w-5 text-right tabular-nums">{settings.collapseListThreshold}</span>
             </div>
           </Row>
-          <Row label="Fold Code >">
+          <Row label={t("settings.foldCode")}>
             <div className="flex items-center gap-1.5">
               <input
                 type="range"
@@ -308,7 +310,7 @@ export function SettingsPanel({ width }: { width?: number }) {
           </Row>
         </Section>
 
-        <Section title="Color Theme">
+        <Section title={t("settings.colorTheme")}>
           <div className="space-y-1.5 max-h-52 overflow-y-auto">
             {BUILTIN_THEMES.map((theme) => {
               const isVillarDefault = theme.name.startsWith("villar ");
@@ -321,6 +323,7 @@ export function SettingsPanel({ width }: { width?: number }) {
                   theme={theme}
                   isDefault={isVillarDefault}
                   isActive={isActive}
+                  activeLabel={t("settings.theme.active")}
                   onSelect={() => update({ vscodeTheme: theme })}
                 />
               );
@@ -328,17 +331,17 @@ export function SettingsPanel({ width }: { width?: number }) {
           </div>
         </Section>
 
-        <Section title="General">
-          <Row label="Restore Session">
+        <Section title={t("settings.general")}>
+          <Row label={t("settings.restoreSession")}>
             <Toggle value={settings.restoreSession} onChange={(v) => update({ restoreSession: v })} />
           </Row>
         </Section>
 
-        <Section title="Shortcuts">
+        <Section title={t("settings.shortcuts")}>
           <div className="space-y-0.5">
-            {SHORTCUTS.map((s) => (
+            {SHORTCUT_KEYS.map((s) => (
               <div key={s.key} className="flex items-center justify-between">
-                <span className="text-[10px] text-gray-500 dark:text-gray-400">{s.action}</span>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400">{t(s.tKey)}</span>
                 <kbd className="text-[10px] font-mono text-gray-400 dark:text-gray-500">{s.key}</kbd>
               </div>
             ))}
