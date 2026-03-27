@@ -59,6 +59,8 @@
         return null;
       case "search_files":
         return mockData.searchResults || [];
+      case "get_file_meta":
+        return (mockData.fileMeta || {})[args?.filePath] || { modified: Date.now(), created: Date.now() };
       case "update_menu":
         return null;
       case "write_log":
