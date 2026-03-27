@@ -385,12 +385,16 @@ pub fn run() {
                 if id == "new_window" {
                     let count = WINDOW_COUNTER.fetch_add(1, Ordering::SeqCst);
                     let label = format!("villar-{}", count);
-                    let _ = WebviewWindowBuilder::new(app, &label, WebviewUrl::default())
+                    let mut builder = WebviewWindowBuilder::new(app, &label, WebviewUrl::default())
                         .title("villar")
-                        .inner_size(1200.0, 800.0)
-                        .title_bar_style(tauri::TitleBarStyle::Overlay)
-                        .hidden_title(true)
-                        .build();
+                        .inner_size(1200.0, 800.0);
+                    #[cfg(target_os = "macos")]
+                    {
+                        builder = builder
+                            .title_bar_style(tauri::TitleBarStyle::Overlay)
+                            .hidden_title(true);
+                    }
+                    let _ = builder.build();
                 } else {
                     let _ = app.emit("menu-action", id);
                 }

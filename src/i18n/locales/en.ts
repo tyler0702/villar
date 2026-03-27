@@ -85,6 +85,29 @@ export const en: TranslationDict = {
   "search.close": "Close",
   "search.openSearch": "Open search",
 
+  // General — Tutorial
+  "settings.tutorial": "Tutorial",
+
+  // Onboarding
+  "onboarding.next": "Next",
+  "onboarding.prev": "Back",
+  "onboarding.skip": "Skip",
+  "onboarding.done": "Done",
+  "onboarding.welcome.title": "Welcome to villar!",
+  "onboarding.welcome.desc": "villar transforms AI-generated Markdown into a card-based reading experience. Let us show you around.",
+  "onboarding.folder.title": "Open a Folder",
+  "onboarding.folder.desc": "Click here to select a folder containing your Markdown files.",
+  "onboarding.cards.title": "Card View",
+  "onboarding.cards.desc": "Documents are split by H2 headings into navigable cards with TL;DR summaries.",
+  "onboarding.nav.title": "Navigation",
+  "onboarding.nav.desc": "Use arrow keys or the Prev/Next buttons to move between cards.",
+  "onboarding.search.title": "Search",
+  "onboarding.search.desc": "Cmd+K for full-text search across files. Cmd+F to find within the current document.",
+  "onboarding.settings.title": "Settings",
+  "onboarding.settings.desc": "Customize themes, fonts, language, and reading preferences here.",
+  "onboarding.done.title": "You're all set!",
+  "onboarding.done.desc": "Enjoy your reading. You can replay this tutorial from Settings at any time.",
+
   // Menu bar
   "menu.file": "File",
   "menu.newWindow": "New Window",
