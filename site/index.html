@@ -811,6 +811,47 @@
       text-decoration: underline;
     }
 
+    /* ── Releases ── */
+    .releases {
+      padding: 80px 0;
+      text-align: center;
+    }
+    .release-card {
+      background: white;
+      border: 1px solid #e0e4e0;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: left;
+    }
+    .release-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      color: var(--teal-deep);
+      margin-bottom: 4px;
+    }
+    .release-card .release-date {
+      font-size: 0.8rem;
+      color: var(--fg-muted);
+      margin-bottom: 12px;
+    }
+    .release-card .release-body {
+      font-size: 0.875rem;
+      color: var(--fg);
+      line-height: 1.7;
+    }
+    .release-card .release-body h3 { font-size: 1rem; margin-top: 12px; }
+    .release-card .release-body ul { padding-left: 20px; margin: 4px 0; }
+    .release-card .release-body li { margin: 2px 0; }
+    .release-card .release-link {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: var(--teal);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .release-card .release-link:hover { text-decoration: underline; }
+
     /* ── Support ── */
     .support {
       padding: 80px 0;
@@ -1250,6 +1291,17 @@
     </div>
   </section>
 
+  <!-- Release Notes -->
+  <section class="releases" id="releases">
+    <div class="container">
+      <div class="section-label" data-i18n="rel.label">Releases</div>
+      <h2 class="section-title" data-i18n="rel.title">What's New</h2>
+      <div id="release-list" style="margin-top:24px;display:flex;flex-direction:column;gap:16px;max-width:720px;margin-left:auto;margin-right:auto;">
+        <p style="text-align:center;color:var(--fg-muted);font-size:14px;" data-i18n="rel.loading">Loading releases...</p>
+      </div>
+    </div>
+  </section>
+
   <!-- Support -->
   <section class="support">
     <div class="container">
@@ -1494,6 +1546,9 @@
         "dl.mac": "Download for macOS",
         "dl.other": "Windows & Linux",
         "dl.note": 'Or build from source on <a href="https://github.com/tyler0702/villar" target="_blank" rel="noopener">GitHub</a>',
+        "rel.label": "Releases",
+        "rel.title": "What's New",
+        "rel.loading": "Loading releases...",
         "sup.label": "Support",
         "sup.title": "Like villar?",
         "sup.desc": "villar is free and always will be. If it helps your workflow, consider supporting development.",
@@ -1564,6 +1619,9 @@
         "dl.mac": "macOS\u7248\u3092\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
         "dl.other": "Windows & Linux",
         "dl.note": '\u30BD\u30FC\u30B9\u304B\u3089\u30D3\u30EB\u30C9\u3059\u308B\u5834\u5408\u306F<a href="https://github.com/tyler0702/villar" target="_blank" rel="noopener">GitHub</a>\u3078',
+        "rel.label": "\u30EA\u30EA\u30FC\u30B9",
+        "rel.title": "\u6700\u65B0\u60C5\u5831",
+        "rel.loading": "\u30EA\u30EA\u30FC\u30B9\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D...",
         "sup.label": "\u30B5\u30DD\u30FC\u30C8",
         "sup.title": "villar\u3092\u6C17\u306B\u5165\u3063\u3066\u3044\u305F\u3060\u3051\u305F\u3089",
         "sup.desc": "villar\u306F\u3053\u308C\u304B\u3089\u3082\u305A\u3063\u3068\u7121\u6599\u3067\u3059\u3002\u3082\u3057\u5F79\u306B\u7ACB\u3063\u305F\u3089\u3001\u958B\u767A\u3092\u5FDC\u63F4\u3057\u3066\u3044\u305F\u3060\u3051\u308B\u3068\u52B1\u307F\u306B\u306A\u308A\u307E\u3059\u3002",
@@ -1607,6 +1665,42 @@
     } else if (navigator.language.startsWith('ja')) {
       setLang('ja');
     }
+
+    // ── Release Notes (fetched from GitHub API) ──
+    (async function loadReleases() {
+      const container = document.getElementById('release-list');
+      if (!container) return;
+      try {
+        const res = await fetch('https://api.github.com/repos/tyler0702/villar/releases?per_page=5');
+        if (!res.ok) throw new Error('API error');
+        const releases = await res.json();
+        if (releases.length === 0) {
+          container.innerHTML = '<p style="text-align:center;color:var(--fg-muted)">No releases yet.</p>';
+          return;
+        }
+        container.innerHTML = releases.map(r => {
+          const date = new Date(r.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+          // Simple markdown to HTML for release body
+          const body = (r.body || '')
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/`(.+?)`/g, '<code style="background:#f0f0f0;padding:1px 4px;border-radius:3px;font-size:0.85em">$1</code>')
+            .replace(/\n{2,}/g, '<br><br>')
+            .replace(/\n/g, '<br>');
+          return '<div class="release-card">' +
+            '<h3>' + r.name + '</h3>' +
+            '<div class="release-date">' + date + '</div>' +
+            '<div class="release-body">' + body + '</div>' +
+            '<a class="release-link" href="' + r.html_url + '" target="_blank" rel="noopener">View on GitHub &rarr;</a>' +
+            '</div>';
+        }).join('');
+      } catch (e) {
+        container.innerHTML = '<p style="text-align:center;color:var(--fg-muted)">Could not load releases. <a href="https://github.com/tyler0702/villar/releases" style="color:var(--teal)">View on GitHub</a></p>';
+      }
+    })();
   </script>
 
 </body>
