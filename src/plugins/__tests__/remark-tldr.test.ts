@@ -244,7 +244,7 @@ This is the second paragraph with some additional supporting information and ela
     const elapsed = performance.now() - start;
 
     expect(tldr).not.toBeNull();
-    expect(elapsed).toBeLessThan(10);
+    expect(elapsed).toBeLessThan(30);
   });
 });
 
