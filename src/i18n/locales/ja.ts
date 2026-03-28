@@ -118,4 +118,8 @@ export const ja: TranslationDict = {
   "update.download": "\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
   "update.later": "\u5F8C\u3067",
   "update.skip": "\u3053\u306E\u30D0\u30FC\u30B8\u30E7\u30F3\u3092\u30B9\u30AD\u30C3\u30D7",
+
+  "filter.all": "\u3059\u3079\u3066",
+  "filter.unread": "\u672A\u8AAD",
+  "action.printPdf": "PDF\u3067\u4FDD\u5B58",
 };

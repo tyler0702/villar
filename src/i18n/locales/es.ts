@@ -89,4 +89,8 @@ export const es: TranslationDict = {
   // About dialog
   "about.version": "Versi\u00F3n",
   "about.desc": "Una forma hermosa de leer Markdown generado por IA. Gratuito, local, c\u00F3digo abierto.",
+
+  "filter.all": "Todos",
+  "filter.unread": "No leídos",
+  "action.printPdf": "Guardar como PDF",
 };

@@ -26,3 +26,30 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Print styles for PDF download */
+@media print {
+  header, aside, [data-tabbar], [data-onboarding="nav"],
+  .resize-handle, .shrink-0:has(button) {
+    display: none !important;
+  }
+  /* Show all cards, remove shadows/borders */
+  .vs-card {
+    border: none !important;
+    box-shadow: none !important;
+    ring: none !important;
+    opacity: 1 !important;
+    page-break-after: always;
+  }
+  .vs-card:last-child {
+    page-break-after: auto;
+  }
+  /* Remove focus mode opacity */
+  .reading-root {
+    opacity: 1 !important;
+  }
+  /* Full width */
+  main {
+    overflow: visible !important;
+  }
+}

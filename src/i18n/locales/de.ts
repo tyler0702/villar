@@ -89,4 +89,8 @@ export const de: TranslationDict = {
   // About dialog
   "about.version": "Version",
   "about.desc": "Eine sch\u00F6ne Art, KI-generiertes Markdown zu lesen. Kostenlos, lokal, Open Source.",
+
+  "filter.all": "Alle",
+  "filter.unread": "Ungelesen",
+  "action.printPdf": "Als PDF speichern",
 };

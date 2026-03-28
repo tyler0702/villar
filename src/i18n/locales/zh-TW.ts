@@ -89,4 +89,8 @@ export const zhTW: TranslationDict = {
   // About dialog
   "about.version": "\u7248\u672C",
   "about.desc": "\u512A\u7F8E\u5730\u95B1\u8B80 AI \u751F\u6210\u7684 Markdown\u3002\u514D\u8CBB\u3001\u672C\u5730\u57F7\u884C\u3001\u958B\u6E90\u3002",
+
+  "filter.all": "全部",
+  "filter.unread": "未讀",
+  "action.printPdf": "儲存為PDF",
 };

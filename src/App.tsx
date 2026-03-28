@@ -19,6 +19,7 @@ import { useFileWatcher } from "./hooks/useFileWatcher";
 import { useMenuActions } from "./hooks/useMenuActions";
 import { useTranslation } from "./i18n/useTranslation";
 import { UpdateBanner } from "./components/UpdateBanner/UpdateBanner";
+import { ImagePreview } from "./components/CardView/ImagePreview";
 import { OnboardingOverlay } from "./components/Onboarding/OnboardingOverlay";
 import { AboutDialog } from "./components/AboutDialog/AboutDialog";
 import { useOnboarding } from "./hooks/useOnboarding";
@@ -81,6 +82,7 @@ function App() {
       </div>
       {searchOpen ? <SearchPanel onClose={() => setSearchOpen(false)} /> : null}
       {aboutOpen ? <AboutDialog /> : null}
+      <ImagePreview />
       {onboarding.visible ? (
         <OnboardingOverlay
           step={onboarding.step}

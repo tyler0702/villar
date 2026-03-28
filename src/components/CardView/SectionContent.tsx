@@ -2,6 +2,7 @@ import { useMemo, useCallback, useState, useRef } from "react";
 import { MERMAID_PLACEHOLDER, COLLAPSE_MARKER } from "../../hooks/useMarkdown";
 import type { CollapsedBlock } from "../../plugins/remark-collapse";
 import { MermaidBlock } from "./MermaidBlock";
+import { useAppStore } from "../../stores/useAppStore";
 
 interface SectionContentProps {
   html: string;
@@ -32,6 +33,14 @@ function HtmlBlock({ html }: { html: string }) {
 
   const handleClick = useCallback(async (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
+
+    // Image click → preview
+    if (target.tagName === "IMG") {
+      e.stopPropagation();
+      const src = (target as HTMLImageElement).src;
+      if (src) useAppStore.getState().setPreviewImage(src);
+      return;
+    }
 
     // Open links in external browser
     const anchor = target.closest("a") as HTMLAnchorElement | null;

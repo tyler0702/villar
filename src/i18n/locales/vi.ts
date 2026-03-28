@@ -89,4 +89,8 @@ export const vi: TranslationDict = {
   // About dialog
   "about.version": "Phi\u00EAn b\u1EA3n",
   "about.desc": "C\u00E1ch \u0111\u1EB9p \u0111\u1EC3 \u0111\u1ECDc Markdown do AI t\u1EA1o. Mi\u1EC5n ph\u00ED, ch\u1EA1y c\u1EE5c b\u1ED9, m\u00E3 ngu\u1ED3n m\u1EDF.",
+
+  "filter.all": "Tất cả",
+  "filter.unread": "Chưa đọc",
+  "action.printPdf": "Lưu dạng PDF",
 };

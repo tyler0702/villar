@@ -21,6 +21,7 @@ interface UiSlice {
   readSections: Set<string>;
   findOpen: boolean;
   findQuery: string;
+  previewImage: string | null;
 
   setTree: (tree: FsNode[]) => void;
   toggleFocusMode: () => void;
@@ -29,6 +30,7 @@ interface UiSlice {
   markSectionRead: (filePath: string, sectionIndex: number) => void;
   setFindOpen: (open: boolean) => void;
   setFindQuery: (query: string) => void;
+  setPreviewImage: (src: string | null) => void;
 }
 
 type AppState = UiSlice & TabSlice & SettingsSlice;
@@ -42,6 +44,7 @@ export const useAppStore = create<AppState>((...a) => ({
   readSections: new Set<string>(),
   findOpen: false,
   findQuery: "",
+  previewImage: null,
 
   setTree: (tree) => a[0]({ tree }),
   toggleFocusMode: () => a[0]((s) => ({ focusMode: !s.focusMode })),
@@ -57,6 +60,7 @@ export const useAppStore = create<AppState>((...a) => ({
   },
   setFindOpen: (open) => a[0]({ findOpen: open }),
   setFindQuery: (query) => a[0]({ findQuery: query }),
+  setPreviewImage: (src) => a[0]({ previewImage: src }),
 
   // Slices
   ...createTabSlice(...a),

@@ -72,6 +72,18 @@ function addTableWrapToHtml(html: string): string {
   return html.replace(/<table>/g, '<div class="table-wrap"><table>').replace(/<\/table>/g, '</table></div>');
 }
 
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").trim();
+}
+
+function addHeadingAnchors(html: string): string {
+  return html.replace(/<(h[3-6])>(.*?)<\/\1>/g, (_match, tag: string, content: string) => {
+    const plain = content.replace(/<[^>]+>/g, "");
+    const id = slugify(plain);
+    return `<${tag} id="${id}" class="heading-anchor-target"><a href="#${id}" class="heading-anchor" aria-hidden="true">#</a>${content}</${tag}>`;
+  });
+}
+
 export interface SubHeading {
   depth: number; // 3, 4, 5, 6
   title: string;
@@ -126,7 +138,7 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
       const { html: collapsedHtml, collapsed } = collapseHtml(rendered, collapseConfig);
       return {
         title: section.title,
-        html: resolveImagePaths(addTableWrapToHtml(addCopyButtonsToHtml(collapsedHtml)), filePath ?? null),
+        html: addHeadingAnchors(resolveImagePaths(addTableWrapToHtml(addCopyButtonsToHtml(collapsedHtml)), filePath ?? null)),
         tldr,
         mermaidCodes,
         subHeadings: extractSubHeadings(section.children),

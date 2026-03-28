@@ -4,6 +4,7 @@ import { useAppStore } from "../../stores/useAppStore";
 import { TldrCard } from "./TldrCard";
 import { SectionContent } from "./SectionContent";
 import { FileMeta } from "./FileMeta";
+import { useTranslation } from "../../i18n/useTranslation";
 
 interface CardViewProps {
   sections: ProcessedSection[];
@@ -81,6 +82,8 @@ export function CardView({ sections }: CardViewProps) {
   const activeCardRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
+  const t = useTranslation();
 
   // Auto-clear changed indicators after 5 seconds
   useEffect(() => {
@@ -147,6 +150,13 @@ export function CardView({ sections }: CardViewProps) {
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const filteredSections = useMemo(() => {
+    if (filter === "all") return sections.map((s, i) => ({ section: s, originalIndex: i }));
+    return sections
+      .map((s, i) => ({ section: s, originalIndex: i }))
+      .filter(({ originalIndex }) => !readSections.has(`${selectedFilePath}:${originalIndex}`));
+  }, [filter, sections, readSections, selectedFilePath]);
+
   if (sections.length === 0) return null;
 
   const progress = scrollProgress;
@@ -160,25 +170,50 @@ export function CardView({ sections }: CardViewProps) {
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="px-3 shrink-0">
+        <div className="flex items-center gap-2 px-3 shrink-0">
+          <div className="flex rounded-md bg-gray-100 dark:bg-gray-800 p-0.5">
+            <button
+              onClick={() => setFilter("all")}
+              className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${
+                filter === "all" ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 shadow-sm" : "text-gray-500 dark:text-gray-400"
+              }`}
+            >
+              {t("filter.all")}
+            </button>
+            <button
+              onClick={() => setFilter("unread")}
+              className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${
+                filter === "unread" ? "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 shadow-sm" : "text-gray-500 dark:text-gray-400"
+              }`}
+            >
+              {t("filter.unread")}
+            </button>
+          </div>
+          <button
+            onClick={() => window.print()}
+            className="px-1.5 py-0.5 text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            title={t("action.printPdf")}
+          >
+            PDF
+          </button>
           <FileMeta filePath={selectedFilePath || null} />
         </div>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-8 py-6 overflow-x-hidden">
         <div className={`mx-auto ${WIDTH_MAP[contentWidth]} ${slideDir === "left" ? "card-slide-left" : slideDir === "right" ? "card-slide-right" : ""}`}>
-          {sections.map((section, i) => (
-            <div key={i} className="mb-5" {...(i === 0 ? { "data-onboarding": "card" } : undefined)}>
+          {filteredSections.map(({ section, originalIndex }, fi) => (
+            <div key={originalIndex} className="mb-5" {...(fi === 0 ? { "data-onboarding": "card" } : undefined)}>
               <SectionCard
                 section={section}
-                isActive={i === activeIndex}
-                isFaded={focusMode && i !== activeIndex}
+                isActive={originalIndex === activeIndex}
+                isFaded={focusMode && originalIndex !== activeIndex}
                 fadeOpacity={focusOpacity}
-                isRead={readSections.has(`${selectedFilePath}:${i}`)}
-                isChanged={changedSections.includes(i)}
+                isRead={readSections.has(`${selectedFilePath}:${originalIndex}`)}
+                isChanged={changedSections.includes(originalIndex)}
                 readingStyle={readingStyle}
-                onClick={() => setActiveIndex(i)}
-                cardRef={i === activeIndex ? activeCardRef : undefined}
+                onClick={() => setActiveIndex(originalIndex)}
+                cardRef={originalIndex === activeIndex ? activeCardRef : undefined}
               />
             </div>
           ))}

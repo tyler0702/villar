@@ -146,4 +146,9 @@ export const en: TranslationDict = {
   "update.download": "Download",
   "update.later": "Later",
   "update.skip": "Skip this version",
+
+  // Filter & actions
+  "filter.all": "All",
+  "filter.unread": "Unread",
+  "action.printPdf": "Save as PDF",
 };
