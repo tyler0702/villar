@@ -14,6 +14,8 @@ export const zhTW: TranslationDict = {
   "settings.fontGroup.sans": "\u9ED1\u9AD4",
   "settings.fontGroup.serif": "\u660E\u9AD4",
   "settings.fontGroup.mono": "\u7B49\u5BEC",
+  "settings.letterSpacing": "字距",
+  "settings.paragraphSpacing": "段落間距",
   "settings.reading": "\u95B1\u8B80",
   "settings.focusOpacity": "\u5C08\u6CE8\u900F\u660E\u5EA6",
   "settings.tldr": "TL;DR",

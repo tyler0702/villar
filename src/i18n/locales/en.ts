@@ -18,6 +18,8 @@ export const en: TranslationDict = {
   "settings.fontGroup.serif": "Serif",
   "settings.fontGroup.mono": "Monospace",
   "settings.fontGroup.jp": "Japanese",
+  "settings.letterSpacing": "Letter Spacing",
+  "settings.paragraphSpacing": "Paragraph Spacing",
 
   // Reading section
   "settings.reading": "Reading",

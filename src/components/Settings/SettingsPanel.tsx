@@ -225,6 +225,20 @@ export function SettingsPanel({ width, onRestartTutorial }: { width?: number; on
               <span className="text-[10px] text-gray-400 w-8 text-right tabular-nums">{settings.lineHeight}%</span>
             </div>
           </Row>
+          <Row label={t("settings.letterSpacing")}>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="range"
+                min={-50}
+                max={200}
+                step={10}
+                value={settings.letterSpacing}
+                onChange={(e) => update({ letterSpacing: Number(e.target.value) })}
+                className="w-20 accent-accent-500"
+              />
+              <span className="text-[10px] text-gray-400 w-8 text-right tabular-nums">{settings.letterSpacing}</span>
+            </div>
+          </Row>
           <Row label={t("settings.width")}>
             <SegmentControl<ContentWidth>
               value={settings.contentWidth}
@@ -239,6 +253,20 @@ export function SettingsPanel({ width, onRestartTutorial }: { width?: number; on
         </Section>
 
         <Section title={t("settings.reading")}>
+          <Row label={t("settings.paragraphSpacing")}>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="range"
+                min={100}
+                max={300}
+                step={10}
+                value={settings.paragraphSpacing}
+                onChange={(e) => update({ paragraphSpacing: Number(e.target.value) })}
+                className="w-20 accent-accent-500"
+              />
+              <span className="text-[10px] text-gray-400 w-8 text-right tabular-nums">{settings.paragraphSpacing}%</span>
+            </div>
+          </Row>
           <Row label={t("settings.focusOpacity")}>
             <div className="flex items-center gap-1.5">
               <input

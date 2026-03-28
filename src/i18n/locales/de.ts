@@ -14,6 +14,8 @@ export const de: TranslationDict = {
   "settings.fontGroup.sans": "Sans-Serif",
   "settings.fontGroup.serif": "Serif",
   "settings.fontGroup.mono": "Festbreite",
+  "settings.letterSpacing": "Zeichenabstand",
+  "settings.paragraphSpacing": "Absatzabstand",
   "settings.reading": "Lesen",
   "settings.focusOpacity": "Fokus-Deckkraft",
   "settings.tldr": "TL;DR",

@@ -15,6 +15,8 @@ export const ms: TranslationDict = {
   "settings.fontGroup.serif": "Serif",
   "settings.fontGroup.mono": "Monospace",
   "settings.fontGroup.jp": "Japanese",
+  "settings.letterSpacing": "Jarak huruf",
+  "settings.paragraphSpacing": "Jarak perenggan",
   "settings.reading": "Bacaan",
   "settings.focusOpacity": "Kelegapan Fokus",
   "settings.tldr": "TL;DR",

@@ -68,6 +68,10 @@ function addCopyButtonsToHtml(html: string): string {
   return html.replace(/<pre><code/g, '<pre><button class="code-copy-btn" data-copy>Copy</button><code');
 }
 
+function addTableWrapToHtml(html: string): string {
+  return html.replace(/<table>/g, '<div class="table-wrap"><table>').replace(/<\/table>/g, '</table></div>');
+}
+
 export interface SubHeading {
   depth: number; // 3, 4, 5, 6
   title: string;
@@ -122,7 +126,7 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
       const { html: collapsedHtml, collapsed } = collapseHtml(rendered, collapseConfig);
       return {
         title: section.title,
-        html: resolveImagePaths(addCopyButtonsToHtml(collapsedHtml), filePath ?? null),
+        html: resolveImagePaths(addTableWrapToHtml(addCopyButtonsToHtml(collapsedHtml)), filePath ?? null),
         tldr,
         mermaidCodes,
         subHeadings: extractSubHeadings(section.children),

@@ -29,6 +29,8 @@ export interface Settings {
   fontFamily: string;
   fontScale: number;
   lineHeight: number;
+  paragraphSpacing: number;
+  letterSpacing: number;
   contentWidth: ContentWidth;
   focusOpacity: number;
   tldrExpanded: boolean;
@@ -46,6 +48,8 @@ export const DEFAULT_SETTINGS: Settings = {
   fontFamily: "system",
   fontScale: 100,
   lineHeight: 165,
+  paragraphSpacing: 100,
+  letterSpacing: 0,
   contentWidth: "medium",
   focusOpacity: 30,
   tldrExpanded: true,

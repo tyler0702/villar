@@ -70,6 +70,8 @@ export function CardView({ sections }: CardViewProps) {
   const setActiveIndex = useAppStore((s) => s.setActiveCardIndex);
   const focusMode = useAppStore((s) => s.focusMode);
   const lineHeight = useAppStore((s) => s.settings.lineHeight);
+  const paragraphSpacing = useAppStore((s) => s.settings.paragraphSpacing);
+  const letterSpacing = useAppStore((s) => s.settings.letterSpacing);
   const contentWidth = useAppStore((s) => s.settings.contentWidth);
   const focusOpacity = useAppStore((s) => s.settings.focusOpacity);
   const selectedFilePath = activeTab?.file.path ?? "";
@@ -89,9 +91,23 @@ export function CardView({ sections }: CardViewProps) {
     return () => clearTimeout(timer);
   }, [changedSections.length, selectedFilePath]);
 
+  const prevIndexRef = useRef(activeIndex);
+  const [slideDir, setSlideDir] = useState<"none" | "left" | "right">("none");
+
+  useEffect(() => {
+    if (prevIndexRef.current !== activeIndex) {
+      setSlideDir(activeIndex > prevIndexRef.current ? "left" : "right");
+      prevIndexRef.current = activeIndex;
+      const timer = setTimeout(() => setSlideDir("none"), 350);
+      return () => clearTimeout(timer);
+    }
+  }, [activeIndex]);
+
   const readingStyle = useMemo<React.CSSProperties>(() => ({
     "--reading-line-height": String(lineHeight / 100),
-  } as React.CSSProperties), [lineHeight]);
+    "--reading-paragraph-spacing": `${paragraphSpacing / 100}em`,
+    "--reading-letter-spacing": `${letterSpacing / 1000}em`,
+  } as React.CSSProperties), [lineHeight, paragraphSpacing, letterSpacing]);
 
   useEffect(() => {
     if (selectedFilePath && sections.length > 0) {
@@ -149,8 +165,8 @@ export function CardView({ sections }: CardViewProps) {
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-8 py-6">
-        <div className={`mx-auto ${WIDTH_MAP[contentWidth]}`}>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-8 py-6 overflow-x-hidden">
+        <div className={`mx-auto ${WIDTH_MAP[contentWidth]} ${slideDir === "left" ? "card-slide-left" : slideDir === "right" ? "card-slide-right" : ""}`}>
           {sections.map((section, i) => (
             <div key={i} className="mb-5" {...(i === 0 ? { "data-onboarding": "card" } : undefined)}>
               <SectionCard

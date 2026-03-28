@@ -14,6 +14,8 @@ export const vi: TranslationDict = {
   "settings.fontGroup.sans": "Sans-serif",
   "settings.fontGroup.serif": "Serif",
   "settings.fontGroup.mono": "\u0110\u1EB3ng r\u1ED9ng",
+  "settings.letterSpacing": "Khoảng cách chữ",
+  "settings.paragraphSpacing": "Khoảng cách đoạn",
   "settings.reading": "\u0110\u1ECDc",
   "settings.focusOpacity": "\u0110\u1ED9 m\u1EDD t\u1EADp trung",
   "settings.tldr": "TL;DR",

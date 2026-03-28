@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback, useState, useRef } from "react";
 import { MERMAID_PLACEHOLDER, COLLAPSE_MARKER } from "../../hooks/useMarkdown";
 import type { CollapsedBlock } from "../../plugins/remark-collapse";
 import { MermaidBlock } from "./MermaidBlock";
@@ -28,6 +28,8 @@ function CollapsibleBlock({ block }: { block: CollapsedBlock }) {
 }
 
 function HtmlBlock({ html }: { html: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const handleClick = useCallback(async (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
 
@@ -54,9 +56,26 @@ function HtmlBlock({ html }: { html: string }) {
     }
   }, []);
 
+  const handleMouseOver = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const anchor = target.closest("a") as HTMLAnchorElement | null;
+    if (!anchor?.href || anchor.querySelector(".link-tooltip")) return;
+    try {
+      const url = new URL(anchor.href);
+      const tip = document.createElement("span");
+      tip.className = "link-tooltip";
+      tip.textContent = url.hostname;
+      anchor.style.position = "relative";
+      anchor.appendChild(tip);
+      anchor.addEventListener("mouseleave", () => tip.remove(), { once: true });
+    } catch { /* invalid URL */ }
+  }, []);
+
   return (
     <div
+      ref={containerRef}
       onClick={handleClick}
+      onMouseOver={handleMouseOver}
       className="prose dark:prose-invert max-w-none"
       dangerouslySetInnerHTML={{ __html: html }}
     />

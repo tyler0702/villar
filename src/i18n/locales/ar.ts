@@ -8,6 +8,8 @@ export const ar: TranslationDict = {
   "settings.fontSize": "\u062D\u062C\u0645 \u0627\u0644\u062E\u0637",
   "settings.lineHeight": "\u0627\u0631\u062A\u0641\u0627\u0639 \u0627\u0644\u0633\u0637\u0631",
   "settings.width": "\u0627\u0644\u0639\u0631\u0636",
+  "settings.letterSpacing": "تباعد الحروف",
+  "settings.paragraphSpacing": "تباعد الفقرات",
   "settings.reading": "\u0627\u0644\u0642\u0631\u0627\u0621\u0629",
   "settings.colorTheme": "\u0633\u0645\u0629 \u0627\u0644\u0623\u0644\u0648\u0627\u0646",
   "settings.general": "\u0639\u0627\u0645",

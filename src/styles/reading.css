@@ -3,6 +3,7 @@
   font-family: var(--reading-font, inherit);
   font-size: var(--reading-font-size, 1rem);
   line-height: var(--reading-line-height, 1.6);
+  letter-spacing: var(--reading-letter-spacing, 0em);
 }
 .reading-root h1 {
   font-size: calc(var(--reading-font-size, 1rem) * 1.5);
@@ -20,4 +21,49 @@
 .reading-root .prose li,
 .reading-root .prose blockquote {
   line-height: inherit !important;
+}
+/* Paragraph spacing */
+.reading-root .prose p {
+  margin-bottom: var(--reading-paragraph-spacing, 1em);
+}
+
+/* Table horizontal scroll + sticky header */
+.reading-root .table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0.5rem 0;
+}
+.reading-root .table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.reading-root .table-wrap thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Link tooltip */
+.reading-root .prose a {
+  position: relative;
+}
+.reading-root .prose a[href^="http"]::after {
+  content: " \2197";
+  font-size: 0.7em;
+  vertical-align: super;
+  opacity: 0.5;
+}
+.link-tooltip {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  padding: 2px 6px;
+  font-size: 10px;
+  line-height: 1.4;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.8);
+  color: #e0e0e0;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 20;
 }

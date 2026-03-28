@@ -8,6 +8,8 @@ export const ko: TranslationDict = {
   "settings.fontSize": "\uAE00\uAF34 \uD06C\uAE30",
   "settings.lineHeight": "\uC904 \uB192\uC774",
   "settings.width": "\uB108\uBE44",
+  "settings.letterSpacing": "자간",
+  "settings.paragraphSpacing": "단락 간격",
   "settings.reading": "\uC77D\uAE30",
   "settings.colorTheme": "\uC0C9\uC0C1 \uD14C\uB9C8",
   "settings.general": "\uC77C\uBC18",

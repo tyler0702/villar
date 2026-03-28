@@ -58,6 +58,22 @@
   background: var(--color-gray-800, #1f2937);
 }
 
+/* Card slide animation */
+@keyframes slide-in-right {
+  from { transform: translateX(60px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(-60px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.card-slide-left {
+  animation: slide-in-right 300ms ease both;
+}
+.card-slide-right {
+  animation: slide-in-left 300ms ease both;
+}
+
 /* Resize handle */
 .resize-handle {
   width: 4px;

@@ -14,6 +14,8 @@ export const ja: TranslationDict = {
   "settings.fontGroup.sans": "\u30B4\u30B7\u30C3\u30AF",
   "settings.fontGroup.serif": "\u660E\u671D",
   "settings.fontGroup.mono": "\u7B49\u5E45",
+  "settings.letterSpacing": "\u5B57\u9593",
+  "settings.paragraphSpacing": "\u6BB5\u843D\u9593\u9694",
   "settings.reading": "\u8AAD\u307F\u53D6\u308A",
   "settings.focusOpacity": "\u30D5\u30A9\u30FC\u30AB\u30B9\u900F\u660E\u5EA6",
   "settings.tldr": "TL;DR",

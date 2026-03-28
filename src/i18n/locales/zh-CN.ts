@@ -14,6 +14,8 @@ export const zhCN: TranslationDict = {
   "settings.fontGroup.sans": "\u9ED1\u4F53",
   "settings.fontGroup.serif": "\u5B8B\u4F53",
   "settings.fontGroup.mono": "\u7B49\u5BBD",
+  "settings.letterSpacing": "字间距",
+  "settings.paragraphSpacing": "段落间距",
   "settings.reading": "\u9605\u8BFB",
   "settings.focusOpacity": "\u4E13\u6CE8\u900F\u660E\u5EA6",
   "settings.tldr": "TL;DR",
