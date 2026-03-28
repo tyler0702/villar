@@ -1208,3 +1208,187 @@ test.describe("Update Banner", () => {
     await expect(page.getByText(/New version available/)).not.toBeVisible();
   });
 });
+
+// ── New E2E tests ──
+
+test.describe("Settings panel toggle", () => {
+  test("opens and closes settings panel via store", async ({ page }) => {
+    await page.goto("/");
+
+    // Open settings
+    await page.evaluate(openSettings());
+    await expect(page.getByText("Font Size")).toBeVisible();
+
+    // Close settings via store
+    await page.evaluate(() => {
+      (window as unknown as { __villarStore: { getState: () => { setSettingsOpen: (o: boolean) => void } } })
+        .__villarStore.getState().setSettingsOpen(false);
+    });
+
+    // Settings should be hidden
+    await expect(page.getByText("Font Size")).not.toBeVisible();
+  });
+});
+
+test.describe("Paragraph spacing setting", () => {
+  test("paragraph spacing slider changes store value", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(openSettings());
+
+    // Find paragraph spacing slider (min=100, max=300)
+    const slider = page.locator('input[type="range"][min="100"][max="300"]');
+    await expect(slider).toBeVisible();
+
+    // Change value
+    await slider.fill("200");
+
+    const val = await page.evaluate(() =>
+      (window as unknown as { __villarStore: { getState: () => { settings: { paragraphSpacing: number } } } })
+        .__villarStore.getState().settings.paragraphSpacing
+    );
+    expect(val).toBe(200);
+  });
+});
+
+test.describe("Letter spacing setting", () => {
+  test("letter spacing slider changes store value", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(openSettings());
+
+    // Find letter spacing slider (min=-50, max=200)
+    const slider = page.locator('input[type="range"][min="-50"][max="200"]');
+    await expect(slider).toBeVisible();
+
+    await slider.fill("100");
+
+    const val = await page.evaluate(() =>
+      (window as unknown as { __villarStore: { getState: () => { settings: { letterSpacing: number } } } })
+        .__villarStore.getState().settings.letterSpacing
+    );
+    expect(val).toBe(100);
+  });
+});
+
+test.describe("Bookmark toggle", () => {
+  test("clicking pin icon bookmarks and unbookmarks a card", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(SAMPLE_MD));
+
+    // Wait for cards
+    await expect(page.getByText(/1 \/ /)).toBeVisible();
+
+    // The bookmark pin button — in the first vs-card, absolute top-3 right-3
+    const pin = page.locator(".vs-card").first().locator("button.absolute");
+    await expect(pin).toBeAttached();
+
+    // Click to bookmark — should become visible (opacity-100)
+    await pin.click({ force: true });
+
+    // Check store has bookmark
+    const hasBm = await page.evaluate(() => {
+      const s = (window as unknown as { __villarStore: { getState: () => { bookmarks: Set<string> } } }).__villarStore.getState();
+      return s.bookmarks.size > 0;
+    });
+    expect(hasBm).toBe(true);
+
+    // Click again to remove
+    await pin.click({ force: true });
+
+    const hasBm2 = await page.evaluate(() => {
+      const s = (window as unknown as { __villarStore: { getState: () => { bookmarks: Set<string> } } }).__villarStore.getState();
+      return s.bookmarks.size;
+    });
+    expect(hasBm2).toBe(0);
+  });
+});
+
+test.describe("PDF button", () => {
+  test("PDF button exists in card view header", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(SAMPLE_MD));
+
+    // PDF button should be visible
+    const pdfBtn = page.locator("button", { hasText: "PDF" });
+    await expect(pdfBtn).toBeVisible();
+  });
+});
+
+test.describe("Read time display", () => {
+  test("shows estimated read time when file is open", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(injectContent(SAMPLE_MD));
+
+    // FileMeta should show "~N min read" or translated equivalent
+    await expect(page.getByText(/min/)).toBeVisible();
+  });
+});
+
+test.describe("Image preview", () => {
+  test("clicking an image opens preview modal, clicking closes it", async ({ page }) => {
+    await page.goto("/");
+
+    // Inject markdown with an image (use a data URI to avoid network)
+    const mdWithImage = [
+      "## Image Section",
+      "",
+      "Here is an image:",
+      "",
+      "![test](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==)",
+    ].join("\n");
+
+    await page.evaluate(injectContent(mdWithImage, "img.md", "/mock/img.md"));
+
+    // Wait for image to render
+    const img = page.locator("main img").first();
+    await expect(img).toBeVisible({ timeout: 5000 });
+
+    // Click image to open preview
+    await img.click();
+
+    // Preview modal should appear (fixed overlay with z-50)
+    const modal = page.locator(".fixed.inset-0.z-50");
+    await expect(modal).toBeVisible();
+
+    // Click overlay to close
+    await modal.click({ position: { x: 5, y: 5 } });
+    await expect(modal).not.toBeVisible();
+  });
+});
+
+test.describe("Keyboard scroll", () => {
+  test("Space key scrolls the card container", async ({ page }) => {
+    await page.goto("/");
+
+    // Use a long document to ensure scrollable content
+    const longMd = [
+      "## Long Section",
+      "",
+      ...Array.from({ length: 50 }, (_, i) => `Line number ${i + 1} has enough text to take up vertical space in the card view area.\n`),
+    ].join("\n");
+
+    await page.evaluate(injectContent(longMd, "long.md", "/mock/long.md"));
+
+    // Wait for content to render
+    await expect(page.getByText(/1 \/ /)).toBeVisible();
+
+    // Get initial scroll position
+    const scrollBefore = await page.evaluate(() => {
+      const ref = (window as unknown as { __villarStore: { getState: () => { cardScrollRef: { current: HTMLDivElement | null } | null } } })
+        .__villarStore.getState().cardScrollRef;
+      return ref?.current?.scrollTop ?? 0;
+    });
+
+    // Press Space to scroll
+    await page.keyboard.press("Space");
+    await page.waitForTimeout(300);
+
+    const scrollAfter = await page.evaluate(() => {
+      const ref = (window as unknown as { __villarStore: { getState: () => { cardScrollRef: { current: HTMLDivElement | null } | null } } })
+        .__villarStore.getState().cardScrollRef;
+      return ref?.current?.scrollTop ?? 0;
+    });
+
+    // Scroll should have increased
+    expect(scrollAfter).toBeGreaterThan(scrollBefore);
+  });
+});
