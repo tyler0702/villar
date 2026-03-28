@@ -56,6 +56,12 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "villar ${{ github.ref_name }}"
@@ -65,11 +71,6 @@ jobs:
             **macOS**: Download `.dmg` (Apple Silicon or Intel)
             **Windows**: Download `.msi` installer
             **Linux**: Download `.deb` or `.AppImage`
-
-            > **macOS:** This build is unsigned. If you see "app is damaged", run in Terminal:
-            > ```
-            > xattr -cr /Applications/villar.app
-            > ```
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
