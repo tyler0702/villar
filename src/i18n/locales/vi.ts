@@ -95,4 +95,9 @@ export const vi: TranslationDict = {
   "filter.all": "Tất cả",
   "filter.unread": "Chưa đọc",
   "action.printPdf": "Lưu dạng PDF",
+  "error.title": "Đã xảy ra lỗi không mong muốn",
+  "error.desc": "Vui lòng tải lại ứng dụng.",
+  "error.reload": "Tải lại",
+  "error.retry": "Thử lại",
+  "error.details": "Chi tiết lỗi",
 };

@@ -124,4 +124,9 @@ export const ja: TranslationDict = {
   "filter.all": "\u3059\u3079\u3066",
   "filter.unread": "\u672A\u8AAD",
   "action.printPdf": "PDF\u3067\u4FDD\u5B58",
+  "error.title": "\u4E88\u671F\u3057\u306A\u3044\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F",
+  "error.desc": "\u30A2\u30D7\u30EA\u3092\u30EA\u30ED\u30FC\u30C9\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+  "error.reload": "\u30EA\u30ED\u30FC\u30C9",
+  "error.retry": "\u518D\u8A66\u884C",
+  "error.details": "\u30A8\u30E9\u30FC\u8A73\u7D30",
 };

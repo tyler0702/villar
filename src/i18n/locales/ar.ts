@@ -65,4 +65,9 @@ export const ar: TranslationDict = {
   "action.printPdf": "حفظ كـ PDF",
   "shortcut.scrollPage": "\u062A\u0645\u0631\u064A\u0631 \u0627\u0644\u0635\u0641\u062D\u0629",
   "meta.readTime": "~{min} \u062F\u0642\u064A\u0642\u0629 \u0642\u0631\u0627\u0621\u0629",
+  "error.title": "حدث خطأ غير متوقع",
+  "error.desc": "يرجى إعادة تحميل التطبيق.",
+  "error.reload": "إعادة تحميل",
+  "error.retry": "إعادة المحاولة",
+  "error.details": "تفاصيل الخطأ",
 };

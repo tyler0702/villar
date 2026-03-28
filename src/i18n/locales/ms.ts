@@ -96,4 +96,9 @@ export const ms: TranslationDict = {
   "filter.all": "Semua",
   "filter.unread": "Belum dibaca",
   "action.printPdf": "Simpan sebagai PDF",
+  "error.title": "Ralat tidak dijangka berlaku",
+  "error.desc": "Sila muat semula aplikasi.",
+  "error.reload": "Muat semula",
+  "error.retry": "Cuba lagi",
+  "error.details": "Butiran ralat",
 };

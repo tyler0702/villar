@@ -95,4 +95,9 @@ export const es: TranslationDict = {
   "filter.all": "Todos",
   "filter.unread": "No leídos",
   "action.printPdf": "Guardar como PDF",
+  "error.title": "Algo salió mal",
+  "error.desc": "Por favor, recarga la aplicación.",
+  "error.reload": "Recargar",
+  "error.retry": "Reintentar",
+  "error.details": "Detalles del error",
 };

@@ -95,4 +95,9 @@ export const de: TranslationDict = {
   "filter.all": "Alle",
   "filter.unread": "Ungelesen",
   "action.printPdf": "Als PDF speichern",
+  "error.title": "Ein unerwarteter Fehler ist aufgetreten",
+  "error.desc": "Bitte laden Sie die App neu.",
+  "error.reload": "Neu laden",
+  "error.retry": "Erneut versuchen",
+  "error.details": "Fehlerdetails",
 };

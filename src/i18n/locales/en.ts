@@ -155,4 +155,11 @@ export const en: TranslationDict = {
   "filter.all": "All",
   "filter.unread": "Unread",
   "action.printPdf": "Save as PDF",
+
+  // Error boundary
+  "error.title": "Something went wrong",
+  "error.desc": "An unexpected error occurred. Please try reloading the app.",
+  "error.reload": "Reload",
+  "error.retry": "Try Again",
+  "error.details": "Error details",
 };

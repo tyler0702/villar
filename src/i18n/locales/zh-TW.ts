@@ -95,4 +95,9 @@ export const zhTW: TranslationDict = {
   "filter.all": "全部",
   "filter.unread": "未讀",
   "action.printPdf": "儲存為PDF",
+  "error.title": "發生了意外錯誤",
+  "error.desc": "請重新載入應用程式。",
+  "error.reload": "重新載入",
+  "error.retry": "重試",
+  "error.details": "錯誤詳情",
 };

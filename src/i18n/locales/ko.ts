@@ -65,4 +65,9 @@ export const ko: TranslationDict = {
   "action.printPdf": "PDF로 저장",
   "shortcut.scrollPage": "\uD398\uC774\uC9C0 \uC2A4\uD06C\uB864",
   "meta.readTime": "\uC57D{min}\uBD84 \uC77D\uAE30",
+  "error.title": "예기치 않은 오류가 발생했습니다",
+  "error.desc": "앱을 다시 로드해 주세요.",
+  "error.reload": "새로고침",
+  "error.retry": "다시 시도",
+  "error.details": "오류 상세",
 };
