@@ -1,3 +1,4 @@
+import type React from "react";
 import { create } from "zustand";
 import { createSettingsSlice, type SettingsSlice } from "./settingsSlice";
 import { createTabSlice, type TabSlice } from "./tabSlice";
@@ -19,18 +20,22 @@ interface UiSlice {
   settingsOpen: boolean;
   aboutOpen: boolean;
   readSections: Set<string>;
+  bookmarks: Set<string>;
   findOpen: boolean;
   findQuery: string;
   previewImage: string | null;
+  cardScrollRef: React.RefObject<HTMLDivElement | null> | null;
 
   setTree: (tree: FsNode[]) => void;
   toggleFocusMode: () => void;
   setSettingsOpen: (open: boolean) => void;
   setAboutOpen: (open: boolean) => void;
   markSectionRead: (filePath: string, sectionIndex: number) => void;
+  toggleBookmark: (filePath: string, sectionIndex: number) => void;
   setFindOpen: (open: boolean) => void;
   setFindQuery: (query: string) => void;
   setPreviewImage: (src: string | null) => void;
+  setCardScrollRef: (ref: React.RefObject<HTMLDivElement | null> | null) => void;
 }
 
 type AppState = UiSlice & TabSlice & SettingsSlice;
@@ -42,9 +47,16 @@ export const useAppStore = create<AppState>((...a) => ({
   settingsOpen: false,
   aboutOpen: false,
   readSections: new Set<string>(),
+  bookmarks: (() => {
+    try {
+      const raw = localStorage.getItem("villar-bookmarks");
+      return raw ? new Set<string>(JSON.parse(raw)) : new Set<string>();
+    } catch { return new Set<string>(); }
+  })(),
   findOpen: false,
   findQuery: "",
   previewImage: null,
+  cardScrollRef: null,
 
   setTree: (tree) => a[0]({ tree }),
   toggleFocusMode: () => a[0]((s) => ({ focusMode: !s.focusMode })),
@@ -58,9 +70,19 @@ export const useAppStore = create<AppState>((...a) => ({
       return { readSections: next };
     });
   },
+  toggleBookmark: (filePath, sectionIndex) => {
+    const key = `${filePath}:${sectionIndex}`;
+    a[0]((s) => {
+      const next = new Set(s.bookmarks);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      try { localStorage.setItem("villar-bookmarks", JSON.stringify([...next])); } catch { /* */ }
+      return { bookmarks: next };
+    });
+  },
   setFindOpen: (open) => a[0]({ findOpen: open }),
   setFindQuery: (query) => a[0]({ findQuery: query }),
   setPreviewImage: (src) => a[0]({ previewImage: src }),
+  setCardScrollRef: (ref) => a[0]({ cardScrollRef: ref }),
 
   // Slices
   ...createTabSlice(...a),

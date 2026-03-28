@@ -19,7 +19,7 @@ const STORAGE_KEY = "villar-session";
 
 interface PersistedSession {
   folderPath: string | null;
-  openTabs: { name: string; path: string }[];
+  openTabs: { name: string; path: string; activeCardIndex?: number }[];
   activeTabPath: string | null;
 }
 
@@ -30,7 +30,7 @@ export const restoredTabs: Tab[] = (session.openTabs ?? []).map((t) => ({
   content: null,
   previousContent: null,
   changedSections: [],
-  activeCardIndex: 0,
+  activeCardIndex: t.activeCardIndex ?? 0,
   scrollTop: 0,
 }));
 
@@ -43,7 +43,7 @@ export const restoredFolderPath = session.folderPath ?? null;
 function persistSession(state: TabSlice) {
   saveJson(STORAGE_KEY, {
     folderPath: state.folderPath,
-    openTabs: state.tabs.map((t) => ({ name: t.file.name, path: t.file.path })),
+    openTabs: state.tabs.map((t) => ({ name: t.file.name, path: t.file.path, activeCardIndex: t.activeCardIndex })),
     activeTabPath: state.tabs[state.activeTabIndex]?.file.path ?? null,
   } satisfies PersistedSession);
 }
@@ -152,6 +152,7 @@ export const createTabSlice: StateCreator<TabSlice> = (set, get) => ({
     if (updated[activeTabIndex]) {
       updated[activeTabIndex] = { ...updated[activeTabIndex], activeCardIndex: index };
       set({ tabs: updated });
+      persistSession({ ...get(), tabs: updated });
     }
   },
 

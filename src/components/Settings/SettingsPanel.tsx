@@ -8,6 +8,7 @@ import { useTranslation } from "../../i18n/useTranslation";
 const SHORTCUT_KEYS = [
   { key: "\u2190 \u2192", tKey: "shortcut.navigate" },
   { key: "Home / End", tKey: "shortcut.firstLast" },
+  { key: "Space", tKey: "shortcut.scrollPage" },
   { key: "F", tKey: "shortcut.focusMode" },
   { key: "\u2318K", tKey: "shortcut.search" },
   { key: "\u2318F", tKey: "shortcut.find" },

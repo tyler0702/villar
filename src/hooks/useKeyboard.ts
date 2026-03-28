@@ -76,6 +76,15 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
           e.preventDefault();
           if (activeCardIndex < sectionCount - 1) setActiveCardIndex(activeCardIndex + 1);
           break;
+        case " ": {
+          e.preventDefault();
+          const el = state.cardScrollRef?.current;
+          if (el) {
+            const amount = el.clientHeight * 0.8;
+            el.scrollBy({ top: e.shiftKey ? -amount : amount, behavior: "smooth" });
+          }
+          break;
+        }
         case "f":
           toggleFocusMode();
           break;

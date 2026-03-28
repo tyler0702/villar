@@ -63,4 +63,6 @@ export const ko: TranslationDict = {
   "filter.all": "전체",
   "filter.unread": "읽지 않음",
   "action.printPdf": "PDF로 저장",
+  "shortcut.scrollPage": "\uD398\uC774\uC9C0 \uC2A4\uD06C\uB864",
+  "meta.readTime": "\uC57D{min}\uBD84 \uC77D\uAE30",
 };

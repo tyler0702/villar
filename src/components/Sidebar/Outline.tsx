@@ -1,13 +1,16 @@
 import type { ProcessedSection } from "../../hooks/useMarkdown";
+import { useAppStore } from "../../stores/useAppStore";
 
 interface OutlineProps {
   docTitle: string | null;
   sections: ProcessedSection[];
   activeIndex: number;
   onSelect: (index: number) => void;
+  filePath?: string;
 }
 
-export function Outline({ docTitle, sections, activeIndex, onSelect }: OutlineProps) {
+export function Outline({ docTitle, sections, activeIndex, onSelect, filePath }: OutlineProps) {
+  const bookmarks = useAppStore((s) => s.bookmarks);
   if (sections.length === 0) return null;
 
   return (
@@ -21,7 +24,9 @@ export function Outline({ docTitle, sections, activeIndex, onSelect }: OutlinePr
             {docTitle}
           </div>
         ) : null}
-        {sections.map((section, i) => (
+        {sections.map((section, i) => {
+          const isBm = filePath ? bookmarks.has(`${filePath}:${i}`) : false;
+          return (
           <div key={i}>
             <button
               onClick={() => onSelect(i)}
@@ -32,7 +37,7 @@ export function Outline({ docTitle, sections, activeIndex, onSelect }: OutlinePr
               }`}
               style={{ paddingLeft: docTitle ? "20px" : undefined }}
             >
-              {section.title}
+              {isBm ? <span className="text-accent-500 mr-1">{"\u{1F4CC}"}</span> : null}{section.title}
             </button>
             {i === activeIndex && section.subHeadings.length > 0 ? (
               <div className="ml-3 mt-0.5 space-y-0.5">
@@ -48,7 +53,8 @@ export function Outline({ docTitle, sections, activeIndex, onSelect }: OutlinePr
               </div>
             ) : null}
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
