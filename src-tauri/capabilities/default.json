@@ -18,6 +18,7 @@
       "identifier": "fs:scope",
       "allow": [{ "path": "**" }]
     },
-    "core:webview:allow-print"
+    "core:webview:allow-print",
+    "updater:default"
   ]
 }
