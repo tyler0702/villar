@@ -11,7 +11,7 @@ interface StepDef {
 const STEPS: StepDef[] = [
   { titleKey: "onboarding.welcome.title", descKey: "onboarding.welcome.desc", target: null },
   { titleKey: "onboarding.folder.title", descKey: "onboarding.folder.desc", target: "open" },
-  { titleKey: "onboarding.cards.title", descKey: "onboarding.cards.desc", target: "main" },
+  { titleKey: "onboarding.cards.title", descKey: "onboarding.cards.desc", target: "card" },
   { titleKey: "onboarding.nav.title", descKey: "onboarding.nav.desc", target: "nav" },
   { titleKey: "onboarding.search.title", descKey: "onboarding.search.desc", target: "search" },
   { titleKey: "onboarding.settings.title", descKey: "onboarding.settings.desc", target: "settings" },

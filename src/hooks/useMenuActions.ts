@@ -25,7 +25,7 @@ export function useMenuActions(onSearch: () => void) {
           useAppStore.getState().toggleFocusMode();
           break;
         case "settings":
-          useAppStore.getState().setSettingsOpen(true);
+          { const s = useAppStore.getState(); s.setSettingsOpen(!s.settingsOpen); }
           break;
         case "zoom_in": {
           const s = useAppStore.getState().settings;

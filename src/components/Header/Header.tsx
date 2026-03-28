@@ -86,7 +86,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         </button>
         <button
           data-onboarding="settings"
-          onClick={() => useAppStore.getState().setSettingsOpen(true)}
+          onClick={() => { const s = useAppStore.getState(); s.setSettingsOpen(!s.settingsOpen); }}
           className="px-2 py-1 text-[16px] leading-none opacity-50 hover:opacity-100 hover:bg-white/10 rounded-lg transition-all"
           title="Settings (Cmd+,)"
         >

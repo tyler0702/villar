@@ -107,7 +107,14 @@ export function CardView({ sections }: CardViewProps) {
   );
 
   useEffect(() => {
-    activeCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const card = activeCardRef.current;
+    const container = scrollRef.current;
+    if (!card || !container) return;
+    const cardTop = card.getBoundingClientRect().top;
+    const containerTop = container.getBoundingClientRect().top;
+    if (cardTop >= containerTop) {
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }, [activeIndex]);
 
   // Track scroll position for progress bar
@@ -145,7 +152,7 @@ export function CardView({ sections }: CardViewProps) {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-8 py-6">
         <div className={`mx-auto ${WIDTH_MAP[contentWidth]}`}>
           {sections.map((section, i) => (
-            <div key={i} className="mb-5">
+            <div key={i} className="mb-5" {...(i === 0 ? { "data-onboarding": "card" } : undefined)}>
               <SectionCard
                 section={section}
                 isActive={i === activeIndex}
@@ -162,49 +169,51 @@ export function CardView({ sections }: CardViewProps) {
         </div>
       </div>
 
-      <div data-onboarding="nav" className="flex items-center justify-center gap-4 py-1 border-t border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0">
-        <button
-          onClick={() => goTo(activeIndex - 1)}
-          disabled={activeIndex === 0}
-          className="px-3 py-1 text-xs font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-        >
-          &larr; Prev
-        </button>
-        <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums font-medium">
-          {activeIndex + 1} / {sections.length} &middot; {progress}%
-        </span>
-        <button
-          onClick={() => goTo(activeIndex + 1)}
-          disabled={activeIndex === sections.length - 1}
-          className="px-3 py-1 text-xs font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-        >
-          Next &rarr;
-        </button>
-      </div>
-
-      {/* Card thumbnails */}
-      {sections.length > 1 ? (
-        <div className="flex items-center gap-1.5 py-1.5 px-4 border-t border-gray-100/60 dark:border-gray-800/60 shrink-0 overflow-x-auto">
-          {sections.map((section, i) => {
-            const isRead = readSections.has(`${selectedFilePath}:${i}`);
-            return (
-              <button
-                key={i}
-                onClick={() => setActiveIndex(i)}
-                className={`px-2 py-0.5 text-[9px] rounded border shrink-0 transition-all truncate max-w-[100px] ${
-                  i === activeIndex
-                    ? "border-accent-400 bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium"
-                    : isRead
-                      ? "border-accent-200/50 dark:border-accent-800/50 text-gray-500 dark:text-gray-400 bg-accent-50/30 dark:bg-accent-950/20"
-                      : "border-gray-200/60 dark:border-gray-700/40 text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-                }`}
-              >
-                {section.title}
-              </button>
-            );
-          })}
+      <div data-onboarding="nav" className="shrink-0">
+        <div className="flex items-center justify-center gap-4 py-1 border-t border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm">
+          <button
+            onClick={() => goTo(activeIndex - 1)}
+            disabled={activeIndex === 0}
+            className="px-3 py-1 text-xs font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+          >
+            &larr; Prev
+          </button>
+          <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums font-medium">
+            {activeIndex + 1} / {sections.length} &middot; {progress}%
+          </span>
+          <button
+            onClick={() => goTo(activeIndex + 1)}
+            disabled={activeIndex === sections.length - 1}
+            className="px-3 py-1 text-xs font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+          >
+            Next &rarr;
+          </button>
         </div>
-      ) : null}
+
+        {/* Card thumbnails */}
+        {sections.length > 1 ? (
+          <div className="flex items-center gap-1.5 py-1.5 px-4 border-t border-gray-100/60 dark:border-gray-800/60 overflow-x-auto">
+            {sections.map((section, i) => {
+              const isRead = readSections.has(`${selectedFilePath}:${i}`);
+              return (
+                <button
+                  key={i}
+                  onClick={() => setActiveIndex(i)}
+                  className={`px-2 py-0.5 text-[9px] rounded border shrink-0 transition-all truncate max-w-[100px] ${
+                    i === activeIndex
+                      ? "border-accent-400 bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium"
+                      : isRead
+                        ? "border-accent-200/50 dark:border-accent-800/50 text-gray-500 dark:text-gray-400 bg-accent-50/30 dark:bg-accent-950/20"
+                        : "border-gray-200/60 dark:border-gray-700/40 text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  {section.title}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

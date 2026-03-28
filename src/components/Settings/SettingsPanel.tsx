@@ -128,19 +128,12 @@ function ThemeItem({
 export function SettingsPanel({ width, onRestartTutorial }: { width?: number; onRestartTutorial?: () => void }) {
   const settings = useAppStore((s) => s.settings);
   const update = useAppStore((s) => s.updateSettings);
-  const close = () => useAppStore.getState().setSettingsOpen(false);
   const t = useTranslation();
 
   return (
     <aside style={{ fontSize: "16px", width: width ?? 256 }} className="shrink-0 border-l border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm overflow-y-auto flex flex-col">
-      <div className="flex items-center justify-between px-4 pt-3 pb-2">
+      <div className="px-4 pt-3 pb-2">
         <span className="text-xs font-semibold text-gray-800 dark:text-gray-100">{t("settings.title")}</span>
-        <button
-          onClick={close}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm leading-none"
-        >
-          &times;
-        </button>
       </div>
 
       <div className="px-4 py-3 space-y-5 flex-1">
@@ -338,7 +331,7 @@ export function SettingsPanel({ width, onRestartTutorial }: { width?: number; on
           {onRestartTutorial ? (
             <Row label={t("settings.tutorial")}>
               <button
-                onClick={() => { onRestartTutorial(); close(); }}
+                onClick={() => { onRestartTutorial(); useAppStore.getState().setSettingsOpen(false); }}
                 className="px-3 py-1 text-[11px] font-medium rounded-lg bg-accent-100 dark:bg-accent-900 hover:bg-accent-200 dark:hover:bg-accent-800 text-accent-700 dark:text-accent-200 transition-colors"
                 data-testid="restart-onboarding"
               >
