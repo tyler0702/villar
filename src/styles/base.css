@@ -29,27 +29,173 @@ html {
 
 /* Print styles for PDF download */
 @media print {
-  header, aside, [data-tabbar], [data-onboarding="nav"],
-  .resize-handle, .shrink-0:has(button) {
+  /* ── Override theme CSS variables to light colors ── */
+  html, :root {
+    --vs-bg: #ffffff !important;
+    --vs-fg: #111111 !important;
+    --vs-sidebar-bg: #ffffff !important;
+    --vs-sidebar-fg: #111111 !important;
+    --vs-editor-bg: #ffffff !important;
+    --vs-editor-fg: #111111 !important;
+    --vs-border: #cccccc !important;
+    --vs-accent: #1a5276 !important;
+    --vs-heading: #000000 !important;
+    --vs-link: #1a5276 !important;
+    --vs-code-bg: #f5f5f5 !important;
+    --vs-code-fg: #333333 !important;
+    --vs-blockquote-border: #999999 !important;
+    --vs-blockquote-fg: #444444 !important;
+    --vs-table-border: #cccccc !important;
+    --vs-table-header-bg: #f0f0f0 !important;
+    --vs-selection: transparent !important;
+  }
+
+  /* ── Force white background + black text everywhere ── */
+  *, *::before, *::after {
+    color: #111 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    border-color: #ccc !important;
+    opacity: 1 !important;
+    zoom: 1 !important;
+    -webkit-print-color-adjust: exact;
+  }
+
+  html, body {
+    background: #fff !important;
+  }
+
+  /* ── Hide all UI chrome ── */
+  header, aside, nav,
+  [data-tabbar],
+  [data-onboarding],
+  [data-onboarding="nav"],
+  .resize-handle,
+  .find-bar,
+  .border-l,
+  .border-r,
+  .update-banner,
+  /* Progress bar row */
+  .h-0\.5,
+  /* PDF button, file meta row */
+  .flex.items-center.gap-2.px-3,
+  /* Bookmark pins */
+  .absolute.top-3.right-3,
+  /* TL;DR cards */
+  .rounded-lg.border.px-4.py-3,
+  /* Read checkmarks, changed badges */
+  .flex.items-center.gap-2.mb-4 > span:first-child,
+  /* Update banner */
+  [class*="update"] {
     display: none !important;
   }
-  /* Show all cards, remove shadows/borders */
+
+  /* ── Unlock all scroll containers ── */
+  body, #root, div {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    position: static !important;
+  }
+
+  /* ── Cards: clean document look ── */
   .vs-card {
     border: none !important;
-    box-shadow: none !important;
-    ring: none !important;
-    opacity: 1 !important;
-    page-break-after: always;
+    padding: 0 0 24px 0 !important;
+    margin-bottom: 0 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
-  .vs-card:last-child {
-    page-break-after: auto;
+
+  /* Card separator line */
+  .vs-card + .vs-card,
+  .mb-5 + .mb-5 {
+    border-top: 1px solid #ddd !important;
+    padding-top: 24px !important;
   }
-  /* Remove focus mode opacity */
-  .reading-root {
-    opacity: 1 !important;
+
+  /* ── Remove width constraints ── */
+  .max-w-2xl, .max-w-4xl, .max-w-none {
+    max-width: 100% !important;
   }
-  /* Full width */
-  main {
-    overflow: visible !important;
+
+  /* ── Typography ── */
+  h2 {
+    font-size: 18pt !important;
+    margin-bottom: 8px !important;
+    color: #000 !important;
+  }
+  h3 {
+    font-size: 14pt !important;
+    color: #222 !important;
+  }
+  p, li, td, th {
+    font-size: 11pt !important;
+    line-height: 1.6 !important;
+  }
+  a {
+    color: #1a5276 !important;
+    text-decoration: underline !important;
+  }
+
+  /* ── Code blocks ── */
+  pre {
+    background: #f5f5f5 !important;
+    border: 1px solid #ddd !important;
+    padding: 12px !important;
+    border-radius: 4px !important;
+    font-size: 9pt !important;
+    line-height: 1.4 !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    page-break-inside: avoid;
+  }
+  code {
+    color: #333 !important;
+    font-size: 9pt !important;
+  }
+  /* Hide copy buttons */
+  [data-copy] {
+    display: none !important;
+  }
+
+  /* ── Tables ── */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 9pt !important;
+    page-break-inside: avoid;
+  }
+  th {
+    background: #f0f0f0 !important;
+    font-weight: 600 !important;
+  }
+  td, th {
+    border: 1px solid #ccc !important;
+    padding: 4px 8px !important;
+  }
+
+  /* ── Images ── */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* ── Blockquotes ── */
+  blockquote {
+    border-left: 3px solid #999 !important;
+    padding-left: 12px !important;
+    color: #444 !important;
+  }
+
+  /* ── Heading anchors: hide # links ── */
+  .heading-anchor {
+    display: none !important;
+  }
+
+  /* ── External link arrows: hide ── */
+  a[href^="http"]::after {
+    content: none !important;
   }
 }

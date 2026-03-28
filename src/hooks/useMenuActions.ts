@@ -42,19 +42,19 @@ export function useMenuActions(onSearch: () => void) {
           break;
         case "prev_card": {
           const idx = useAppStore.getState().tabs[useAppStore.getState().activeTabIndex]?.activeCardIndex ?? 0;
-          if (idx > 0) useAppStore.getState().setActiveCardIndex(idx - 1);
+          if (idx > 0) useAppStore.getState().navigateToCard(idx - 1);
           break;
         }
         case "next_card": {
           const idx = useAppStore.getState().tabs[useAppStore.getState().activeTabIndex]?.activeCardIndex ?? 0;
-          useAppStore.getState().setActiveCardIndex(idx + 1);
+          useAppStore.getState().navigateToCard(idx + 1);
           break;
         }
         case "first_card":
-          useAppStore.getState().setActiveCardIndex(0);
+          useAppStore.getState().navigateToCard(0);
           break;
         case "last_card":
-          useAppStore.getState().setActiveCardIndex(999);
+          useAppStore.getState().navigateToCard(999);
           break;
         case "about_villar":
           useAppStore.getState().setAboutOpen(true);

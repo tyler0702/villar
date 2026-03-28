@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useAppStore } from "../../stores/useAppStore";
 import { Outline } from "./Outline";
 import { FileTree } from "./FileTree";
@@ -20,7 +20,9 @@ export function Sidebar({ sections, style }: SidebarProps) {
   const activeTab = useAppStore((s) => s.tabs[s.activeTabIndex] ?? null);
   const selectedPath = activeTab?.file.path ?? null;
   const activeCardIndex = activeTab?.activeCardIndex ?? 0;
-  const setActiveCardIndex = useAppStore((s) => s.setActiveCardIndex);
+  const setActiveCardIndex = useCallback((index: number) => {
+    useAppStore.getState().navigateToCard(index);
+  }, []);
 
   const docTitle = useMemo(() => extractDocTitle(activeTab?.content ?? null), [activeTab?.content]);
 

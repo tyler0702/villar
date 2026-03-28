@@ -111,7 +111,16 @@ function resolveImagePaths(html: string, basePath: string | null): string {
     }
     // Resolve relative path against the file's directory
     const dir = basePath.substring(0, basePath.lastIndexOf("/"));
-    const fullPath = src.startsWith("/") ? src : `${dir}/${src}`;
+    const raw = src.startsWith("/") ? src : `${dir}/${src}`;
+    // Normalize ./  and ../ segments
+    const parts = raw.split("/");
+    const normalized: string[] = [];
+    for (const p of parts) {
+      if (p === ".") continue;
+      if (p === ".." && normalized.length > 0) { normalized.pop(); continue; }
+      normalized.push(p);
+    }
+    const fullPath = normalized.join("/");
     return `<img src="${convertFileSrc(fullPath)}"`;
   });
 }

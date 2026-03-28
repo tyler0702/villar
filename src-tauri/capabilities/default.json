@@ -17,6 +17,7 @@
     {
       "identifier": "fs:scope",
       "allow": [{ "path": "**" }]
-    }
+    },
+    "core:webview:allow-print"
   ]
 }

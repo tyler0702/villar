@@ -63,18 +63,18 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
       const state = useAppStore.getState();
       const activeTab = state.tabs[state.activeTabIndex];
       const activeCardIndex = activeTab?.activeCardIndex ?? 0;
-      const { setActiveCardIndex, toggleFocusMode } = state;
+      const { navigateToCard, toggleFocusMode } = state;
 
       switch (e.key) {
         case "ArrowLeft":
         case "ArrowUp":
           e.preventDefault();
-          if (activeCardIndex > 0) setActiveCardIndex(activeCardIndex - 1);
+          if (activeCardIndex > 0) navigateToCard(activeCardIndex - 1);
           break;
         case "ArrowRight":
         case "ArrowDown":
           e.preventDefault();
-          if (activeCardIndex < sectionCount - 1) setActiveCardIndex(activeCardIndex + 1);
+          if (activeCardIndex < sectionCount - 1) navigateToCard(activeCardIndex + 1);
           break;
         case " ": {
           e.preventDefault();
@@ -90,11 +90,11 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
           break;
         case "Home":
           e.preventDefault();
-          setActiveCardIndex(0);
+          navigateToCard(0);
           break;
         case "End":
           e.preventDefault();
-          if (sectionCount > 0) setActiveCardIndex(sectionCount - 1);
+          if (sectionCount > 0) navigateToCard(sectionCount - 1);
           break;
       }
     }
