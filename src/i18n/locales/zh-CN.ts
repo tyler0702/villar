@@ -87,4 +87,8 @@ export const zhCN: TranslationDict = {
   // About dialog
   "about.version": "\u7248\u672C",
   "about.desc": "\u4F18\u7F8E\u5730\u9605\u8BFB AI \u751F\u6210\u7684 Markdown\u3002\u514D\u8D39\u3001\u672C\u5730\u8FD0\u884C\u3001\u5F00\u6E90\u3002",
+
+  "filter.all": "全部",
+  "filter.unread": "未读",
+  "action.printPdf": "保存为PDF",
 };

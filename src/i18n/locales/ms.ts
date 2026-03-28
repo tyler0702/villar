@@ -88,4 +88,8 @@ export const ms: TranslationDict = {
   // About dialog
   "about.version": "Versi",
   "about.desc": "Cara yang cantik untuk membaca Markdown yang dijana AI. Percuma, tempatan sahaja, sumber terbuka.",
+
+  "filter.all": "Semua",
+  "filter.unread": "Belum dibaca",
+  "action.printPdf": "Simpan sebagai PDF",
 };

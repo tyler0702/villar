@@ -21,3 +21,45 @@
 .reading-root .prose blockquote {
   line-height: inherit !important;
 }
+
+/* H3 anchor links */
+.heading-anchor-target {
+  position: relative;
+}
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  opacity: 0;
+  text-decoration: none;
+  color: var(--vs-accent, oklch(0.65 0.14 75));
+  font-weight: 400;
+  transition: opacity 0.15s;
+}
+.heading-anchor-target:hover .heading-anchor {
+  opacity: 0.6;
+}
+.heading-anchor:hover {
+  opacity: 1 !important;
+}
+
+/* Code block line numbers */
+.reading-root pre code {
+  counter-reset: line;
+}
+.reading-root pre code .hljs-ln-line,
+.reading-root pre code > span {
+  counter-increment: line;
+}
+.reading-root pre code .hljs-ln-line::before,
+.reading-root pre code > span::before {
+  content: counter(line);
+  display: inline-block;
+  width: 2.5em;
+  margin-right: 1em;
+  padding-right: 0.5em;
+  text-align: right;
+  color: #6b7280;
+  border-right: 1px solid #374151;
+  user-select: none;
+  -webkit-user-select: none;
+}
