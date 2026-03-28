@@ -18,8 +18,10 @@ const SectionCard = memo(function SectionCard({
   fadeOpacity,
   isRead,
   isChanged,
+  isBookmarked,
   readingStyle,
   onClick,
+  onToggleBookmark,
   cardRef,
 }: {
   section: ProcessedSection;
@@ -28,8 +30,10 @@ const SectionCard = memo(function SectionCard({
   fadeOpacity: number;
   isRead: boolean;
   isChanged: boolean;
+  isBookmarked: boolean;
   readingStyle: React.CSSProperties;
   onClick: () => void;
+  onToggleBookmark: () => void;
   cardRef?: React.Ref<HTMLDivElement>;
 }) {
   return (
@@ -40,7 +44,7 @@ const SectionCard = memo(function SectionCard({
         ...readingStyle,
         ...(isFaded ? { opacity: fadeOpacity / 100 } : undefined),
       }}
-      className={`reading-root vs-card rounded-xl border bg-white dark:bg-surface-800 p-6 cursor-pointer transition-all duration-300 ${
+      className={`reading-root vs-card rounded-xl border bg-white dark:bg-surface-800 p-6 cursor-pointer transition-all duration-300 relative group ${
         isChanged
           ? "ring-2 ring-amber-400/60 dark:ring-amber-500/40 border-amber-300 dark:border-amber-600"
           : isActive
@@ -48,6 +52,17 @@ const SectionCard = memo(function SectionCard({
             : "border-gray-200/60 dark:border-gray-700/40 shadow-sm hover:shadow-md"
       } ${!isFaded ? "opacity-100" : ""}`}
     >
+      <button
+        onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
+        className={`absolute top-3 right-3 text-sm transition-opacity ${
+          isBookmarked
+            ? "text-accent-500 opacity-100"
+            : "text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-60 hover:!opacity-100"
+        }`}
+        title={isBookmarked ? "Remove bookmark" : "Bookmark"}
+      >
+        {isBookmarked ? "\u{1F4CC}" : "\u{1F4CC}"}
+      </button>
       <div className="flex items-center gap-2 mb-4">
         {isChanged ? (
           <span className="px-1.5 py-0.5 text-[9px] font-semibold rounded bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 shrink-0 uppercase tracking-wider">Changed</span>
@@ -79,6 +94,14 @@ export function CardView({ sections }: CardViewProps) {
   const activeCardRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const setCardScrollRef = useAppStore((s) => s.setCardScrollRef);
+  const bookmarks = useAppStore((s) => s.bookmarks);
+  const toggleBookmark = useAppStore((s) => s.toggleBookmark);
+
+  useEffect(() => {
+    setCardScrollRef(scrollRef);
+    return () => setCardScrollRef(null);
+  }, [setCardScrollRef]);
 
   // Auto-clear changed indicators after 5 seconds
   useEffect(() => {
@@ -145,7 +168,7 @@ export function CardView({ sections }: CardViewProps) {
           />
         </div>
         <div className="px-3 shrink-0">
-          <FileMeta filePath={selectedFilePath || null} />
+          <FileMeta filePath={selectedFilePath || null} sections={sections} />
         </div>
       </div>
 
@@ -160,8 +183,10 @@ export function CardView({ sections }: CardViewProps) {
                 fadeOpacity={focusOpacity}
                 isRead={readSections.has(`${selectedFilePath}:${i}`)}
                 isChanged={changedSections.includes(i)}
+                isBookmarked={bookmarks.has(`${selectedFilePath}:${i}`)}
                 readingStyle={readingStyle}
                 onClick={() => setActiveIndex(i)}
+                onToggleBookmark={() => toggleBookmark(selectedFilePath, i)}
                 cardRef={i === activeIndex ? activeCardRef : undefined}
               />
             </div>
@@ -195,6 +220,7 @@ export function CardView({ sections }: CardViewProps) {
           <div className="flex items-center gap-1.5 py-1.5 px-4 border-t border-gray-100/60 dark:border-gray-800/60 overflow-x-auto">
             {sections.map((section, i) => {
               const isRead = readSections.has(`${selectedFilePath}:${i}`);
+              const isBm = bookmarks.has(`${selectedFilePath}:${i}`);
               return (
                 <button
                   key={i}
@@ -207,7 +233,7 @@ export function CardView({ sections }: CardViewProps) {
                         : "border-gray-200/60 dark:border-gray-700/40 text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
-                  {section.title}
+                  {isBm ? "\u{1F4CC} " : ""}{section.title}
                 </button>
               );
             })}

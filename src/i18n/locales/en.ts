@@ -52,6 +52,7 @@ export const en: TranslationDict = {
   "shortcut.zoomInOut": "Zoom in/out",
   "shortcut.resetZoom": "Reset zoom",
   "shortcut.newWindow": "New window",
+  "shortcut.scrollPage": "Scroll page",
   "shortcut.settings": "Settings",
 
   // Header
@@ -138,6 +139,9 @@ export const en: TranslationDict = {
   // About dialog
   "about.version": "Version",
   "about.desc": "A beautiful way to read AI-generated Markdown. Free, local-only, open source.",
+
+  // File meta
+  "meta.readTime": "~{min} min read",
 
   // Update banner
   "update.available": "New version available: {version}",

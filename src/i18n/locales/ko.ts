@@ -57,4 +57,6 @@ export const ko: TranslationDict = {
   // About dialog
   "about.version": "\uBC84\uC804",
   "about.desc": "AI\uAC00 \uC0DD\uC131\uD55C Markdown\uC744 \uC544\uB984\uB2F5\uAC8C \uC77D\uB294 \uBC29\uBC95. \uBB34\uB8CC, \uB85C\uCEEC \uC804\uC6A9, \uC624\uD508\uC18C\uC2A4.",
+  "shortcut.scrollPage": "\uD398\uC774\uC9C0 \uC2A4\uD06C\uB864",
+  "meta.readTime": "\uC57D{min}\uBD84 \uC77D\uAE30",
 };

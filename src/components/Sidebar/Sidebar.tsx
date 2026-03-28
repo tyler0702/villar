@@ -45,6 +45,7 @@ export function Sidebar({ sections, style }: SidebarProps) {
         sections={sections}
         activeIndex={activeCardIndex}
         onSelect={setActiveCardIndex}
+        filePath={selectedPath ?? undefined}
       />
     </aside>
   );
