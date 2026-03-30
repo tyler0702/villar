@@ -32,6 +32,7 @@ export const en: TranslationDict = {
   "settings.mermaid.diagram": "Diagram",
   "settings.foldLists": "Fold Lists >",
   "settings.foldCode": "Fold Code >",
+  "settings.speedRead": "Speed Read",
 
   // Color Theme section
   "settings.colorTheme": "Color Theme",

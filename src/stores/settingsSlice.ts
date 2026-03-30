@@ -37,6 +37,7 @@ export interface Settings {
   mermaidDefault: MermaidDefault;
   collapseListThreshold: number;
   collapseCodeThreshold: number;
+  speedRead: boolean;
   restoreSession: boolean;
   sidebarWidth: number;
   settingsWidth: number;
@@ -56,6 +57,7 @@ export const DEFAULT_SETTINGS: Settings = {
   mermaidDefault: "step",
   collapseListThreshold: 5,
   collapseCodeThreshold: 20,
+  speedRead: false,
   restoreSession: true,
   sidebarWidth: 224,
   settingsWidth: 256,

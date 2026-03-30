@@ -26,6 +26,7 @@ export const vi: TranslationDict = {
   "settings.mermaid.diagram": "S\u01A1 \u0111\u1ED3",
   "settings.foldLists": "G\u1EAFp danh s\u00E1ch >",
   "settings.foldCode": "G\u1EAFp m\u00E3 >",
+  "settings.speedRead": "Đọc nhanh",
   "settings.colorTheme": "Ch\u1EE7 \u0111\u1EC1 m\u00E0u",
   "settings.theme.active": "\u0110ang d\u00F9ng",
   "settings.general": "Chung",

@@ -330,6 +330,9 @@ export function SettingsPanel({ width, onRestartTutorial }: { width?: number; on
               <span className="text-[10px] text-gray-400 w-5 text-right tabular-nums">{settings.collapseCodeThreshold}</span>
             </div>
           </Row>
+          <Row label={t("settings.speedRead")}>
+            <Toggle value={settings.speedRead} onChange={(v) => update({ speedRead: v })} />
+          </Row>
         </Section>
 
         <Section title={t("settings.colorTheme")}>

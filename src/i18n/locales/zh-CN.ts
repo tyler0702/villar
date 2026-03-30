@@ -26,6 +26,7 @@ export const zhCN: TranslationDict = {
   "settings.mermaid.diagram": "\u56FE\u8868",
   "settings.foldLists": "\u6298\u53E0\u5217\u8868 >",
   "settings.foldCode": "\u6298\u53E0\u4EE3\u7801 >",
+  "settings.speedRead": "快速阅读",
   "settings.colorTheme": "\u989C\u8272\u4E3B\u9898",
   "settings.theme.active": "\u4F7F\u7528\u4E2D",
   "settings.general": "\u901A\u7528",

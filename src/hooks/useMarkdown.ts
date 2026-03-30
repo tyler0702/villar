@@ -125,7 +125,71 @@ function resolveImagePaths(html: string, basePath: string | null): string {
   });
 }
 
-export function useMarkdown(content: string | null, collapseConfig?: CollapseConfig, filePath?: string | null): ProcessedSection[] {
+// --- Speed Read (Bionic Reading style) ---
+
+const CJK_REGEX = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\u3400-\u4DBF]/g;
+const SKIP_TAGS = /^(code|pre|a|h[1-6]|button|script|style)$/i;
+
+function isCjkDominant(text: string): boolean {
+  const sample = text.slice(0, 200);
+  const matches = sample.match(CJK_REGEX);
+  return matches ? matches.length / sample.length >= 0.1 : false;
+}
+
+function boldPrefix(word: string): string {
+  const len = Math.max(1, Math.ceil(word.length * 0.4));
+  return `<b class="sr">${word.slice(0, len)}</b>${word.slice(len)}`;
+}
+
+function applySpeedRead(html: string): string {
+  // Extract plain text to check CJK ratio
+  const plainText = html.replace(/<[^>]+>/g, "");
+  if (isCjkDominant(plainText)) return html;
+
+  // Process text outside of HTML tags, skipping certain tag contents
+  let result = "";
+  let i = 0;
+  const skipStack: string[] = [];
+
+  while (i < html.length) {
+    if (html[i] === "<") {
+      const tagEnd = html.indexOf(">", i);
+      if (tagEnd === -1) { result += html.slice(i); break; }
+      const tag = html.slice(i, tagEnd + 1);
+      result += tag;
+
+      // Check opening/closing/self-closing
+      const openMatch = tag.match(/^<(\w+)/);
+      const closeMatch = tag.match(/^<\/(\w+)/);
+      if (closeMatch && skipStack.length > 0 && skipStack[skipStack.length - 1] === closeMatch[1].toLowerCase()) {
+        skipStack.pop();
+      } else if (openMatch && !tag.endsWith("/>") && SKIP_TAGS.test(openMatch[1])) {
+        skipStack.push(openMatch[1].toLowerCase());
+      }
+      i = tagEnd + 1;
+    } else {
+      // Text node
+      let textEnd = html.indexOf("<", i);
+      if (textEnd === -1) textEnd = html.length;
+      const text = html.slice(i, textEnd);
+
+      if (skipStack.length > 0) {
+        result += text;
+      } else {
+        result += text.replace(/\S+/g, (word) => {
+          // Skip if word contains HTML entities or is too short
+          if (word.length <= 1 || word.startsWith("&")) return word;
+          return boldPrefix(word);
+        });
+      }
+      i = textEnd;
+    }
+  }
+
+  return result;
+}
+
+export function useMarkdown(content: string | null, collapseConfig?: CollapseConfig, filePath?: string | null, speedRead?: boolean): ProcessedSection[] {
   return useMemo(() => {
     if (!content) return [];
 
@@ -145,9 +209,11 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
       logTldrResult(section.title, tldr !== null);
       const rendered = renderChildren(cleaned);
       const { html: collapsedHtml, collapsed } = collapseHtml(rendered, collapseConfig);
+      let finalHtml = addHeadingAnchors(resolveImagePaths(addTableWrapToHtml(addCopyButtonsToHtml(collapsedHtml)), filePath ?? null));
+      if (speedRead) finalHtml = applySpeedRead(finalHtml);
       return {
         title: section.title,
-        html: addHeadingAnchors(resolveImagePaths(addTableWrapToHtml(addCopyButtonsToHtml(collapsedHtml)), filePath ?? null)),
+        html: finalHtml,
         tldr,
         mermaidCodes,
         subHeadings: extractSubHeadings(section.children),
@@ -159,7 +225,7 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
     logRenderTime(Math.round(elapsed), content.length);
 
     return result;
-  }, [content, collapseConfig?.listThreshold, collapseConfig?.codeThreshold, filePath]);
+  }, [content, collapseConfig?.listThreshold, collapseConfig?.codeThreshold, filePath, speedRead]);
 }
 
 export { MERMAID_PLACEHOLDER, COLLAPSE_MARKER };

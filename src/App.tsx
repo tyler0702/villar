@@ -42,7 +42,8 @@ function App() {
   const settingsWidth = useAppStore((s) => s.settings.settingsWidth);
   const collapseList = useAppStore((s) => s.settings.collapseListThreshold);
   const collapseCode = useAppStore((s) => s.settings.collapseCodeThreshold);
-  const sections = useMarkdown(activeTab?.content ?? null, { listThreshold: collapseList, codeThreshold: collapseCode }, activeTab?.file.path ?? null);
+  const speedRead = useAppStore((s) => s.settings.speedRead);
+  const sections = useMarkdown(activeTab?.content ?? null, { listThreshold: collapseList, codeThreshold: collapseCode }, activeTab?.file.path ?? null, speedRead);
 
   useKeyboard(sections.length, () => setSearchOpen(true));
   useFileWatcher();

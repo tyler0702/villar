@@ -26,6 +26,7 @@ export const zhTW: TranslationDict = {
   "settings.mermaid.diagram": "\u5716\u8868",
   "settings.foldLists": "\u6298\u758A\u6E05\u55AE >",
   "settings.foldCode": "\u6298\u758A\u7A0B\u5F0F\u78BC >",
+  "settings.speedRead": "快速閱讀",
   "settings.colorTheme": "\u8272\u5F69\u4E3B\u984C",
   "settings.theme.active": "\u4F7F\u7528\u4E2D",
   "settings.general": "\u4E00\u822C",

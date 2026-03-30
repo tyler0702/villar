@@ -26,6 +26,7 @@ export const ja: TranslationDict = {
   "settings.mermaid.diagram": "\u56F3",
   "settings.foldLists": "\u30EA\u30B9\u30C8\u6298\u308A >",
   "settings.foldCode": "\u30B3\u30FC\u30C9\u6298\u308A >",
+  "settings.speedRead": "\u30B9\u30D4\u30FC\u30C9\u30EA\u30FC\u30C9",
   "settings.colorTheme": "\u30AB\u30E9\u30FC\u30C6\u30FC\u30DE",
   "settings.theme.active": "\u9069\u7528\u4E2D",
   "settings.general": "\u4E00\u822C",

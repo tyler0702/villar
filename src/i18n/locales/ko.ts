@@ -11,6 +11,7 @@ export const ko: TranslationDict = {
   "settings.letterSpacing": "자간",
   "settings.paragraphSpacing": "단락 간격",
   "settings.reading": "\uC77D\uAE30",
+  "settings.speedRead": "빠른 읽기",
   "settings.colorTheme": "\uC0C9\uC0C1 \uD14C\uB9C8",
   "settings.general": "\uC77C\uBC18",
   "settings.shortcuts": "\uB2E8\uCD95\uD0A4",

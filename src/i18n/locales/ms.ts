@@ -27,6 +27,7 @@ export const ms: TranslationDict = {
   "settings.mermaid.diagram": "Rajah",
   "settings.foldLists": "Lipat Senarai >",
   "settings.foldCode": "Lipat Kod >",
+  "settings.speedRead": "Baca pantas",
   "settings.colorTheme": "Tema Warna",
   "settings.theme.active": "Aktif",
   "settings.general": "Umum",
