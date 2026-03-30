@@ -147,7 +147,8 @@ export const en: TranslationDict = {
 
   // Update banner
   "update.available": "New version available: {version}",
-  "update.download": "Download",
+  "update.download": "Update",
+  "update.updating": "Updating...",
   "update.later": "Later",
   "update.skip": "Skip this version",
 

@@ -408,6 +408,7 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .invoke_handler(tauri::generate_handler![list_md_files, read_file, get_file_meta, watch_folder, search_files, write_log, update_menu])
         .setup(|app| {
             let labels = std::collections::HashMap::new(); // Default English

@@ -117,7 +117,8 @@ export const ja: TranslationDict = {
 
   // Update banner
   "update.available": "\u65B0\u30D0\u30FC\u30B8\u30E7\u30F3\u304C\u5229\u7528\u53EF\u80FD: {version}",
-  "update.download": "\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9",
+  "update.download": "\u30A2\u30C3\u30D7\u30C7\u30FC\u30C8",
+  "update.updating": "\u66F4\u65B0\u4E2D...",
   "update.later": "\u5F8C\u3067",
   "update.skip": "\u3053\u306E\u30D0\u30FC\u30B8\u30E7\u30F3\u3092\u30B9\u30AD\u30C3\u30D7",
 
