@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.3.0] - 2026-03-30
+
+### Added
+- **Speed Read** — Bold word prefixes for faster scanning (Bionic Reading style, OFF by default)
+- **Reading Ruler** — Highlight bar follows cursor to guide reading (OFF by default)
+- **Auto-update** — In-app download, install, and relaunch
+- **Crash reporting** — Error Boundary + global error logger
+- **8 new E2E tests** (69 total)
+- **GitHub Issues templates** (bug report + feature request)
+- **Homebrew Cask** — `brew tap tyler0702/tap && brew install --cask villar`
+- **CHANGELOG.md** for all releases
+
+### Changed
+- Default paragraph spacing increased from 100% to 150% (WCAG recommendation)
+- 14 theme color contrast ratios fixed to meet WCAG AA
+- CI now includes Tauri debug build to catch plugin config errors
+
+### Fixed
+- Updater plugin crash on launch (missing tauri.conf.json config)
+
 ## [0.2.0] - 2026-03-28
 
 ### Added

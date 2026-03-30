@@ -13,8 +13,8 @@ export function ReadingRuler() {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(() => {
         const rect = container!.getBoundingClientRect();
-        const relY = e.clientY - rect.top;
-        if (relY >= 0 && relY <= rect.height) {
+        const relY = e.clientY - rect.top + container!.scrollTop;
+        if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
           setY(relY);
         } else {
           setY(null);
@@ -38,40 +38,21 @@ export function ReadingRuler() {
 
   if (y === null) return <div ref={containerRef} className="reading-ruler" />;
 
-  // Line height ~1.6em ≈ 25.6px at 16px base
   const lineH = 26;
   const top = y - lineH / 2;
 
   return (
     <div ref={containerRef} className="reading-ruler">
-      {/* Dim above */}
+      {/* Highlight bar — contained within scroll area */}
       <div
-        className="pointer-events-none fixed left-0 right-0"
-        style={{
-          top: 0,
-          height: `${Math.max(0, top)}px`,
-          background: "rgba(0,0,0,0.04)",
-          zIndex: 15,
-        }}
-      />
-      {/* Highlight bar */}
-      <div
-        className="pointer-events-none fixed left-0 right-0"
+        className="pointer-events-none absolute left-0 right-0"
         style={{
           top: `${top}px`,
           height: `${lineH}px`,
           background: "var(--vs-accent, oklch(0.65 0.14 75))",
-          opacity: 0.1,
+          opacity: 0.12,
           zIndex: 15,
-        }}
-      />
-      {/* Dim below */}
-      <div
-        className="pointer-events-none fixed left-0 right-0 bottom-0"
-        style={{
-          top: `${top + lineH}px`,
-          background: "rgba(0,0,0,0.04)",
-          zIndex: 15,
+          borderRadius: "2px",
         }}
       />
     </div>
