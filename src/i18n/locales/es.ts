@@ -17,6 +17,7 @@ export const es: TranslationDict = {
   "settings.letterSpacing": "Espaciado de letras",
   "settings.paragraphSpacing": "Espaciado de párrafo",
   "settings.reading": "Lectura",
+  "settings.readingRuler": "Regla de lectura",
   "settings.focusOpacity": "Opacidad enfoque",
   "settings.tldr": "TL;DR",
   "settings.tldr.open": "Abierto",

@@ -268,6 +268,9 @@ export function SettingsPanel({ width, onRestartTutorial }: { width?: number; on
               <span className="text-[10px] text-gray-400 w-8 text-right tabular-nums">{settings.paragraphSpacing}%</span>
             </div>
           </Row>
+          <Row label={t("settings.readingRuler")}>
+            <Toggle value={settings.readingRuler} onChange={(v) => update({ readingRuler: v })} />
+          </Row>
           <Row label={t("settings.focusOpacity")}>
             <div className="flex items-center gap-1.5">
               <input

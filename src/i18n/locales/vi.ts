@@ -17,6 +17,7 @@ export const vi: TranslationDict = {
   "settings.letterSpacing": "Khoảng cách chữ",
   "settings.paragraphSpacing": "Khoảng cách đoạn",
   "settings.reading": "\u0110\u1ECDc",
+  "settings.readingRuler": "Thước đọc",
   "settings.focusOpacity": "\u0110\u1ED9 m\u1EDD t\u1EADp trung",
   "settings.tldr": "TL;DR",
   "settings.tldr.open": "M\u1EDF",
