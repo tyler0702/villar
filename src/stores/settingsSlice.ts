@@ -48,7 +48,7 @@ export const DEFAULT_SETTINGS: Settings = {
   fontFamily: "system",
   fontScale: 100,
   lineHeight: 165,
-  paragraphSpacing: 100,
+  paragraphSpacing: 150,
   letterSpacing: 0,
   contentWidth: "medium",
   focusOpacity: 30,
