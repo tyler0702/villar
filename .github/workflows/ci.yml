@@ -51,7 +51,18 @@ jobs:
           key: node-modules-${{ hashFiles('package-lock.json') }}
           restore-keys: node-modules-
 
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
       - run: npm ci
 
-      - name: Build frontend
-        run: npx vite build
+      - name: Build Tauri app (debug)
+        run: npx tauri build --debug
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
