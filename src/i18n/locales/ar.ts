@@ -12,6 +12,7 @@ export const ar: TranslationDict = {
   "settings.paragraphSpacing": "تباعد الفقرات",
   "settings.reading": "\u0627\u0644\u0642\u0631\u0627\u0621\u0629",
   "settings.speedRead": "القراءة السريعة",
+  "settings.readingRuler": "مسطرة القراءة",
   "settings.colorTheme": "\u0633\u0645\u0629 \u0627\u0644\u0623\u0644\u0648\u0627\u0646",
   "settings.general": "\u0639\u0627\u0645",
   "settings.shortcuts": "\u0627\u062E\u062A\u0635\u0627\u0631\u0627\u062A",

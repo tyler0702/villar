@@ -38,6 +38,7 @@ export interface Settings {
   collapseListThreshold: number;
   collapseCodeThreshold: number;
   speedRead: boolean;
+  readingRuler: boolean;
   restoreSession: boolean;
   sidebarWidth: number;
   settingsWidth: number;
@@ -58,6 +59,7 @@ export const DEFAULT_SETTINGS: Settings = {
   collapseListThreshold: 5,
   collapseCodeThreshold: 20,
   speedRead: false,
+  readingRuler: false,
   restoreSession: true,
   sidebarWidth: 224,
   settingsWidth: 256,

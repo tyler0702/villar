@@ -194,6 +194,11 @@ html {
     display: none !important;
   }
 
+  /* ── Reading ruler: hide ── */
+  .reading-ruler, .reading-ruler * {
+    display: none !important;
+  }
+
   /* ── External link arrows: hide ── */
   a[href^="http"]::after {
     content: none !important;

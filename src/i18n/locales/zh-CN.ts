@@ -17,6 +17,7 @@ export const zhCN: TranslationDict = {
   "settings.letterSpacing": "字间距",
   "settings.paragraphSpacing": "段落间距",
   "settings.reading": "\u9605\u8BFB",
+  "settings.readingRuler": "阅读标尺",
   "settings.focusOpacity": "\u4E13\u6CE8\u900F\u660E\u5EA6",
   "settings.tldr": "TL;DR",
   "settings.tldr.open": "\u5C55\u5F00",

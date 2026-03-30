@@ -17,6 +17,7 @@ export const ja: TranslationDict = {
   "settings.letterSpacing": "\u5B57\u9593",
   "settings.paragraphSpacing": "\u6BB5\u843D\u9593\u9694",
   "settings.reading": "\u8AAD\u307F\u53D6\u308A",
+  "settings.readingRuler": "\u30EA\u30FC\u30C7\u30A3\u30F3\u30B0\u30EB\u30FC\u30E9\u30FC",
   "settings.focusOpacity": "\u30D5\u30A9\u30FC\u30AB\u30B9\u900F\u660E\u5EA6",
   "settings.tldr": "TL;DR",
   "settings.tldr.open": "\u958B\u304F",
