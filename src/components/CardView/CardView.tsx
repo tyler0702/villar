@@ -41,7 +41,7 @@ const SectionCard = memo(function SectionCard({
   return (
     <div
       ref={cardRef}
-      onClick={onClick}
+      onClick={() => { if (!window.getSelection()?.toString()) onClick(); }}
       style={{
         ...readingStyle,
         ...(isFaded ? { opacity: fadeOpacity / 100 } : undefined),
