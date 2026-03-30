@@ -4,6 +4,61 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.0] - 2026-03-28
+
+### Added
+- **Paragraph spacing** control (settings slider, 100-300%)
+- **Letter spacing** control (settings slider, -50 to 200)
+- **Space/Shift+Space** page scroll within cards
+- **Image click to zoom** with modal preview
+- **H3 heading anchors** (hover to reveal # link)
+- **Reading time estimate** per document (CJK/EN auto-detected)
+- **Card position restore** on file reopen
+- **Table horizontal scroll** with sticky headers
+- **Link hover tooltips** showing domain for external links
+- **Code block line numbers** (CSS counter-based, copy-safe)
+- **Bookmarks** — pin cards with persistent localStorage storage
+- **PDF export** via print dialog with clean white output
+- **About villar dialog** with version info and links
+- **Help menu** (About, Website, GitHub Repository)
+- **macOS code signing + notarization** — no more "app is damaged"
+- **Auto-update** — in-app download, install, and relaunch
+- **Crash reporting** — Error Boundary + global error logger
+- **Google Tag Manager** on landing page
+- **Dynamic download links** — OS-detected direct downloads
+- **GitHub Issues templates** (bug report + feature request)
+- **8 new E2E tests** (69 total)
+
+### Changed
+- Settings panel toggles with gear button (removed X close button)
+- Onboarding spotlight fixes (card + nav positioning)
+- Smart card scroll (click vs navigation distinction)
+- Markdown links open in external browser
+- Landing page: macOS unsigned workaround note added
+
+### Fixed
+- Japanese SegmentControl buttons overflowing vertically
+- Prev/Outline/Thumbnail navigation not scrolling to target card
+- Print CSS: dark theme colors leaking into PDF output
+- Asset protocol for local image display in markdown
+
+## [0.1.2] - 2026-03-27
+
+### Added
+- Onboarding tutorial (7 steps with spotlight overlay)
+- Update notification banner (GitHub release check)
+- Onboarding + update banner E2E tests
+
+## [0.1.1] - 2026-03-26
+
+### Added
+- Overlay title bar with drag support
+- Custom menu bar with i18n support
+- New window support (Cmd+Shift+N)
+- H3 sub-heading outline in sidebar
+- Code copy button embedded in HTML
+- Image path resolution for local files
+
 ## [0.1.0] - 2026-03-27
 
 ### Added

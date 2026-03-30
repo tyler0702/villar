@@ -77,7 +77,7 @@ All three checks must pass before a PR can be merged:
 # Unit tests (vitest) — 96 tests
 npm test
 
-# E2E tests (Playwright) — 51 tests
+# E2E tests (Playwright) — 69 tests
 # Requires dev server running or will auto-start
 npm run test:e2e
 
