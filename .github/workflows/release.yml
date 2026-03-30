@@ -76,3 +76,67 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
+
+  update-homebrew:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for release assets
+        run: sleep 30
+
+      - name: Update Homebrew Cask
+        env:
+          TAP_TOKEN: ${{ secrets.TAP_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+
+          # Download DMGs and compute SHA256
+          ARM_URL="https://github.com/tyler0702/villar/releases/download/${TAG}/villar_${VERSION}_aarch64.dmg"
+          X64_URL="https://github.com/tyler0702/villar/releases/download/${TAG}/villar_${VERSION}_x64.dmg"
+
+          ARM_SHA=$(curl -sL "$ARM_URL" | sha256sum | cut -d' ' -f1)
+          X64_SHA=$(curl -sL "$X64_URL" | sha256sum | cut -d' ' -f1)
+
+          # Clone homebrew-tap
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/tyler0702/homebrew-tap.git"
+          cd homebrew-tap
+
+          # Write updated cask
+          cat > Casks/villar.rb << CASK
+          cask "villar" do
+            version "${VERSION}"
+
+            on_arm do
+              url "https://github.com/tyler0702/villar/releases/download/v#{version}/villar_#{version}_aarch64.dmg"
+              sha256 "${ARM_SHA}"
+            end
+
+            on_intel do
+              url "https://github.com/tyler0702/villar/releases/download/v#{version}/villar_#{version}_x64.dmg"
+              sha256 "${X64_SHA}"
+            end
+
+            name "villar"
+            desc "A beautiful Markdown reader for AI-generated documents"
+            homepage "https://tyler0702.github.io/villar/"
+
+            app "villar.app"
+
+            zap trash: [
+              "~/Library/Application Support/com.tylerpc.villar",
+              "~/Library/Caches/com.tylerpc.villar",
+              "~/Library/Preferences/com.tylerpc.villar.plist",
+              "~/Library/Saved Application State/com.tylerpc.villar.savedState",
+            ]
+          end
+          CASK
+
+          # Fix indentation (remove leading spaces from heredoc)
+          sed -i 's/^          //' Casks/villar.rb
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/villar.rb
+          git commit -m "Update villar to ${VERSION}"
+          git push
