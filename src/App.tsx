@@ -7,6 +7,7 @@ import { TabBar } from "./components/TabBar/TabBar";
 import { FindBar } from "./components/FindBar/FindBar";
 import { SearchPanel } from "./components/Search/SearchPanel";
 import { SettingsPanel } from "./components/Settings/SettingsPanel";
+import { ReadingRuler } from "./components/CardView/ReadingRuler";
 import { useAppStore, useActiveTab } from "./stores/useAppStore";
 import { useMarkdown } from "./hooks/useMarkdown";
 import { useTheme } from "./hooks/useTheme";
@@ -36,6 +37,7 @@ function App() {
   const activeTab = useActiveTab();
   const settingsOpen = useAppStore((s) => s.settingsOpen);
   const aboutOpen = useAppStore((s) => s.aboutOpen);
+  const readingRuler = useAppStore((s) => s.settings.readingRuler);
   const findOpen = useAppStore((s) => s.findOpen);
   const fontScale = useAppStore((s) => s.settings.fontScale);
   const sidebarWidth = useAppStore((s) => s.settings.sidebarWidth);
@@ -59,6 +61,7 @@ function App() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar sections={sections} style={{ ...zoomStyle, width: sidebarWidth }} />
         <div className="resize-handle" onMouseDown={sidebarResize} />
+        <div className="flex-1 flex flex-col overflow-hidden" data-ruler-bounds>
         <div className="flex-1 flex flex-col overflow-hidden vs-canvas" style={zoomStyle}>
           <TabBar />
           {findOpen ? <FindBar /> : null}
@@ -79,10 +82,12 @@ function App() {
             )}
           </main>
         </div>
+        </div>
         {settingsOpen ? (<><div className="resize-handle" onMouseDown={settingsResize} /><SettingsPanel width={settingsWidth} onRestartTutorial={onboarding.restart} /></>) : null}
       </div>
       {searchOpen ? <SearchPanel onClose={() => setSearchOpen(false)} /> : null}
       {aboutOpen ? <AboutDialog /> : null}
+      {readingRuler ? <ReadingRuler /> : null}
       <ImagePreview />
       {onboarding.visible ? (
         <OnboardingOverlay

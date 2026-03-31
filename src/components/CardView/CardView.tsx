@@ -4,7 +4,6 @@ import { useAppStore } from "../../stores/useAppStore";
 import { TldrCard } from "./TldrCard";
 import { SectionContent } from "./SectionContent";
 import { FileMeta } from "./FileMeta";
-import { ReadingRuler } from "./ReadingRuler";
 import { useTranslation } from "../../i18n/useTranslation";
 
 interface CardViewProps {
@@ -102,8 +101,6 @@ export function CardView({ sections }: CardViewProps) {
   const setCardScrollRef = useAppStore((s) => s.setCardScrollRef);
   const bookmarks = useAppStore((s) => s.bookmarks);
   const toggleBookmark = useAppStore((s) => s.toggleBookmark);
-  const readingRuler = useAppStore((s) => s.settings.readingRuler);
-
   useEffect(() => {
     setCardScrollRef(scrollRef);
     return () => setCardScrollRef(null);
@@ -204,7 +201,6 @@ export function CardView({ sections }: CardViewProps) {
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-8 py-6 overflow-x-hidden relative">
-        {readingRuler ? <ReadingRuler /> : null}
         <div className={`mx-auto ${WIDTH_MAP[contentWidth]}`}>
           {sections.map((section, i) => (
             <div key={i} className="mb-5" {...(i === 0 ? { "data-onboarding": "card" } : undefined)}>
