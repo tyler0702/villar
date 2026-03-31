@@ -56,6 +56,24 @@ export function useMenuActions(onSearch: () => void) {
         case "last_card":
           useAppStore.getState().navigateToCard(999);
           break;
+        case "check_update":
+          (async () => {
+            try {
+              const { check } = await import("@tauri-apps/plugin-updater");
+              const update = await check();
+              if (update) {
+                await update.downloadAndInstall();
+                const { relaunch } = await import("@tauri-apps/plugin-process");
+                await relaunch();
+              } else {
+                const { message } = await import("@tauri-apps/plugin-dialog");
+                await message("You are running the latest version.", { title: "villar", kind: "info" });
+              }
+            } catch {
+              import("@tauri-apps/plugin-opener").then(m => m.openUrl("https://github.com/tyler0702/villar/releases/latest"));
+            }
+          })();
+          break;
         case "about_villar":
           useAppStore.getState().setAboutOpen(true);
           break;

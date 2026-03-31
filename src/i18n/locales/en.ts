@@ -135,6 +135,7 @@ export const en: TranslationDict = {
   "menu.lastCard": "Last Card",
   "menu.window": "Window",
   "menu.help": "Help",
+  "menu.checkUpdate": "Check for Updates...",
   "menu.about": "About villar",
   "menu.aboutDesc": "A beautiful Markdown reader",
   "menu.website": "villar Website",

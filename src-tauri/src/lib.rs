@@ -377,6 +377,8 @@ fn build_menu_with_labels(app: &AppHandle, l: &std::collections::HashMap<String,
         .build()?;
 
     let help_menu = SubmenuBuilder::new(app, g("menu.help", "Help"))
+        .item(&MenuItemBuilder::with_id("check_update", g("menu.checkUpdate", "Check for Updates...")).build(app)?)
+        .separator()
         .item(&MenuItemBuilder::with_id("about_villar", g("menu.about", "About villar")).build(app)?)
         .separator()
         .item(&MenuItemBuilder::with_id("open_website", g("menu.website", "villar Website")).build(app)?)

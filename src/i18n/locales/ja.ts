@@ -108,6 +108,7 @@ export const ja: TranslationDict = {
   "menu.lastCard": "\u6700\u5F8C\u306E\u30AB\u30FC\u30C9",
   "menu.window": "\u30A6\u30A3\u30F3\u30C9\u30A6",
   "menu.help": "\u30D8\u30EB\u30D7",
+  "menu.checkUpdate": "\u30A2\u30C3\u30D7\u30C7\u30FC\u30C8\u3092\u78BA\u8A8D...",
   "menu.about": "villar\u306B\u3064\u3044\u3066",
   "menu.aboutDesc": "\u7F8E\u3057\u3044Markdown\u30EA\u30FC\u30C0\u30FC",
   "menu.website": "villar\u516C\u5F0F\u30B5\u30A4\u30C8",
