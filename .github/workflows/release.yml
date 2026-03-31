@@ -75,6 +75,7 @@ jobs:
             **Linux**: Download `.deb` or `.AppImage`
           releaseDraft: false
           prerelease: false
+          includeUpdaterJson: true
           args: ${{ matrix.args }}
 
   update-homebrew:
