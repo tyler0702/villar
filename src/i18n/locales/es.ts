@@ -85,6 +85,7 @@ export const es: TranslationDict = {
   "menu.lastCard": "\u00DAltima tarjeta",
   "menu.window": "Ventana",
   "menu.help": "Ayuda",
+  "menu.checkUpdate": "Buscar actualizaciones...",
   "menu.about": "Acerca de villar",
   "menu.aboutDesc": "Un hermoso lector de Markdown",
   "menu.website": "Sitio web de villar",

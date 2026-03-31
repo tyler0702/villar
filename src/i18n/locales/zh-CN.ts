@@ -85,6 +85,7 @@ export const zhCN: TranslationDict = {
   "menu.lastCard": "\u6700\u540E\u4E00\u5F20\u5361\u7247",
   "menu.window": "\u7A97\u53E3",
   "menu.help": "\u5E2E\u52A9",
+  "menu.checkUpdate": "检查更新...",
   "menu.about": "\u5173\u4E8E villar",
   "menu.aboutDesc": "\u4F18\u7F8E\u7684 Markdown \u9605\u8BFB\u5668",
   "menu.website": "villar \u5B98\u65B9\u7F51\u7AD9",

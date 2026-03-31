@@ -86,6 +86,7 @@ export const ms: TranslationDict = {
   "menu.lastCard": "Kad Terakhir",
   "menu.window": "Tetingkap",
   "menu.help": "Bantuan",
+  "menu.checkUpdate": "Semak kemas kini...",
   "menu.about": "Tentang villar",
   "menu.aboutDesc": "Pembaca Markdown yang cantik",
   "menu.website": "Laman Web villar",

@@ -85,6 +85,7 @@ export const de: TranslationDict = {
   "menu.lastCard": "Letzte Karte",
   "menu.window": "Fenster",
   "menu.help": "Hilfe",
+  "menu.checkUpdate": "Nach Updates suchen...",
   "menu.about": "\u00DCber villar",
   "menu.aboutDesc": "Ein sch\u00F6ner Markdown-Reader",
   "menu.website": "villar Webseite",

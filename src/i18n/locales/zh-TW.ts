@@ -85,6 +85,7 @@ export const zhTW: TranslationDict = {
   "menu.lastCard": "\u6700\u5F8C\u4E00\u5F35\u5361\u7247",
   "menu.window": "\u8996\u7A97",
   "menu.help": "\u8F14\u52A9\u8AAA\u660E",
+  "menu.checkUpdate": "檢查更新...",
   "menu.about": "\u95DC\u65BC villar",
   "menu.aboutDesc": "\u512A\u7F8E\u7684 Markdown \u95B1\u8B80\u5668",
   "menu.website": "villar \u5B98\u65B9\u7DB2\u7AD9",

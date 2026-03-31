@@ -85,6 +85,7 @@ export const vi: TranslationDict = {
   "menu.lastCard": "Th\u1EBB cu\u1ED1i c\u00F9ng",
   "menu.window": "C\u1EEDa s\u1ED5",
   "menu.help": "Tr\u1EE3 gi\u00FAp",
+  "menu.checkUpdate": "Kiểm tra cập nhật...",
   "menu.about": "V\u1EC1 villar",
   "menu.aboutDesc": "Tr\u00ECnh \u0111\u1ECDc Markdown \u0111\u1EB9p",
   "menu.website": "Trang web villar",

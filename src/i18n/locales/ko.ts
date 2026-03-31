@@ -53,6 +53,7 @@ export const ko: TranslationDict = {
   "menu.lastCard": "\uB9C8\uC9C0\uB9C9 \uCE74\uB4DC",
   "menu.window": "\uC708\uB3C4\uC6B0",
   "menu.help": "\uB3C4\uC6C0\uB9D0",
+  "menu.checkUpdate": "업데이트 확인...",
   "menu.about": "villar \uC815\uBCF4",
   "menu.aboutDesc": "\uC544\uB984\uB2E4\uC6B4 Markdown \uB9AC\uB354",
   "menu.website": "villar \uC6F9\uC0AC\uC774\uD2B8",

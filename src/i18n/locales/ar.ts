@@ -53,6 +53,7 @@ export const ar: TranslationDict = {
   "menu.lastCard": "\u0627\u0644\u0628\u0637\u0627\u0642\u0629 \u0627\u0644\u0623\u062E\u064A\u0631\u0629",
   "menu.window": "\u0646\u0627\u0641\u0630\u0629",
   "menu.help": "\u0645\u0633\u0627\u0639\u062F\u0629",
+  "menu.checkUpdate": "التحقق من التحديثات...",
   "menu.about": "\u062D\u0648\u0644 villar",
   "menu.aboutDesc": "\u0642\u0627\u0631\u0626 Markdown \u062C\u0645\u064A\u0644",
   "menu.website": "\u0645\u0648\u0642\u0639 villar",
