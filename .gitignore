@@ -47,7 +47,6 @@ skills-lock.json
 
 # Local docs (not for public repo)
 docs/
-CLAUDE.md
 SPEC-V2.md
 
 # Environment / secrets
