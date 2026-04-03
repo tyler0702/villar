@@ -2,7 +2,7 @@ name: Daily Download Stats
 
 on:
   schedule:
-    - cron: "23 0 * * *"  # Daily at 00:23 UTC (09:23 JST)
+    - cron: "3 0 * * *"  # Daily at 00:03 UTC (09:03 JST)
   workflow_dispatch: # Manual trigger
 
 permissions:
