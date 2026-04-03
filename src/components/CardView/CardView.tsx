@@ -98,7 +98,8 @@ export function CardView({ sections }: CardViewProps) {
   const activeCardRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [rawMode, setRawMode] = useState(false);
+  const rawMode = useAppStore((s) => s.rawMode);
+  const setRawMode = useAppStore((s) => s.setRawMode);
   const rawScrollRef = useRef<HTMLDivElement>(null);
   const t = useTranslation();
   const setCardScrollRef = useAppStore((s) => s.setCardScrollRef);
@@ -200,7 +201,7 @@ export function CardView({ sections }: CardViewProps) {
             PDF
           </button>
           <button
-            onClick={() => setRawMode((v) => !v)}
+            onClick={() => setRawMode(!rawMode)}
             className={`px-1.5 py-0.5 text-[10px] transition-colors rounded ${
               rawMode
                 ? "bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium"
