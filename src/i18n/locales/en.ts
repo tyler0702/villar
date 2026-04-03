@@ -159,6 +159,9 @@ export const en: TranslationDict = {
   "filter.all": "All",
   "filter.unread": "Unread",
   "action.printPdf": "Save as PDF",
+  "action.copyAll": "Copy All",
+  "action.copied": "Copied!",
+  "view.raw": "Raw",
 
   // Error boundary
   "error.title": "Something went wrong",

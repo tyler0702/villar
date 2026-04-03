@@ -4,6 +4,7 @@ import { useAppStore } from "../../stores/useAppStore";
 import { TldrCard } from "./TldrCard";
 import { SectionContent } from "./SectionContent";
 import { FileMeta } from "./FileMeta";
+import { RawView } from "./RawView";
 import { useTranslation } from "../../i18n/useTranslation";
 
 interface CardViewProps {
@@ -97,6 +98,8 @@ export function CardView({ sections }: CardViewProps) {
   const activeCardRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [rawMode, setRawMode] = useState(false);
+  const rawScrollRef = useRef<HTMLDivElement>(null);
   const t = useTranslation();
   const setCardScrollRef = useAppStore((s) => s.setCardScrollRef);
   const bookmarks = useAppStore((s) => s.bookmarks);
@@ -196,10 +199,27 @@ export function CardView({ sections }: CardViewProps) {
           >
             PDF
           </button>
+          <button
+            onClick={() => setRawMode((v) => !v)}
+            className={`px-1.5 py-0.5 text-[10px] transition-colors rounded ${
+              rawMode
+                ? "bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium"
+                : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+            }`}
+          >
+            {t("view.raw")}
+          </button>
           <FileMeta filePath={selectedFilePath || null} sections={sections} />
         </div>
       </div>
 
+      {rawMode ? (
+        <RawView
+          content={activeTab?.content ?? ""}
+          onScrollProgress={setScrollProgress}
+          scrollRef={rawScrollRef}
+        />
+      ) : (<>
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-8 py-6 overflow-x-hidden relative">
         <div className={`mx-auto ${WIDTH_MAP[contentWidth]}`}>
           {sections.map((section, i) => (
@@ -268,6 +288,7 @@ export function CardView({ sections }: CardViewProps) {
           </div>
         ) : null}
       </div>
+      </>)}
     </div>
   );
 }
