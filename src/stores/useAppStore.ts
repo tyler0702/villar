@@ -26,6 +26,7 @@ interface UiSlice {
   previewImage: string | null;
   cardScrollRef: React.RefObject<HTMLDivElement | null> | null;
   cardNavigated: boolean;
+  rawMode: boolean;
 
   setTree: (tree: FsNode[]) => void;
   toggleFocusMode: () => void;
@@ -38,6 +39,7 @@ interface UiSlice {
   setPreviewImage: (src: string | null) => void;
   setCardScrollRef: (ref: React.RefObject<HTMLDivElement | null> | null) => void;
   navigateToCard: (index: number) => void;
+  setRawMode: (mode: boolean) => void;
 }
 
 type AppState = UiSlice & TabSlice & SettingsSlice;
@@ -60,6 +62,7 @@ export const useAppStore = create<AppState>((...a) => ({
   previewImage: null,
   cardScrollRef: null,
   cardNavigated: false,
+  rawMode: false,
 
   setTree: (tree) => a[0]({ tree }),
   toggleFocusMode: () => a[0]((s) => ({ focusMode: !s.focusMode })),
@@ -86,6 +89,7 @@ export const useAppStore = create<AppState>((...a) => ({
   setFindQuery: (query) => a[0]({ findQuery: query }),
   setPreviewImage: (src) => a[0]({ previewImage: src }),
   setCardScrollRef: (ref) => a[0]({ cardScrollRef: ref }),
+  setRawMode: (mode) => a[0]({ rawMode: mode }),
   navigateToCard: (index) => {
     a[0]({ cardNavigated: true });
     // Use the tab slice's setActiveCardIndex
