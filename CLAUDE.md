@@ -54,6 +54,11 @@ npm run tauri build  # Production build
 - Do NOT batch-implement many features without intermediate user testing
 - Features that change card interaction (scroll, click, navigation) are high-risk — test thoroughly
 
+### GitHub API Usage
+- **Always use `gh api` instead of `curl` for GitHub API calls** — `gh` uses authenticated tokens (5000 req/hr), `curl` is unauthenticated (60 req/hr)
+- Example: `gh api repos/tyler0702/villar/releases/latest` instead of `curl https://api.github.com/...`
+- This prevents rate limiting that affects the user's browser (same IP)
+
 ### Dev Server Management
 - Always kill existing process before starting: `lsof -ti:1420 | xargs kill -9 2>/dev/null; sleep 1;`
 - If app closes immediately, check the output file for errors
