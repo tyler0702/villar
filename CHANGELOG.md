@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.0] - 2026-04-03
+
+### Added
+- **Raw Markdown view** — Toggle between card view and raw source with "Raw" button
+- **Copy All** — One-click copy of entire markdown source
+- **Keyboard integration** — Arrow keys/Home/End/F disabled in raw mode (browser default scroll)
+- **Outline integration** — Clicking outline items scrolls to H2 position in raw view
+- **Menu integration** — Card navigation menu items disabled in raw mode
+- **Daily download stats** — GitHub Actions cron job tracking downloads per platform
+- **CLAUDE.md** — Development rules and architecture docs added to repository
+
+### Changed
+- Raw mode state stored in Zustand (accessible from keyboard, menu, outline hooks)
+
+### Fixed
+- Thin scrollbar styling (6px overlay, hover to reveal)
+- Text selection and copy in card view (card click no longer blocks selection)
+- Reading Ruler zoom offset (moved outside zoom container, uses fixed positioning)
+
 ## [0.3.0] - 2026-03-30
 
 ### Added
