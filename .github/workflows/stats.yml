@@ -1,0 +1,57 @@
+name: Daily Download Stats
+
+on:
+  schedule:
+    - cron: "23 0 * * *"  # Daily at 00:23 UTC (09:23 JST)
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch download counts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          mkdir -p stats
+
+          # Get total downloads per release
+          gh api repos/tyler0702/villar/releases --jq '
+            [.[] | {
+              tag: .tag_name,
+              assets: [.assets[] | {name: .name, downloads: .download_count}],
+              total: ([.assets[].download_count] | add)
+            }]
+          ' > /tmp/releases.json
+
+          # Calculate grand total
+          TOTAL=$(cat /tmp/releases.json | jq '[.[].total] | add')
+
+          # Per-platform totals
+          MAC=$(cat /tmp/releases.json | jq '[.[].assets[] | select(.name | test("\\.dmg$")) | .downloads] | add')
+          WIN=$(cat /tmp/releases.json | jq '[.[].assets[] | select(.name | test("\\.(msi|exe)$")) | .downloads] | add')
+          LINUX=$(cat /tmp/releases.json | jq '[.[].assets[] | select(.name | test("\\.(AppImage|deb|rpm)$")) | .downloads] | add')
+
+          # Stars
+          STARS=$(gh api repos/tyler0702/villar --jq '.stargazers_count')
+
+          # Append to daily log
+          echo "{\"date\":\"${DATE}\",\"total\":${TOTAL},\"mac\":${MAC},\"win\":${WIN},\"linux\":${LINUX},\"stars\":${STARS}}" >> stats/daily.jsonl
+
+          echo "Date: ${DATE}"
+          echo "Total: ${TOTAL} (mac: ${MAC}, win: ${WIN}, linux: ${LINUX})"
+          echo "Stars: ${STARS}"
+
+      - name: Commit stats
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add stats/
+          git diff --cached --quiet || git commit -m "stats: $(date -u +%Y-%m-%d) download counts"
+          git push
