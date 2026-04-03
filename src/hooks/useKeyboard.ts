@@ -61,6 +61,21 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       const state = useAppStore.getState();
+      const { rawMode } = state;
+
+      // In raw mode: only Space scroll works, skip card nav + focus toggle
+      if (rawMode) {
+        if (e.key === " ") {
+          e.preventDefault();
+          const el = state.cardScrollRef?.current;
+          if (el) {
+            const amount = el.clientHeight * 0.8;
+            el.scrollBy({ top: e.shiftKey ? -amount : amount, behavior: "smooth" });
+          }
+        }
+        return;
+      }
+
       const activeTab = state.tabs[state.activeTabIndex];
       const activeCardIndex = activeTab?.activeCardIndex ?? 0;
       const { navigateToCard, toggleFocusMode } = state;

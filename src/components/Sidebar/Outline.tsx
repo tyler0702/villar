@@ -9,8 +9,23 @@ interface OutlineProps {
   filePath?: string;
 }
 
+function scrollToH2InRaw(title: string) {
+  const scrollRef = useAppStore.getState().cardScrollRef;
+  const container = scrollRef?.current;
+  if (!container) return;
+  // Try id-based lookup first (wt1 may add ids), then textContent match
+  const headings = container.querySelectorAll("h2, [data-heading]");
+  for (const h of headings) {
+    if (h.textContent?.trim() === title.trim()) {
+      h.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+  }
+}
+
 export function Outline({ docTitle, sections, activeIndex, onSelect, filePath }: OutlineProps) {
   const bookmarks = useAppStore((s) => s.bookmarks);
+  const rawMode = useAppStore((s) => s.rawMode);
   if (sections.length === 0) return null;
 
   return (
@@ -29,7 +44,7 @@ export function Outline({ docTitle, sections, activeIndex, onSelect, filePath }:
           return (
           <div key={i}>
             <button
-              onClick={() => onSelect(i)}
+              onClick={() => rawMode ? scrollToH2InRaw(section.title) : onSelect(i)}
               className={`w-full text-left px-3 py-1 text-xs rounded-lg truncate transition-colors ${
                 i === activeIndex
                   ? "bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium"

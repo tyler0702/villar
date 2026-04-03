@@ -41,20 +41,22 @@ export function useMenuActions(onSearch: () => void) {
           useAppStore.getState().updateSettings({ fontScale: 100 });
           break;
         case "prev_card": {
+          if (useAppStore.getState().rawMode) break;
           const idx = useAppStore.getState().tabs[useAppStore.getState().activeTabIndex]?.activeCardIndex ?? 0;
           if (idx > 0) useAppStore.getState().navigateToCard(idx - 1);
           break;
         }
         case "next_card": {
+          if (useAppStore.getState().rawMode) break;
           const idx = useAppStore.getState().tabs[useAppStore.getState().activeTabIndex]?.activeCardIndex ?? 0;
           useAppStore.getState().navigateToCard(idx + 1);
           break;
         }
         case "first_card":
-          useAppStore.getState().navigateToCard(0);
+          if (!useAppStore.getState().rawMode) useAppStore.getState().navigateToCard(0);
           break;
         case "last_card":
-          useAppStore.getState().navigateToCard(999);
+          if (!useAppStore.getState().rawMode) useAppStore.getState().navigateToCard(999);
           break;
         case "check_update":
           (async () => {
