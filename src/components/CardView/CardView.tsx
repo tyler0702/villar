@@ -131,6 +131,13 @@ export function CardView({ sections }: CardViewProps) {
     }
   }, [activeIndex, selectedFilePath, sections.length, markSectionRead]);
 
+  // Reset scroll when switching files
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    if (rawScrollRef.current) rawScrollRef.current.scrollTop = 0;
+    setScrollProgress(0);
+  }, [selectedFilePath]);
+
   const goTo = useCallback(
     (index: number) => {
       if (index >= 0 && index < sections.length) {
