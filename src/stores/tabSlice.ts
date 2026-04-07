@@ -15,17 +15,18 @@ export interface Tab {
   scrollTop: number;
 }
 
-function getSessionKey(): string {
+function getWindowLabel(): string {
   try {
-    const { getCurrentWindow } = require("@tauri-apps/api/window");
-    const label = getCurrentWindow().label;
-    return label === "main" ? "villar-session" : `villar-session-${label}`;
+    // Access Tauri's internal window label synchronously
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (window as any).__TAURI_INTERNALS__?.metadata?.currentWindow?.label ?? "main";
   } catch {
-    return "villar-session";
+    return "main";
   }
 }
 
-const STORAGE_KEY = getSessionKey();
+const WINDOW_LABEL = getWindowLabel();
+const STORAGE_KEY = WINDOW_LABEL === "main" ? "villar-session" : `villar-session-${WINDOW_LABEL}`;
 
 interface PersistedSession {
   folderPath: string | null;

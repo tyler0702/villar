@@ -18,6 +18,9 @@ export function useFileWatcher() {
       handleFileChanged(event.payload.path);
     });
     const unlistenTree = listen<{ path: string }>("tree-changed", async (event) => {
+      // Only update tree if the event is for this window's folder
+      const { folderPath } = useAppStore.getState();
+      if (!folderPath || !event.payload.path.startsWith(folderPath)) return;
       const tree = await invoke<FsNode[]>("list_md_files", { dirPath: event.payload.path });
       useAppStore.getState().setTree(tree);
     });
