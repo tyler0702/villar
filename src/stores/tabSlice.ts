@@ -15,7 +15,17 @@ export interface Tab {
   scrollTop: number;
 }
 
-const STORAGE_KEY = "villar-session";
+function getSessionKey(): string {
+  try {
+    const { getCurrentWindow } = require("@tauri-apps/api/window");
+    const label = getCurrentWindow().label;
+    return label === "main" ? "villar-session" : `villar-session-${label}`;
+  } catch {
+    return "villar-session";
+  }
+}
+
+const STORAGE_KEY = getSessionKey();
 
 interface PersistedSession {
   folderPath: string | null;
