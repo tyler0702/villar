@@ -1,8 +1,27 @@
+import { useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppStore, type FsNode } from "../../stores/useAppStore";
 import { useTranslation } from "../../i18n/useTranslation";
+
+function CopyableFileName({ name }: { name: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <span
+      className="text-[12px] font-medium truncate cursor-pointer hover:opacity-70 transition-opacity"
+      title="Click to copy filename"
+      onClick={(e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(name);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1000);
+      }}
+    >
+      {copied ? "\u2713 Copied" : name}
+    </span>
+  );
+}
 
 interface HeaderProps {
   onSearchClick?: () => void;
@@ -56,16 +75,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         {selectedFile ? (
           <>
             {folderName ? <span className="opacity-30">/</span> : null}
-            <span
-              className="text-[12px] font-medium truncate cursor-pointer hover:opacity-70 transition-opacity"
-              title="Click to copy filename"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigator.clipboard.writeText(selectedFile!.name);
-              }}
-            >
-              {selectedFile.name}
-            </span>
+            <CopyableFileName name={selectedFile.name} />
           </>
         ) : null}
       </div>
