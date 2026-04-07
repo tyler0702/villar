@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore, type FsNode } from "../../stores/useAppStore";
 import { logFileOpened } from "../../hooks/useMetrics";
@@ -48,6 +48,9 @@ const FileNode = memo(function FileNode({
   isSelected: boolean;
   depth: number;
 }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
+
   async function handleClick() {
     const file = { name: node.name, path: node.path };
     logFileOpened(file.path);
@@ -55,9 +58,22 @@ const FileNode = memo(function FileNode({
     useAppStore.getState().openTab(file, content);
   }
 
+  const handleContext = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setMenuPos({ x: e.clientX, y: e.clientY });
+    setShowMenu(true);
+    const close = () => { setShowMenu(false); window.removeEventListener("click", close); };
+    window.addEventListener("click", close);
+  }, []);
+
+  const copyName = useCallback(() => { navigator.clipboard.writeText(node.name); setShowMenu(false); }, [node.name]);
+  const copyPath = useCallback(() => { navigator.clipboard.writeText(node.path); setShowMenu(false); }, [node.path]);
+
   return (
+    <>
     <button
       onClick={handleClick}
+      onContextMenu={handleContext}
       className={`w-full text-left flex items-center gap-1.5 px-2 py-1 text-sm rounded-lg truncate transition-colors ${
         isSelected
           ? "bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium"
@@ -68,6 +84,13 @@ const FileNode = memo(function FileNode({
       <span className="text-[10px] opacity-40 w-3 text-center shrink-0">#</span>
       <span className="truncate">{node.name.replace(/\.md$/, "")}</span>
     </button>
+    {showMenu ? (
+      <div className="fixed z-50 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 text-xs" style={{ left: menuPos.x, top: menuPos.y }}>
+        <button onClick={copyName} className="w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Copy Filename</button>
+        <button onClick={copyPath} className="w-full text-left px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Copy Path</button>
+      </div>
+    ) : null}
+    </>
   );
 });
 

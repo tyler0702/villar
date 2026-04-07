@@ -56,7 +56,14 @@ export function Header({ onSearchClick }: HeaderProps) {
         {selectedFile ? (
           <>
             {folderName ? <span className="opacity-30">/</span> : null}
-            <span className="text-[12px] font-medium truncate">
+            <span
+              className="text-[12px] font-medium truncate cursor-pointer hover:opacity-70 transition-opacity"
+              title="Click to copy filename"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(selectedFile!.name);
+              }}
+            >
               {selectedFile.name}
             </span>
           </>
