@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.2] - 2026-04-08
+
+### Fixed
+- **Multi-window folder isolation** — Previous fix (v0.4.1) used `require()` which doesn't work in Vite ESM. Now reads window label from `__TAURI_INTERNALS__` synchronously. Also filters `tree-changed` events to only process this window's folder.
+
 ## [0.4.1] - 2026-04-07
 
 ### Added
