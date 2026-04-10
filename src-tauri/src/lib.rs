@@ -52,8 +52,8 @@ const SKIP_DIRS: &[&str] = &[
     ".cargo", ".rustup", "venv", ".venv", "env",
 ];
 
-const MAX_DEPTH: u32 = 8;
-const MAX_FILES: usize = 5000;
+const MAX_DEPTH: u32 = 10;
+const MAX_FILES: usize = 7000;
 
 fn collect_tree_inner(dir: &Path, depth: u32, count: &mut usize) -> std::io::Result<Vec<FsNode>> {
     if depth > MAX_DEPTH || *count > MAX_FILES {
