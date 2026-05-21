@@ -66,7 +66,19 @@ export const DEFAULT_SETTINGS: Settings = {
   vscodeTheme: null,
 };
 
-export const SETTINGS_KEY = "villar-settings";
+function getWindowLabel(): string {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (window as any).__TAURI_INTERNALS__?.metadata?.currentWindow?.label ?? "main";
+  } catch {
+    return "main";
+  }
+}
+
+const WINDOW_LABEL = getWindowLabel();
+const MAIN_SETTINGS_KEY = "villar-settings";
+export const SETTINGS_KEY =
+  WINDOW_LABEL === "main" ? MAIN_SETTINGS_KEY : `villar-settings-${WINDOW_LABEL}`;
 
 export function loadJson<T>(key: string): Partial<T> {
   try {
@@ -83,13 +95,22 @@ export function saveJson(key: string, value: unknown) {
   } catch { /* ignore */ }
 }
 
+function loadInitialSettings(): Partial<Settings> {
+  const own = loadJson<Settings>(SETTINGS_KEY);
+  // New non-main windows: seed from main's settings on first launch
+  if (WINDOW_LABEL !== "main" && Object.keys(own).length === 0) {
+    return loadJson<Settings>(MAIN_SETTINGS_KEY);
+  }
+  return own;
+}
+
 export interface SettingsSlice {
   settings: Settings;
   updateSettings: (patch: Partial<Settings>) => void;
 }
 
 export const createSettingsSlice: StateCreator<SettingsSlice> = (set, get) => ({
-  settings: { ...DEFAULT_SETTINGS, ...loadJson<Settings>(SETTINGS_KEY) },
+  settings: { ...DEFAULT_SETTINGS, ...loadInitialSettings() },
   updateSettings: (patch) => {
     const next = { ...get().settings, ...patch };
     set({ settings: next });
