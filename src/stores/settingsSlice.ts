@@ -39,6 +39,7 @@ export interface Settings {
   collapseCodeThreshold: number;
   speedRead: boolean;
   readingRuler: boolean;
+  japaneseTypography: boolean;
   restoreSession: boolean;
   sidebarWidth: number;
   settingsWidth: number;
@@ -60,6 +61,7 @@ export const DEFAULT_SETTINGS: Settings = {
   collapseCodeThreshold: 20,
   speedRead: false,
   readingRuler: false,
+  japaneseTypography: true,
   restoreSession: true,
   sidebarWidth: 224,
   settingsWidth: 256,

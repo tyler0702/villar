@@ -23,6 +23,7 @@ const SectionCard = memo(function SectionCard({
   isChanged,
   isBookmarked,
   readingStyle,
+  jpTypography,
   onClick,
   onToggleBookmark,
   cardRef,
@@ -35,6 +36,7 @@ const SectionCard = memo(function SectionCard({
   isChanged: boolean;
   isBookmarked: boolean;
   readingStyle: React.CSSProperties;
+  jpTypography: boolean;
   onClick: () => void;
   onToggleBookmark: () => void;
   cardRef?: React.Ref<HTMLDivElement>;
@@ -47,7 +49,7 @@ const SectionCard = memo(function SectionCard({
         ...readingStyle,
         ...(isFaded ? { opacity: fadeOpacity / 100 } : undefined),
       }}
-      className={`reading-root vs-card rounded-xl border bg-white dark:bg-surface-800 p-6 cursor-pointer transition-all duration-300 relative group ${
+      className={`reading-root ${jpTypography ? "jp-typography-on " : ""}vs-card rounded-xl border bg-white dark:bg-surface-800 p-6 cursor-pointer transition-all duration-300 relative group ${
         isChanged
           ? "ring-2 ring-amber-400/60 dark:ring-amber-500/40 border-amber-300 dark:border-amber-600"
           : isActive
@@ -92,6 +94,7 @@ export function CardView({ sections }: CardViewProps) {
   const letterSpacing = useAppStore((s) => s.settings.letterSpacing);
   const contentWidth = useAppStore((s) => s.settings.contentWidth);
   const focusOpacity = useAppStore((s) => s.settings.focusOpacity);
+  const jpTypography = useAppStore((s) => s.settings.japaneseTypography);
   const selectedFilePath = activeTab?.file.path ?? "";
   const readSections = useAppStore((s) => s.readSections);
   const markSectionRead = useAppStore((s) => s.markSectionRead);
@@ -244,6 +247,7 @@ export function CardView({ sections }: CardViewProps) {
                 isChanged={changedSections.includes(i)}
                 isBookmarked={bookmarks.has(`${selectedFilePath}:${i}`)}
                 readingStyle={readingStyle}
+                jpTypography={jpTypography}
                 onClick={() => setActiveIndex(i)}
                 onToggleBookmark={() => toggleBookmark(selectedFilePath, i)}
                 cardRef={i === activeIndex ? activeCardRef : undefined}

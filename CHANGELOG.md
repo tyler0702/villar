@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+- **Japanese typography mode** — Optional CSS-based optimization for Japanese text: `text-spacing-trim`, strict line-break, hanging punctuation. Toggle in Settings → Reading. Default ON.
+
 ### Fixed
 - **Card click no longer jolts scroll-first readers** — Clicking a partially-visible card below the fold previously scrolled it to viewport top, breaking reading flow. Activation now scrolls only when the card is fully out of view; any vertical overlap with the viewport suppresses scroll. (CardView.tsx + new `cardVisibility.ts` helper with 13 unit tests.)
 

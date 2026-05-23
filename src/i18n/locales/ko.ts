@@ -13,6 +13,7 @@ export const ko: TranslationDict = {
   "settings.reading": "\uC77D\uAE30",
   "settings.speedRead": "빠른 읽기",
   "settings.readingRuler": "읽기 눈금자",
+  "settings.japaneseTypography": "일본어 조판",
   "settings.colorTheme": "\uC0C9\uC0C1 \uD14C\uB9C8",
   "settings.general": "\uC77C\uBC18",
   "settings.shortcuts": "\uB2E8\uCD95\uD0A4",

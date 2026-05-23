@@ -271,6 +271,9 @@ export function SettingsPanel({ width, onRestartTutorial }: { width?: number; on
           <Row label={t("settings.readingRuler")}>
             <Toggle value={settings.readingRuler} onChange={(v) => update({ readingRuler: v })} />
           </Row>
+          <Row label={t("settings.japaneseTypography")}>
+            <Toggle value={settings.japaneseTypography} onChange={(v) => update({ japaneseTypography: v })} />
+          </Row>
           <Row label={t("settings.focusOpacity")}>
             <div className="flex items-center gap-1.5">
               <input

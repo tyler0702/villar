@@ -18,6 +18,7 @@ export const de: TranslationDict = {
   "settings.paragraphSpacing": "Absatzabstand",
   "settings.reading": "Lesen",
   "settings.readingRuler": "Leselineal",
+  "settings.japaneseTypography": "Japanische Typografie",
   "settings.focusOpacity": "Fokus-Deckkraft",
   "settings.tldr": "TL;DR",
   "settings.tldr.open": "Offen",
