@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Fixed
+- **Card click no longer jolts scroll-first readers** — Clicking a partially-visible card below the fold previously scrolled it to viewport top, breaking reading flow. Activation now scrolls only when the card is fully out of view; any vertical overlap with the viewport suppresses scroll. (CardView.tsx + new `cardVisibility.ts` helper with 13 unit tests.)
+
 ## [0.4.2] - 2026-04-08
 
 ### Fixed

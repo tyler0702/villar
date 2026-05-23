@@ -5,6 +5,7 @@ import { TldrCard } from "./TldrCard";
 import { SectionContent } from "./SectionContent";
 import { FileMeta } from "./FileMeta";
 import { RawView } from "./RawView";
+import { shouldScrollOnDirectActivation } from "./cardVisibility";
 import { useTranslation } from "../../i18n/useTranslation";
 
 interface CardViewProps {
@@ -156,10 +157,12 @@ export function CardView({ sections }: CardViewProps) {
       useAppStore.setState({ cardNavigated: false });
       card.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
-      // Direct card click: don't scroll if card top is hidden above (user is reading it)
-      const cardTop = card.getBoundingClientRect().top;
-      const containerTop = container.getBoundingClientRect().top;
-      if (cardTop >= containerTop) {
+      // Direct card click: don't scroll if any part of the card is visible in the viewport.
+      // Only scroll when the card is fully out of view (rarely possible since you must see
+      // a card to click it — this guards against programmatic activeIndex changes).
+      const cardRect = card.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      if (shouldScrollOnDirectActivation(cardRect, containerRect)) {
         card.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
