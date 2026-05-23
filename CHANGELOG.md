@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.4] - 2026-05-23
+
+### Fixed
+- **In-app updater now actually works** — Release workflow was generating `.sig` files but never uploading them or `latest.json` to GitHub Releases, so `check()` 404'd and the Update button fell through to opening the changelog page. Workflow now uploads per-platform `.sig` files and a final job constructs and uploads `latest.json` after all builds complete. The existing Update button now downloads, installs, and relaunches.
+
 ## [0.4.3] - 2026-05-23
 
 ### Added

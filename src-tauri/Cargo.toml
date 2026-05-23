@@ -1,6 +1,6 @@
 [package]
 name = "villar"
-version = "0.4.3"
+version = "0.4.4"
 description = "AI-generated Markdown reader"
 authors = ["you"]
 edition = "2021"
