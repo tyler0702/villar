@@ -126,7 +126,7 @@ All in `src-tauri/src/lib.rs`:
 - **Copy buttons embedded in HTML** — `addCopyButtonsToHtml` injects `<button data-copy>` into `<pre>`, event delegation in `HtmlBlock`
 - **Collapse via React** — Not HTML `<details>` (broken in Tauri WebView). Uses placeholder markers + `CollapsibleBlock` component.
 - **Font scale via CSS zoom** — Applied to main content area via `style={{ zoom }}`. Header/settings excluded. Reading Ruler is placed OUTSIDE zoom container.
-- **Card click vs navigation scroll** — `navigateToCard()` (Prev/Next/Outline/Thumbnails/Keyboard) always scrolls. Direct card click only scrolls if card top is visible (not hidden above viewport).
+- **Card click vs navigation scroll** — `navigateToCard()` (Prev/Next/Outline/Thumbnails/Keyboard) always scrolls. Direct card click only scrolls if the card is fully out of the viewport (rare in practice — clicking requires visibility). This protects scroll-first readers from being jolted to a card top when they accidentally click a partially-visible card below the fold. Implemented via getBoundingClientRect overlap check in `CardView.tsx`.
 - **Links open in external browser** — `HtmlBlock` intercepts `<a>` clicks and uses `@tauri-apps/plugin-opener`
 - **Print CSS** — `@media print` overrides all `--vs-*` variables to white/black, hides UI chrome. Theme-agnostic PDF output.
 
