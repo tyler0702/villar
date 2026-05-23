@@ -4,10 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased]
+## [0.4.3] - 2026-05-23
 
 ### Added
 - **Japanese typography mode** — Optional CSS-based optimization for Japanese text: `text-spacing-trim`, strict line-break, hanging punctuation. Toggle in Settings → Reading. Default ON.
+- **Per-window settings isolation** — Each Tauri window now stores settings under a window-scoped key. New windows seed from main's settings on first launch, then diverge independently.
+
+### Changed
+- **Folder scan limits raised** — Max folder depth 8 → 10, max files 5000 → 7000.
 
 ### Fixed
 - **Card click no longer jolts scroll-first readers** — Clicking a partially-visible card below the fold previously scrolled it to viewport top, breaking reading flow. Activation now scrolls only when the card is fully out of view; any vertical overlap with the viewport suppresses scroll. (CardView.tsx + new `cardVisibility.ts` helper with 13 unit tests.)
