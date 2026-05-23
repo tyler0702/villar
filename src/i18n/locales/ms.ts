@@ -19,6 +19,7 @@ export const ms: TranslationDict = {
   "settings.paragraphSpacing": "Jarak perenggan",
   "settings.reading": "Bacaan",
   "settings.readingRuler": "Pembaris bacaan",
+  "settings.japaneseTypography": "Tipografi Jepun",
   "settings.focusOpacity": "Kelegapan Fokus",
   "settings.tldr": "TL;DR",
   "settings.tldr.open": "Buka",

@@ -24,6 +24,7 @@ export const en: TranslationDict = {
   // Reading section
   "settings.reading": "Reading",
   "settings.readingRuler": "Reading Ruler",
+  "settings.japaneseTypography": "Japanese Typography",
   "settings.focusOpacity": "Focus Opacity",
   "settings.tldr": "TL;DR",
   "settings.tldr.open": "Open",

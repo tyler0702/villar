@@ -93,6 +93,35 @@
   opacity: 1 !important;
 }
 
+/* Japanese typography — applied when settings.japaneseTypography is true */
+.reading-root.jp-typography-on {
+  text-spacing-trim: trim-start;
+  line-break: strict;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  hanging-punctuation: allow-end;
+}
+.reading-root.jp-typography-on .prose p,
+.reading-root.jp-typography-on .prose li,
+.reading-root.jp-typography-on .prose blockquote {
+  text-spacing-trim: trim-start;
+  line-break: strict;
+  hanging-punctuation: allow-end;
+}
+.reading-root.jp-typography-on .prose h1,
+.reading-root.jp-typography-on .prose h2,
+.reading-root.jp-typography-on .prose h3,
+.reading-root.jp-typography-on .prose h4 {
+  text-spacing-trim: trim-start;
+  line-break: strict;
+}
+.reading-root.jp-typography-on pre,
+.reading-root.jp-typography-on code {
+  text-spacing-trim: normal;
+  line-break: auto;
+  hanging-punctuation: none;
+}
+
 /* Code block line numbers */
 .reading-root pre code {
   counter-reset: line;
