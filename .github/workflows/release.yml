@@ -75,45 +75,67 @@ jobs:
             **Linux**: Download `.deb` or `.AppImage`
           releaseDraft: false
           prerelease: false
-          includeUpdaterJson: true
+          includeUpdaterJson: false
           args: ${{ matrix.args }}
 
-      - name: Upload updater signature (macOS arm64)
-        if: matrix.rust_target == 'aarch64-apple-darwin'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
-        run: |
-          cp src-tauri/target/aarch64-apple-darwin/release/bundle/macos/villar.app.tar.gz.sig /tmp/villar_aarch64.app.tar.gz.sig
-          gh release upload "$TAG" /tmp/villar_aarch64.app.tar.gz.sig --clobber --repo "${{ github.repository }}"
-
-      - name: Upload updater signature (macOS x86_64)
-        if: matrix.rust_target == 'x86_64-apple-darwin'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
-        run: |
-          cp src-tauri/target/x86_64-apple-darwin/release/bundle/macos/villar.app.tar.gz.sig /tmp/villar_x64.app.tar.gz.sig
-          gh release upload "$TAG" /tmp/villar_x64.app.tar.gz.sig --clobber --repo "${{ github.repository }}"
-
-      - name: Upload updater signature (Linux)
-        if: matrix.platform == 'ubuntu-22.04'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
-        run: |
-          VERSION="${TAG#v}"
-          gh release upload "$TAG" "src-tauri/target/release/bundle/appimage/villar_${VERSION}_amd64.AppImage.sig" --clobber --repo "${{ github.repository }}"
-
-      - name: Upload updater signature (Windows)
-        if: matrix.platform == 'windows-latest'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
+      - name: Locate and upload updater signatures
+        if: matrix.platform == 'macos-latest' || matrix.platform == 'ubuntu-22.04' || matrix.platform == 'windows-latest'
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: |
+          set -euo pipefail
           VERSION="${TAG#v}"
-          gh release upload "$TAG" "src-tauri/target/release/bundle/nsis/villar_${VERSION}_x64-setup.exe.sig" --clobber --repo "${{ github.repository }}"
+          echo "::group::Search for existing .sig files under src-tauri/target"
+          find src-tauri/target -name "*.sig" -type f -print || true
+          echo "::endgroup::"
+
+          # If sig files were cleaned up by tauri-action, re-sign the bundle ourselves.
+          sign_if_missing() {
+            local bundle="$1"
+            if [ ! -f "${bundle}.sig" ]; then
+              if [ ! -f "$bundle" ]; then
+                echo "Bundle not found: $bundle" >&2
+                ls -la "$(dirname "$bundle")" >&2 || true
+                return 1
+              fi
+              echo "Re-signing $bundle"
+              npx --yes @tauri-apps/cli signer sign --private-key "$TAURI_SIGNING_PRIVATE_KEY" --password "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" "$bundle"
+            fi
+          }
+
+          upload_sig() {
+            local local_sig="$1"
+            local release_name="$2"
+            cp "$local_sig" "/tmp/${release_name}"
+            gh release upload "$TAG" "/tmp/${release_name}" --clobber --repo "${{ github.repository }}"
+          }
+
+          case "${{ matrix.rust_target }}-${{ matrix.platform }}" in
+            "aarch64-apple-darwin-macos-latest")
+              B="src-tauri/target/aarch64-apple-darwin/release/bundle/macos/villar.app.tar.gz"
+              sign_if_missing "$B"
+              upload_sig "${B}.sig" "villar_aarch64.app.tar.gz.sig"
+              ;;
+            "x86_64-apple-darwin-macos-latest")
+              B="src-tauri/target/x86_64-apple-darwin/release/bundle/macos/villar.app.tar.gz"
+              sign_if_missing "$B"
+              upload_sig "${B}.sig" "villar_x64.app.tar.gz.sig"
+              ;;
+            "-ubuntu-22.04")
+              B="src-tauri/target/release/bundle/appimage/villar_${VERSION}_amd64.AppImage"
+              sign_if_missing "$B"
+              upload_sig "${B}.sig" "villar_${VERSION}_amd64.AppImage.sig"
+              ;;
+            "-windows-latest")
+              B="src-tauri/target/release/bundle/nsis/villar_${VERSION}_x64-setup.exe"
+              sign_if_missing "$B"
+              upload_sig "${B}.sig" "villar_${VERSION}_x64-setup.exe.sig"
+              ;;
+          esac
 
   publish-updater:
     needs: build

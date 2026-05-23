@@ -4,10 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
-## [0.4.4] - 2026-05-23
+## [0.4.5] - 2026-05-23
 
 ### Fixed
-- **In-app updater now actually works** — Release workflow was generating `.sig` files but never uploading them or `latest.json` to GitHub Releases, so `check()` 404'd and the Update button fell through to opening the changelog page. Workflow now uploads per-platform `.sig` files and a final job constructs and uploads `latest.json` after all builds complete. The existing Update button now downloads, installs, and relaunches.
+- **In-app updater workflow (retry)** — v0.4.4 attempt failed because `tauri-action@v0` removes `.sig` files internally during its updater-JSON processing. Workflow now sets `includeUpdaterJson: false` to keep tauri-action out of the signing path, then re-signs bundles via `@tauri-apps/cli signer sign` if no `.sig` is found on disk. A final `publish-updater` job downloads signatures and uploads `latest.json` to the release.
+
+## [0.4.4] - 2026-05-23
+
+### Fixed (incomplete — superseded by 0.4.5)
+- Attempted in-app updater workflow fix. Bundles were published but `.sig` files and `latest.json` did not upload because the signing files were already gone from disk by the time the post-build upload steps ran. See 0.4.5.
 
 ## [0.4.3] - 2026-05-23
 
