@@ -78,6 +78,85 @@ jobs:
           includeUpdaterJson: true
           args: ${{ matrix.args }}
 
+      - name: Upload updater signature (macOS arm64)
+        if: matrix.rust_target == 'aarch64-apple-darwin'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cp src-tauri/target/aarch64-apple-darwin/release/bundle/macos/villar.app.tar.gz.sig /tmp/villar_aarch64.app.tar.gz.sig
+          gh release upload "$TAG" /tmp/villar_aarch64.app.tar.gz.sig --clobber --repo "${{ github.repository }}"
+
+      - name: Upload updater signature (macOS x86_64)
+        if: matrix.rust_target == 'x86_64-apple-darwin'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cp src-tauri/target/x86_64-apple-darwin/release/bundle/macos/villar.app.tar.gz.sig /tmp/villar_x64.app.tar.gz.sig
+          gh release upload "$TAG" /tmp/villar_x64.app.tar.gz.sig --clobber --repo "${{ github.repository }}"
+
+      - name: Upload updater signature (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          gh release upload "$TAG" "src-tauri/target/release/bundle/appimage/villar_${VERSION}_amd64.AppImage.sig" --clobber --repo "${{ github.repository }}"
+
+      - name: Upload updater signature (Windows)
+        if: matrix.platform == 'windows-latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          VERSION="${TAG#v}"
+          gh release upload "$TAG" "src-tauri/target/release/bundle/nsis/villar_${VERSION}_x64-setup.exe.sig" --clobber --repo "${{ github.repository }}"
+
+  publish-updater:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate and upload latest.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          BASE="https://github.com/${{ github.repository }}/releases/download/${TAG}"
+
+          mkdir -p /tmp/sigs
+          curl -sSL --fail "$BASE/villar_aarch64.app.tar.gz.sig"            -o /tmp/sigs/darwin-aarch64.sig
+          curl -sSL --fail "$BASE/villar_x64.app.tar.gz.sig"                -o /tmp/sigs/darwin-x86_64.sig
+          curl -sSL --fail "$BASE/villar_${VERSION}_amd64.AppImage.sig"     -o /tmp/sigs/linux-x86_64.sig
+          curl -sSL --fail "$BASE/villar_${VERSION}_x64-setup.exe.sig"      -o /tmp/sigs/windows-x86_64.sig
+
+          PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          jq -n \
+            --arg version "${VERSION}" \
+            --arg pub_date "${PUB_DATE}" \
+            --arg base "${BASE}" \
+            --rawfile darwin_aarch64_sig /tmp/sigs/darwin-aarch64.sig \
+            --rawfile darwin_x86_64_sig  /tmp/sigs/darwin-x86_64.sig \
+            --rawfile linux_x86_64_sig   /tmp/sigs/linux-x86_64.sig \
+            --rawfile windows_x86_64_sig /tmp/sigs/windows-x86_64.sig \
+            '{
+              version: $version,
+              notes: "See https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md for details.",
+              pub_date: $pub_date,
+              platforms: {
+                "darwin-aarch64": { signature: $darwin_aarch64_sig, url: ($base + "/villar_aarch64.app.tar.gz") },
+                "darwin-x86_64":  { signature: $darwin_x86_64_sig,  url: ($base + "/villar_x64.app.tar.gz") },
+                "linux-x86_64":   { signature: $linux_x86_64_sig,   url: ($base + "/villar_" + $version + "_amd64.AppImage") },
+                "windows-x86_64": { signature: $windows_x86_64_sig, url: ($base + "/villar_" + $version + "_x64-setup.exe") }
+              }
+            }' > /tmp/latest.json
+
+          gh release upload "$TAG" /tmp/latest.json --clobber --repo "${{ github.repository }}"
+
   update-homebrew:
     needs: build
     runs-on: ubuntu-latest
