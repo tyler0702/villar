@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.6] - 2026-07-16
+
+### Added
+- **Mermaid diagram zoom preview** — Click a rendered diagram (or the new "Expand" button) to open a fullscreen lightbox with mouse-wheel/button zoom (20–800%), drag-to-pan, and Esc/backdrop-click to close. Mounted outside the CSS zoom container so coordinates stay correct at any font scale.
+
+### Fixed
+- **Mermaid syntax-error "bomb" removed** — Mermaid v11 injected an error SVG (bomb icon + "Syntax error in text") into `<body>` on invalid diagrams, leaving stray graphics at the bottom of the page. Rendering now uses `suppressErrorRendering`; broken blocks fall back to the in-card source view with a "Render failed" label.
+- **Table column balance** — Narrow columns (e.g. CJK headers) no longer wrap one character per line. Table cells get a `min-width: 6em`; tables wider than the card scroll horizontally within their wrapper.
+
+### Security
+- **Explicit `securityLevel: "strict"` for Mermaid** — Pins Mermaid's default strict sanitization so the SVG injected into the diagram/preview cannot be altered by a future default change.
+
 ## [0.4.5] - 2026-05-23
 
 ### Fixed
