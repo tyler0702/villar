@@ -29,6 +29,7 @@ async function getMermaid(isDark: boolean, themeVars?: { bg: string; fg: string;
     m.default.initialize({
       startOnLoad: false,
       suppressErrorRendering: true,
+      securityLevel: "strict",
       theme: "base",
       themeVariables: {
         primaryColor: themeVars.accent + "33",
@@ -63,6 +64,7 @@ async function getMermaid(isDark: boolean, themeVars?: { bg: string; fg: string;
     m.default.initialize({
       startOnLoad: false,
       suppressErrorRendering: true,
+      securityLevel: "strict",
       theme: isDark ? "dark" : "default",
     });
   }
