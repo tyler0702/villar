@@ -24,6 +24,7 @@ interface UiSlice {
   findOpen: boolean;
   findQuery: string;
   previewImage: string | null;
+  previewMermaid: string | null;
   cardScrollRef: React.RefObject<HTMLDivElement | null> | null;
   cardNavigated: boolean;
   rawMode: boolean;
@@ -37,6 +38,7 @@ interface UiSlice {
   setFindOpen: (open: boolean) => void;
   setFindQuery: (query: string) => void;
   setPreviewImage: (src: string | null) => void;
+  setPreviewMermaid: (svg: string | null) => void;
   setCardScrollRef: (ref: React.RefObject<HTMLDivElement | null> | null) => void;
   navigateToCard: (index: number) => void;
   setRawMode: (mode: boolean) => void;
@@ -60,6 +62,7 @@ export const useAppStore = create<AppState>((...a) => ({
   findOpen: false,
   findQuery: "",
   previewImage: null,
+  previewMermaid: null,
   cardScrollRef: null,
   cardNavigated: false,
   rawMode: false,
@@ -88,6 +91,7 @@ export const useAppStore = create<AppState>((...a) => ({
   setFindOpen: (open) => a[0]({ findOpen: open }),
   setFindQuery: (query) => a[0]({ findQuery: query }),
   setPreviewImage: (src) => a[0]({ previewImage: src }),
+  setPreviewMermaid: (svg) => a[0]({ previewMermaid: svg }),
   setCardScrollRef: (ref) => a[0]({ cardScrollRef: ref }),
   setRawMode: (mode) => a[0]({ rawMode: mode }),
   navigateToCard: (index) => {

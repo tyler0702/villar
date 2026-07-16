@@ -28,6 +28,7 @@ async function getMermaid(isDark: boolean, themeVars?: { bg: string; fg: string;
   if (themeVars) {
     m.default.initialize({
       startOnLoad: false,
+      suppressErrorRendering: true,
       theme: "base",
       themeVariables: {
         primaryColor: themeVars.accent + "33",
@@ -61,6 +62,7 @@ async function getMermaid(isDark: boolean, themeVars?: { bg: string; fg: string;
   } else {
     m.default.initialize({
       startOnLoad: false,
+      suppressErrorRendering: true,
       theme: isDark ? "dark" : "default",
     });
   }
@@ -173,15 +175,25 @@ export function MermaidBlock({ code }: MermaidBlockProps) {
   }
 
   if (mode === "diagram" && svg) {
+    const openPreview = () => useAppStore.getState().setPreviewMermaid(svg);
     return (
       <div className={wrapClass}>
         <div className={headerClass}>
           <span className={labelClass}>Diagram</span>
-          <button onClick={toggleMode} className={toggleClass}>
-            {linear ? "Show steps" : "Show source"}
-          </button>
+          <div className="flex items-center gap-3">
+            <button onClick={openPreview} className={toggleClass}>Expand</button>
+            <button onClick={toggleMode} className={toggleClass}>
+              {linear ? "Show steps" : "Show source"}
+            </button>
+          </div>
         </div>
-        <div ref={diagramRef} className="overflow-x-auto" dangerouslySetInnerHTML={{ __html: svg }} />
+        <div
+          ref={diagramRef}
+          className="overflow-x-auto cursor-zoom-in"
+          title="Click to enlarge"
+          onClick={openPreview}
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
       </div>
     );
   }

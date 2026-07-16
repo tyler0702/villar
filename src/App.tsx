@@ -21,6 +21,7 @@ import { useMenuActions } from "./hooks/useMenuActions";
 import { useTranslation } from "./i18n/useTranslation";
 import { UpdateBanner } from "./components/UpdateBanner/UpdateBanner";
 import { ImagePreview } from "./components/CardView/ImagePreview";
+import { MermaidPreview } from "./components/CardView/MermaidPreview";
 import { OnboardingOverlay } from "./components/Onboarding/OnboardingOverlay";
 import { AboutDialog } from "./components/AboutDialog/AboutDialog";
 import { useOnboarding } from "./hooks/useOnboarding";
@@ -89,6 +90,7 @@ function App() {
       {aboutOpen ? <AboutDialog /> : null}
       {readingRuler ? <ReadingRuler /> : null}
       <ImagePreview />
+      <MermaidPreview />
       {onboarding.visible ? (
         <OnboardingOverlay
           step={onboarding.step}

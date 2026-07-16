@@ -47,6 +47,12 @@
   top: 0;
   z-index: 1;
 }
+/* Prevent narrow columns from wrapping one character per line —
+   cells get a readable minimum width; wide tables scroll horizontally */
+.reading-root .table-wrap th,
+.reading-root .table-wrap td {
+  min-width: 6em;
+}
 
 /* Link tooltip */
 .reading-root .prose a {
