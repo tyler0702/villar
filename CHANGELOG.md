@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.7] - 2026-07-22
+
+### Added
+- **Collapsible left sidebar** — Hide/show the file tree + outline sidebar via a new header button, the `Cmd/Ctrl+B` shortcut, or **View → Toggle Sidebar**. The collapsed state is remembered across sessions.
+- **In-app navigation for internal links** — Clicking a `#heading` link now smooth-scrolls to that heading within the document (works across cards) with a brief highlight, instead of doing nothing. H2 section titles are now anchor targets and heading slugs are Unicode-aware, so links to Japanese/CJK headings resolve too.
+- **Open linked Markdown files inside villar** — A link to another local `.md` file now opens that file in a villar tab (resolving relative paths against the current file) rather than the external browser; an optional `#anchor` jumps to the heading after the document loads.
+
+### Changed
+- **All 10 UI locales brought to full parity** — Backfilled 326 previously-missing strings across ja, zh-TW, zh-CN, ko, ar, es, de, ms, vi (onboarding, shortcuts, update banner, etc.) that had been falling back to English, and added the new sidebar-toggle labels. Every locale now defines the same keys as English.
+
 ## [0.4.6] - 2026-07-16
 
 ### Added
