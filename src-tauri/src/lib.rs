@@ -359,6 +359,7 @@ fn build_menu_with_labels(app: &AppHandle, l: &std::collections::HashMap<String,
         .item(&MenuItemBuilder::with_id("zoom_out", g("menu.zoomOut", "Zoom Out")).accelerator("CmdOrCtrl+-").build(app)?)
         .item(&MenuItemBuilder::with_id("zoom_reset", g("menu.actualSize", "Actual Size")).accelerator("CmdOrCtrl+0").build(app)?)
         .separator()
+        .item(&MenuItemBuilder::with_id("toggle_sidebar", g("menu.toggleSidebar", "Toggle Sidebar")).accelerator("CmdOrCtrl+B").build(app)?)
         .item(&MenuItemBuilder::with_id("focus_mode", g("menu.focusMode", "Toggle Focus Mode")).build(app)?)
         .separator()
         .item(&MenuItemBuilder::with_id("settings", g("menu.settings", "Settings...")).accelerator("CmdOrCtrl+,").build(app)?)

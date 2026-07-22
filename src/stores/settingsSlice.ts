@@ -42,6 +42,7 @@ export interface Settings {
   japaneseTypography: boolean;
   restoreSession: boolean;
   sidebarWidth: number;
+  sidebarCollapsed: boolean;
   settingsWidth: number;
   vscodeTheme: VscodeThemeColors | null;
 }
@@ -64,6 +65,7 @@ export const DEFAULT_SETTINGS: Settings = {
   japaneseTypography: true,
   restoreSession: true,
   sidebarWidth: 224,
+  sidebarCollapsed: false,
   settingsWidth: 256,
   vscodeTheme: null,
 };
@@ -109,6 +111,7 @@ function loadInitialSettings(): Partial<Settings> {
 export interface SettingsSlice {
   settings: Settings;
   updateSettings: (patch: Partial<Settings>) => void;
+  toggleSidebar: () => void;
 }
 
 export const createSettingsSlice: StateCreator<SettingsSlice> = (set, get) => ({
@@ -117,5 +120,8 @@ export const createSettingsSlice: StateCreator<SettingsSlice> = (set, get) => ({
     const next = { ...get().settings, ...patch };
     set({ settings: next });
     saveJson(SETTINGS_KEY, next);
+  },
+  toggleSidebar: () => {
+    get().updateSettings({ sidebarCollapsed: !get().settings.sidebarCollapsed });
   },
 });

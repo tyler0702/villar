@@ -24,6 +24,9 @@ export function useMenuActions(onSearch: () => void) {
         case "focus_mode":
           useAppStore.getState().toggleFocusMode();
           break;
+        case "toggle_sidebar":
+          useAppStore.getState().toggleSidebar();
+          break;
         case "settings":
           { const s = useAppStore.getState(); s.setSettingsOpen(!s.settingsOpen); }
           break;

@@ -42,6 +42,7 @@ function App() {
   const findOpen = useAppStore((s) => s.findOpen);
   const fontScale = useAppStore((s) => s.settings.fontScale);
   const sidebarWidth = useAppStore((s) => s.settings.sidebarWidth);
+  const sidebarCollapsed = useAppStore((s) => s.settings.sidebarCollapsed);
   const settingsWidth = useAppStore((s) => s.settings.settingsWidth);
   const collapseList = useAppStore((s) => s.settings.collapseListThreshold);
   const collapseCode = useAppStore((s) => s.settings.collapseCodeThreshold);
@@ -60,8 +61,12 @@ function App() {
       <Header onSearchClick={() => setSearchOpen(true)} />
       <UpdateBanner />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar sections={sections} style={{ ...zoomStyle, width: sidebarWidth }} />
-        <div className="resize-handle" onMouseDown={sidebarResize} />
+        {!sidebarCollapsed ? (
+          <>
+            <Sidebar sections={sections} style={{ ...zoomStyle, width: sidebarWidth }} />
+            <div className="resize-handle" onMouseDown={sidebarResize} />
+          </>
+        ) : null}
         <div className="flex-1 flex flex-col overflow-hidden" data-ruler-bounds>
         <div className="flex-1 flex flex-col overflow-hidden vs-canvas" style={zoomStyle}>
           <TabBar />

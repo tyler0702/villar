@@ -30,6 +30,13 @@ export function useKeyboard(sectionCount: number, onSearch?: () => void) {
         return;
       }
 
+      // Cmd+B — toggle sidebar
+      if ((e.metaKey || e.ctrlKey) && e.key === "b") {
+        e.preventDefault();
+        useAppStore.getState().toggleSidebar();
+        return;
+      }
+
       // Cmd+, — settings
       if ((e.metaKey || e.ctrlKey) && e.key === ",") {
         e.preventDefault();

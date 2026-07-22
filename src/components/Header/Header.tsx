@@ -60,6 +60,19 @@ export function Header({ onSearchClick }: HeaderProps) {
       className="vs-header flex items-center gap-3 pl-20 pr-5 py-1 border-b border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm shrink-0 select-none cursor-default"
     >
       <button
+        data-toggle-sidebar
+        onClick={() => useAppStore.getState().toggleSidebar()}
+        className="px-2 py-1 leading-none opacity-50 hover:opacity-100 hover:bg-white/10 rounded-lg transition-all shrink-0"
+        title={t("header.toggleSidebar")}
+        aria-label={t("header.toggleSidebar")}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+          <line x1="6" y1="2.5" x2="6" y2="13.5" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      </button>
+
+      <button
         data-open-folder
         data-onboarding="open"
         onClick={handleOpenFolder}
