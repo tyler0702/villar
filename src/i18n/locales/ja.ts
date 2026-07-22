@@ -50,6 +50,7 @@ export const ja: TranslationDict = {
   "header.search": "\u691C\u7D22",
   "header.split": "\u5206\u5272",
   "header.focus": "\u96C6\u4E2D",
+  "header.toggleSidebar": "\u30B5\u30A4\u30C9\u30D0\u30FC\u8868\u793A\u5207\u66FF (Cmd+B)",
   "header.searchTitle": "\u691C\u7D22 (Cmd+K)",
   "header.splitTitle": "\u5206\u5272\u8868\u793A",
   "header.focusTitle": "\u30D5\u30A9\u30FC\u30AB\u30B9\u30E2\u30FC\u30C9\u5207\u66FF (F)",
@@ -102,6 +103,7 @@ export const ja: TranslationDict = {
   "menu.zoomOut": "\u7E2E\u5C0F",
   "menu.actualSize": "\u5B9F\u969B\u306E\u30B5\u30A4\u30BA",
   "menu.focusMode": "\u30D5\u30A9\u30FC\u30AB\u30B9\u30E2\u30FC\u30C9\u5207\u66FF",
+  "menu.toggleSidebar": "\u30B5\u30A4\u30C9\u30D0\u30FC\u8868\u793A\u5207\u66FF",
   "menu.settings": "\u8A2D\u5B9A...",
   "menu.prevCard": "\u524D\u306E\u30AB\u30FC\u30C9",
   "menu.nextCard": "\u6B21\u306E\u30AB\u30FC\u30C9",
@@ -137,4 +139,8 @@ export const ja: TranslationDict = {
   "error.reload": "\u30EA\u30ED\u30FC\u30C9",
   "error.retry": "\u518D\u8A66\u884C",
   "error.details": "\u30A8\u30E9\u30FC\u8A73\u7D30",
+  // --- Backfilled translations (i18n sync) ---
+  "settings.fontGroup.jp": "\u65E5\u672C\u8A9E",
+  "settings.showOnboarding": "\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB",
+  "settings.showOnboardingBtn": "\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u3092\u8868\u793A",
 };
