@@ -72,8 +72,16 @@ function addTableWrapToHtml(html: string): string {
   return html.replace(/<table>/g, '<div class="table-wrap"><table>').replace(/<\/table>/g, '</table></div>');
 }
 
-function slugify(text: string): string {
-  return text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").trim();
+// GitHub-style slug: keep letters/numbers of ANY script (so CJK headings
+// get non-empty ids), lowercase, spaces → hyphens.
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\p{L}\p{N}\s-]/gu, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function addHeadingAnchors(html: string): string {

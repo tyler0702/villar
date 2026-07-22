@@ -79,6 +79,16 @@
   z-index: 20;
 }
 
+/* Internal-link jump target flash */
+@keyframes anchor-flash {
+  0% { background-color: color-mix(in srgb, var(--vs-accent, #f59e0b) 35%, transparent); }
+  100% { background-color: transparent; }
+}
+.anchor-flash {
+  animation: anchor-flash 1.2s ease-out;
+  border-radius: 4px;
+}
+
 /* H3 anchor links */
 .heading-anchor-target {
   position: relative;

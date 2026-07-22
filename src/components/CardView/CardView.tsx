@@ -1,5 +1,6 @@
 import { useCallback, useRef, useEffect, memo, useMemo, useState } from "react";
 import type { ProcessedSection } from "../../hooks/useMarkdown";
+import { slugify } from "../../hooks/useMarkdown";
 import { useAppStore } from "../../stores/useAppStore";
 import { TldrCard } from "./TldrCard";
 import { SectionContent } from "./SectionContent";
@@ -74,7 +75,7 @@ const SectionCard = memo(function SectionCard({
         ) : isRead ? (
           <span className="w-4 h-4 rounded-full bg-accent-200 dark:bg-accent-800 flex items-center justify-center text-[8px] text-accent-700 dark:text-accent-300 shrink-0">&#10003;</span>
         ) : null}
-        <h2 className="font-semibold text-gray-800 dark:text-gray-100 tracking-tight">
+        <h2 id={slugify(section.title)} className="font-semibold text-gray-800 dark:text-gray-100 tracking-tight scroll-mt-4">
           {section.title}
         </h2>
       </div>
