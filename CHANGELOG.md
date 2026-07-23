@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.8] - 2026-07-23
+
+### Fixed
+- **Code block line numbers** — Lines with more than one syntax-highlighted token were mis-numbered: extra numbers appeared inline mid-line, because the CSS line counter incremented per highlight-token `<span>` instead of per line. Each source line is now wrapped so exactly one number shows per line; syntax highlighting and copy/paste line breaks are preserved, including tokens that span multiple lines.
+
 ## [0.4.7] - 2026-07-22
 
 ### Added
