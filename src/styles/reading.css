@@ -138,16 +138,15 @@
   hanging-punctuation: none;
 }
 
-/* Code block line numbers */
+/* Code block line numbers — one number per wrapped source line (.code-line).
+   Token <span>s from highlight.js live INSIDE .code-line, so they aren't counted. */
 .reading-root pre code {
   counter-reset: line;
 }
-.reading-root pre code .hljs-ln-line,
-.reading-root pre code > span {
+.reading-root pre code .code-line {
   counter-increment: line;
 }
-.reading-root pre code .hljs-ln-line::before,
-.reading-root pre code > span::before {
+.reading-root pre code .code-line::before {
   content: counter(line);
   display: inline-block;
   width: 2.5em;

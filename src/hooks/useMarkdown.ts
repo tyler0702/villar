@@ -72,6 +72,31 @@ function addTableWrapToHtml(html: string): string {
   return html.replace(/<table>/g, '<div class="table-wrap"><table>').replace(/<\/table>/g, '</table></div>');
 }
 
+// highlight.js wraps syntax TOKENS (not lines) in <span>, so a CSS line counter
+// keyed on the code element's spans mis-numbers any line with multiple tokens.
+// Wrap each source line in <span class="code-line"> instead — one per line — so
+// the counter is correct. Highlight spans that cross a line break (multi-line
+// strings / block comments) are closed at the break and reopened on the next line.
+function addCodeLineNumbers(html: string): string {
+  return html.replace(/(<pre><code[^>]*>)([\s\S]*?)(<\/code><\/pre>)/g, (_m, open: string, inner: string, close: string) => {
+    const body = inner.replace(/\n$/, ""); // drop the single trailing newline hljs emits
+    const openTags: string[] = [];
+    const tagRe = /<span\b[^>]*>|<\/span>/g;
+    const lines = body.split("\n").map((line) => {
+      const prefix = openTags.join("");
+      tagRe.lastIndex = 0;
+      let mt: RegExpExecArray | null;
+      while ((mt = tagRe.exec(line)) !== null) {
+        if (mt[0] === "</span>") openTags.pop();
+        else openTags.push(mt[0]);
+      }
+      const suffix = "</span>".repeat(openTags.length);
+      return `<span class="code-line">${prefix}${line}${suffix}</span>`;
+    });
+    return open + lines.join("\n") + "\n" + close;
+  });
+}
+
 // GitHub-style slug: keep letters/numbers of ANY script (so CJK headings
 // get non-empty ids), lowercase, spaces → hyphens.
 export function slugify(text: string): string {
@@ -217,7 +242,7 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
       logTldrResult(section.title, tldr !== null);
       const rendered = renderChildren(cleaned);
       const { html: collapsedHtml, collapsed } = collapseHtml(rendered, collapseConfig);
-      let finalHtml = addHeadingAnchors(resolveImagePaths(addTableWrapToHtml(addCopyButtonsToHtml(collapsedHtml)), filePath ?? null));
+      let finalHtml = addHeadingAnchors(resolveImagePaths(addTableWrapToHtml(addCopyButtonsToHtml(addCodeLineNumbers(collapsedHtml))), filePath ?? null));
       if (speedRead) finalHtml = applySpeedRead(finalHtml);
       return {
         title: section.title,
@@ -225,7 +250,7 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
         tldr,
         mermaidCodes,
         subHeadings: extractSubHeadings(section.children),
-        collapsed: collapsed.map((b) => ({ ...b, html: addCopyButtonsToHtml(b.html) })),
+        collapsed: collapsed.map((b) => ({ ...b, html: addCopyButtonsToHtml(addCodeLineNumbers(b.html)) })),
       };
     });
 
