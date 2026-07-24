@@ -46,12 +46,21 @@ export function isHtmlPath(path: string | null | undefined): boolean {
 // Convert an HTML document (or fragment) to GFM markdown so it can flow
 // through the existing markdown → card pipeline unchanged.
 export function htmlToMarkdown(html: string): string {
-  const file = unified()
-    .use(rehypeParse)
-    .use(stripNonContent)
-    .use(rehypeRemark)
-    .use(remarkGfm)
-    .use(remarkStringify)
-    .processSync(html);
-  return String(file);
+  try {
+    const file = unified()
+      .use(rehypeParse)
+      .use(stripNonContent)
+      .use(rehypeRemark)
+      .use(remarkGfm)
+      .use(remarkStringify)
+      .processSync(html);
+    return String(file);
+  } catch {
+    // Input broke the parser (parse5 is error-tolerant, so this is rare):
+    // show the source as a code block rather than crashing the reader.
+    const fence = "`".repeat(
+      Math.max(3, ...[...html.matchAll(/`+/g)].map((m) => m[0].length + 1))
+    );
+    return `${fence}html\n${html}\n${fence}\n`;
+  }
 }

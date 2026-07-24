@@ -1,5 +1,6 @@
 import type { StateCreator } from "zustand";
 import { saveJson, loadJson } from "./settingsSlice";
+import { htmlToMarkdown, isHtmlPath } from "../plugins/html-to-markdown";
 
 export interface FileEntry {
   name: string;
@@ -149,9 +150,14 @@ export const createTabSlice: StateCreator<TabSlice> = (set, get) => ({
 
   setTabContent: (path, content) => {
     const { tabs } = get();
+    // HTML files carry no "## " lines, so diff the converted markdown —
+    // the same text the cards are rendered from — to attribute changes
+    // to the right section index.
+    const normalize = (c: string | null) =>
+      c !== null && isHtmlPath(path) ? htmlToMarkdown(c) : c;
     const updated = tabs.map((t) => {
       if (t.file.path !== path) return t;
-      const changed = detectChangedSections(t.content, content);
+      const changed = detectChangedSections(normalize(t.content), normalize(content) as string);
       return { ...t, previousContent: t.content, content, changedSections: changed };
     });
     set({ tabs: updated });

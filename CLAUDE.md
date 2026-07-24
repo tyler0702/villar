@@ -8,7 +8,7 @@ A Tauri v2 desktop app that re-renders AI-generated Markdown (and HTML) into a c
 
 ```bash
 npm run tauri dev    # Dev server + Tauri window
-npm test             # Run vitest (126 unit + component + performance tests)
+npm test             # Run vitest (129 unit + component + performance tests)
 npm run test:e2e     # Run Playwright E2E tests (69 tests, needs dev server)
 npm run tauri build  # Production build
 ```
@@ -17,7 +17,7 @@ npm run tauri build  # Production build
 
 ### Before Every Commit
 1. `npx tsc --noEmit` — TypeScript must pass with 0 errors
-2. `npm test` — All 126 unit tests must pass
+2. `npm test` — All 129 unit tests must pass
 3. If Tauri config or Rust changed: `cargo check --manifest-path src-tauri/Cargo.toml`
 
 ### Before Every Release
@@ -135,9 +135,10 @@ All in `src-tauri/src/lib.rs`:
 
 ## Testing
 
-### Unit Tests (vitest) - 126 tests
+### Unit Tests (vitest) - 129 tests
 - `src/plugins/__tests__/` - remark-section (10), remark-tldr (10), mermaid-linear (16), remark-collapse (7), performance (6), copy-button (5), html-to-markdown (11)
 - `src/components/__tests__/` - TldrCard, Outline, FileTree, TabBar (21 tests + more)
+- `src/stores/__tests__/` - tabSlice changed-section diff for md/html (3)
 
 ### E2E Tests (Playwright) - 69 tests
 - `e2e/app.spec.ts` - Empty state, settings, navigation, bookmarks, PDF, keyboard, image preview, onboarding, update banner
