@@ -82,7 +82,7 @@ const FileNode = memo(function FileNode({
       style={{ paddingLeft: `${depth * 12 + 8}px` }}
     >
       <span className="text-[10px] opacity-40 w-3 text-center shrink-0">#</span>
-      <span className="truncate">{node.name.replace(/\.md$/, "")}</span>
+      <span className="truncate">{node.name.replace(/\.(md|html?)$/i, "")}</span>
     </button>
     {showMenu ? (
       <div className="fixed z-50 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 text-xs" style={{ left: menuPos.x, top: menuPos.y }}>

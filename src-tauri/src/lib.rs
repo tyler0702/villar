@@ -55,6 +55,15 @@ const SKIP_DIRS: &[&str] = &[
 const MAX_DEPTH: u32 = 10;
 const MAX_FILES: usize = 7000;
 
+// Documents villar can render: Markdown and HTML
+fn is_doc_file(path: &Path) -> bool {
+    path.extension().is_some_and(|ext| {
+        ext.eq_ignore_ascii_case("md")
+            || ext.eq_ignore_ascii_case("html")
+            || ext.eq_ignore_ascii_case("htm")
+    })
+}
+
 fn collect_tree_inner(dir: &Path, depth: u32, count: &mut usize) -> std::io::Result<Vec<FsNode>> {
     if depth > MAX_DEPTH || *count > MAX_FILES {
         return Ok(vec![]);
@@ -96,7 +105,7 @@ fn collect_tree_inner(dir: &Path, depth: u32, count: &mut usize) -> std::io::Res
                     children,
                 });
             }
-        } else if path.extension().is_some_and(|ext| ext == "md") {
+        } else if is_doc_file(&path) {
             *count += 1;
             nodes.push(FsNode {
                 name,
@@ -172,7 +181,7 @@ fn watch_folder(app_handle: AppHandle, dir_path: String) -> Result<(), String> {
 
                 if is_modify || is_create {
                     for path in &event.paths {
-                        if path.extension().is_some_and(|ext| ext == "md") {
+                        if is_doc_file(path) {
                             let mut last = last_file_emit.lock().unwrap();
                             if last.elapsed() >= debounce {
                                 *last = Instant::now();
@@ -242,7 +251,7 @@ fn search_recursive(dir: &Path, query: &str, hits: &mut Vec<SearchHit>) -> std::
             if !SKIP_DIRS.contains(&dir_name.as_ref()) {
                 search_recursive(&path, query, hits)?;
             }
-        } else if path.extension().is_some_and(|ext| ext == "md") {
+        } else if is_doc_file(&path) {
             if let Ok(content) = fs::read_to_string(&path) {
                 for (i, line) in content.lines().enumerate() {
                     if line.to_lowercase().contains(query) {

@@ -156,7 +156,7 @@ export function TabBar() {
                 : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
             }`}
           >
-            <span className="truncate max-w-[120px]">{tab.file.name.replace(/\.md$/, "")}</span>
+            <span className="truncate max-w-[120px]">{tab.file.name.replace(/\.(md|html?)$/i, "")}</span>
             <button
               data-close
               onClick={(e) => handleClose(e, i)}

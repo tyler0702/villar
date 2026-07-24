@@ -35,7 +35,7 @@ export function useDragDrop() {
         await invoke<FsNode[]>("list_md_files", { dirPath: first });
         await openFolder(first);
       } catch {
-        if (first.endsWith(".md")) {
+        if (/\.(md|html?)$/i.test(first)) {
           const folderPath = useAppStore.getState().folderPath;
           if (!folderPath) {
             const parentDir = first.substring(0, first.lastIndexOf("/"));

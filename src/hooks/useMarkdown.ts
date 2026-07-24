@@ -8,6 +8,7 @@ import remarkRehype from "remark-rehype";
 import rehypeHighlight from "rehype-highlight";
 import rehypeStringify from "rehype-stringify";
 import { collapseHtml, type CollapsedBlock, COLLAPSE_MARKER } from "../plugins/remark-collapse";
+import { htmlToMarkdown, isHtmlPath } from "../plugins/html-to-markdown";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { logRenderTime, logTldrResult } from "./useMetrics";
 import type { Root as MdastRoot, Content, Code, Heading } from "mdast";
@@ -227,9 +228,10 @@ export function useMarkdown(content: string | null, collapseConfig?: CollapseCon
     if (!content) return [];
 
     const start = performance.now();
+    const source = isHtmlPath(filePath) ? htmlToMarkdown(content) : content;
     const processor = unified().use(remarkParse).use(remarkGfm).use(remarkSection);
 
-    const tree = processor.parse(content);
+    const tree = processor.parse(source);
     const transformed = processor.runSync(tree) as MdastRoot & {
       data?: { sections?: Section[] };
     };

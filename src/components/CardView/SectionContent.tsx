@@ -66,7 +66,7 @@ function HtmlBlock({ html }: { html: string }) {
         return;
       }
 
-      // 2. Link to another local Markdown file → open it inside villar.
+      // 2. Link to another local Markdown/HTML document → open it inside villar.
       //    Skip anything with a URL scheme (http:, mailto:, tauri:, …).
       const hashIdx = rawHref.indexOf("#");
       const pathPart = decodeURIComponent(
@@ -74,7 +74,7 @@ function HtmlBlock({ html }: { html: string }) {
       );
       const hash = hashIdx >= 0 ? decodeURIComponent(rawHref.slice(hashIdx + 1)) : "";
       const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(rawHref);
-      if (!hasScheme && rawHref && /\.md$/i.test(pathPart)) {
+      if (!hasScheme && rawHref && /\.(md|html?)$/i.test(pathPart)) {
         e.preventDefault();
         e.stopPropagation();
         const state = useAppStore.getState();
@@ -115,10 +115,10 @@ function HtmlBlock({ html }: { html: string }) {
     const target = e.target as HTMLElement;
     const anchor = target.closest("a") as HTMLAnchorElement | null;
     if (!anchor?.href || anchor.querySelector(".link-tooltip")) return;
-    // No hostname tooltip for in-app links (anchors or local .md files)
+    // No hostname tooltip for in-app links (anchors or local .md/.html files)
     const raw = anchor.getAttribute("href") ?? "";
     const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(raw);
-    if (raw.startsWith("#") || (!hasScheme && /\.md(#|\?|$)/i.test(raw))) return;
+    if (raw.startsWith("#") || (!hasScheme && /\.(md|html?)(#|\?|$)/i.test(raw))) return;
     try {
       const url = new URL(anchor.href);
       const tip = document.createElement("span");

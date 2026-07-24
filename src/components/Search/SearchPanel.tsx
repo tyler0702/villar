@@ -102,7 +102,7 @@ export function SearchPanel({ onClose }: SearchPanelProps) {
             >
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="text-xs font-medium text-accent-600 dark:text-accent-400">
-                  {hit.file_name.replace(/\.md$/, "")}
+                  {hit.file_name.replace(/\.(md|html?)$/i, "")}
                 </span>
                 <span className="text-[10px] text-gray-400">L{hit.line_number}</span>
               </div>

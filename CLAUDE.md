@@ -2,13 +2,13 @@
 
 ## What is villar?
 
-A Tauri v2 desktop app that re-renders AI-generated Markdown into a card-based reading UI. Read-only, local-only, never modifies source files.
+A Tauri v2 desktop app that re-renders AI-generated Markdown (and HTML) into a card-based reading UI. Read-only, local-only, never modifies source files.
 
 ## Quick Commands
 
 ```bash
 npm run tauri dev    # Dev server + Tauri window
-npm test             # Run vitest (96 unit + component + performance tests)
+npm test             # Run vitest (126 unit + component + performance tests)
 npm run test:e2e     # Run Playwright E2E tests (69 tests, needs dev server)
 npm run tauri build  # Production build
 ```
@@ -17,7 +17,7 @@ npm run tauri build  # Production build
 
 ### Before Every Commit
 1. `npx tsc --noEmit` — TypeScript must pass with 0 errors
-2. `npm test` — All 96 unit tests must pass
+2. `npm test` — All 126 unit tests must pass
 3. If Tauri config or Rust changed: `cargo check --manifest-path src-tauri/Cargo.toml`
 
 ### Before Every Release
@@ -84,11 +84,14 @@ npm run tauri build  # Production build
 
 **Markdown pipeline:** `remark-parse` → `remark-gfm` → `remark-section` (custom) → `remark-rehype` → `rehype-highlight` → `rehype-stringify`, then `collapseHtml` → `addCopyButtonsToHtml` → `addTableWrapToHtml` → `resolveImagePaths` → `addHeadingAnchors` → `applySpeedRead` (conditional) post-processing.
 
+**HTML documents** (`.html`/`.htm`) are converted to markdown first (`html-to-markdown.ts`: `rehype-parse` → `rehype-remark` → `remark-stringify`, dropping script/style/head/iframe subtrees — this doubles as sanitization), then flow through the same pipeline.
+
 **Custom plugins** in `src/plugins/`:
 - `remark-section.ts` - H2-based splitting. H2-less docs rescued by paragraph splitting.
 - `remark-tldr.ts` - TextRank + rule-based extraction (summary/points/keywords/conclusion).
 - `mermaid-linear.ts` - Parses flowchart, checks if linear (all degrees <= 1, no loops).
 - `remark-collapse.ts` - Returns `{html, collapsed[]}` with placeholder markers. React `CollapsibleBlock` handles toggle.
+- `html-to-markdown.ts` - Converts `.html`/`.htm` files to GFM markdown (with `isHtmlPath` helper). Fully re-uses the card pipeline.
 
 **State** managed via Zustand (`src/stores/useAppStore.ts`):
 - UI: tree, focusMode, settingsOpen, aboutOpen, bookmarks, previewImage, cardScrollRef, cardNavigated
@@ -99,10 +102,10 @@ npm run tauri build  # Production build
 ### Backend (Rust / Tauri)
 
 All in `src-tauri/src/lib.rs`:
-- `list_md_files` - Returns `FsNode` tree. SKIP_DIRS, MAX_DEPTH=8, MAX_FILES=5000.
+- `list_md_files` - Returns `FsNode` tree of `.md`/`.html`/`.htm` files (`is_doc_file`). SKIP_DIRS, MAX_DEPTH=8, MAX_FILES=5000.
 - `read_file` - Reads file content
 - `get_file_meta` - Returns created/updated timestamps
-- `search_files` - Case-insensitive grep across all .md files, capped at 100 results
+- `search_files` - Case-insensitive grep across all .md/.html files, capped at 100 results
 - `watch_folder` - Uses `notify` crate with 300ms debounce, emits `file-changed` and `tree-changed` events
 - `write_log` - Appends JSONL metrics to app log directory
 - `update_menu` - Rebuilds native menu with i18n labels
@@ -132,8 +135,8 @@ All in `src-tauri/src/lib.rs`:
 
 ## Testing
 
-### Unit Tests (vitest) - 96 tests
-- `src/plugins/__tests__/` - remark-section (10), remark-tldr (10), mermaid-linear (16), remark-collapse (7), performance (6), copy-button (5)
+### Unit Tests (vitest) - 126 tests
+- `src/plugins/__tests__/` - remark-section (10), remark-tldr (10), mermaid-linear (16), remark-collapse (7), performance (6), copy-button (5), html-to-markdown (11)
 - `src/components/__tests__/` - TldrCard, Outline, FileTree, TabBar (21 tests + more)
 
 ### E2E Tests (Playwright) - 69 tests
