@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.9] - 2026-08-05
+
+### Added
+- **HTML document support** — `.html`/`.htm` files now appear in the file tree, search, drag & drop and file watching, and render through the same card pipeline as Markdown (converted via `rehype-parse` → `rehype-remark`; scripts/styles are stripped, which doubles as sanitization). TL;DR, collapse, copy buttons, themes and Speed Read all work on HTML documents.
+- **Web view for HTML files** — HTML files open in a browser-like view by default: the original document renders as designed (embedded and external CSS, inline JS, CDN resources) inside a sandboxed iframe with no Tauri API access. A new "Web" toolbar toggle (shown for HTML files only, localized in all 10 languages) switches between Web view and card view. Links behave like the card view: `#anchors` scroll in place (with a heading-text fallback for AI-generated TOCs whose headings lack ids), external URLs open in the default browser, and relative `.md`/`.html` links open as villar tabs. Relative stylesheet/script/image paths resolve against the document's folder.
+
+### Fixed
+- **Changed-section badges for HTML files** — Editing an HTML file externally flagged only the first card as changed; the diff now runs on the converted markdown so the correct section is highlighted.
+- **Web view width at non-100% font scale** — The content-area zoom is disabled while the Web view is active (WebKit miscomputes iframe width and click hit-testing under CSS zoom; a browser-like view renders at 100% regardless of the reading font scale).
+
 ## [0.4.8] - 2026-07-23
 
 ### Fixed
