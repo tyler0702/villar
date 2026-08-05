@@ -104,6 +104,7 @@ export const es: TranslationDict = {
   "action.copyAll": "Copiar todo",
   "action.copied": "Copiado!",
   "view.raw": "Fuente",
+  "view.web": "Web",
   "error.title": "Algo salió mal",
   "error.desc": "Por favor, recarga la aplicación.",
   "error.reload": "Recargar",

@@ -28,6 +28,7 @@ interface UiSlice {
   cardScrollRef: React.RefObject<HTMLDivElement | null> | null;
   cardNavigated: boolean;
   rawMode: boolean;
+  webMode: boolean;
 
   setTree: (tree: FsNode[]) => void;
   toggleFocusMode: () => void;
@@ -42,6 +43,7 @@ interface UiSlice {
   setCardScrollRef: (ref: React.RefObject<HTMLDivElement | null> | null) => void;
   navigateToCard: (index: number) => void;
   setRawMode: (mode: boolean) => void;
+  setWebMode: (mode: boolean) => void;
 }
 
 type AppState = UiSlice & TabSlice & SettingsSlice;
@@ -66,6 +68,8 @@ export const useAppStore = create<AppState>((...a) => ({
   cardScrollRef: null,
   cardNavigated: false,
   rawMode: false,
+  // HTML files open browser-like by default; toggling "Web" off shows cards.
+  webMode: true,
 
   setTree: (tree) => a[0]({ tree }),
   toggleFocusMode: () => a[0]((s) => ({ focusMode: !s.focusMode })),
@@ -94,6 +98,7 @@ export const useAppStore = create<AppState>((...a) => ({
   setPreviewMermaid: (svg) => a[0]({ previewMermaid: svg }),
   setCardScrollRef: (ref) => a[0]({ cardScrollRef: ref }),
   setRawMode: (mode) => a[0]({ rawMode: mode }),
+  setWebMode: (mode) => a[0]({ webMode: mode }),
   navigateToCard: (index) => {
     a[0]({ cardNavigated: true });
     // Use the tab slice's setActiveCardIndex

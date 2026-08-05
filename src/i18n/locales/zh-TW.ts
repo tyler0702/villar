@@ -104,6 +104,7 @@ export const zhTW: TranslationDict = {
   "action.copyAll": "全部複製",
   "action.copied": "已複製!",
   "view.raw": "原始碼",
+  "view.web": "網頁",
   "error.title": "發生了意外錯誤",
   "error.desc": "請重新載入應用程式。",
   "error.reload": "重新載入",

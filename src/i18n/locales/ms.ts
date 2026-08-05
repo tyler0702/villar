@@ -105,6 +105,7 @@ export const ms: TranslationDict = {
   "action.copyAll": "Salin semua",
   "action.copied": "Disalin!",
   "view.raw": "Sumber",
+  "view.web": "Web",
   "error.title": "Ralat tidak dijangka berlaku",
   "error.desc": "Sila muat semula aplikasi.",
   "error.reload": "Muat semula",

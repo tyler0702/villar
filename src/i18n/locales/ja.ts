@@ -134,6 +134,7 @@ export const ja: TranslationDict = {
   "action.copyAll": "\u5168\u6587\u30B3\u30D4\u30FC",
   "action.copied": "\u30B3\u30D4\u30FC\u6E08\u307F",
   "view.raw": "\u30BD\u30FC\u30B9",
+  "view.web": "Web",
   "error.title": "\u4E88\u671F\u3057\u306A\u3044\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F",
   "error.desc": "\u30A2\u30D7\u30EA\u3092\u30EA\u30ED\u30FC\u30C9\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
   "error.reload": "\u30EA\u30ED\u30FC\u30C9",

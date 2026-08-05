@@ -104,6 +104,7 @@ export const zhCN: TranslationDict = {
   "action.copyAll": "全部复制",
   "action.copied": "已复制!",
   "view.raw": "源码",
+  "view.web": "网页",
   "error.title": "发生了意外错误",
   "error.desc": "请重新加载应用。",
   "error.reload": "重新加载",

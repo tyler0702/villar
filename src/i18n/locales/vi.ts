@@ -104,6 +104,7 @@ export const vi: TranslationDict = {
   "action.copyAll": "Sao chép tất cả",
   "action.copied": "Đã sao chép!",
   "view.raw": "Nguồn",
+  "view.web": "Web",
   "error.title": "Đã xảy ra lỗi không mong muốn",
   "error.desc": "Vui lòng tải lại ứng dụng.",
   "error.reload": "Tải lại",

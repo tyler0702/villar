@@ -104,6 +104,7 @@ export const de: TranslationDict = {
   "action.copyAll": "Alles kopieren",
   "action.copied": "Kopiert!",
   "view.raw": "Quelle",
+  "view.web": "Web",
   "error.title": "Ein unerwarteter Fehler ist aufgetreten",
   "error.desc": "Bitte laden Sie die App neu.",
   "error.reload": "Neu laden",

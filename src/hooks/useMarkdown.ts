@@ -137,25 +137,28 @@ interface CollapseConfig {
   codeThreshold: number;
 }
 
-function resolveImagePaths(html: string, basePath: string | null): string {
+// Resolve a document-relative URL against the source file's directory and
+// return an asset-protocol URL, or null if the URL is not a local path.
+export function resolveLocalUrl(src: string, basePath: string): string | null {
+  if (/^(https?:|data:|blob:|asset:|#)/i.test(src)) return null;
+  const dir = basePath.substring(0, basePath.lastIndexOf("/"));
+  const raw = src.startsWith("/") ? src : `${dir}/${src}`;
+  // Normalize ./  and ../ segments
+  const parts = raw.split("/");
+  const normalized: string[] = [];
+  for (const p of parts) {
+    if (p === ".") continue;
+    if (p === ".." && normalized.length > 0) { normalized.pop(); continue; }
+    normalized.push(p);
+  }
+  return convertFileSrc(normalized.join("/"));
+}
+
+export function resolveImagePaths(html: string, basePath: string | null): string {
   if (!basePath) return html;
-  return html.replace(/<img\s+src="([^"]+)"/g, (_match, src: string) => {
-    if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("data:")) {
-      return `<img src="${src}"`;
-    }
-    // Resolve relative path against the file's directory
-    const dir = basePath.substring(0, basePath.lastIndexOf("/"));
-    const raw = src.startsWith("/") ? src : `${dir}/${src}`;
-    // Normalize ./  and ../ segments
-    const parts = raw.split("/");
-    const normalized: string[] = [];
-    for (const p of parts) {
-      if (p === ".") continue;
-      if (p === ".." && normalized.length > 0) { normalized.pop(); continue; }
-      normalized.push(p);
-    }
-    const fullPath = normalized.join("/");
-    return `<img src="${convertFileSrc(fullPath)}"`;
+  return html.replace(/<img\s+src="([^"]+)"/g, (match, src: string) => {
+    const resolved = resolveLocalUrl(src, basePath);
+    return resolved ? `<img src="${resolved}"` : match;
   });
 }
 

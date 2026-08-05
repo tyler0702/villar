@@ -8,7 +8,7 @@ A Tauri v2 desktop app that re-renders AI-generated Markdown (and HTML) into a c
 
 ```bash
 npm run tauri dev    # Dev server + Tauri window
-npm test             # Run vitest (129 unit + component + performance tests)
+npm test             # Run vitest (136 unit + component + performance tests)
 npm run test:e2e     # Run Playwright E2E tests (69 tests, needs dev server)
 npm run tauri build  # Production build
 ```
@@ -17,7 +17,7 @@ npm run tauri build  # Production build
 
 ### Before Every Commit
 1. `npx tsc --noEmit` — TypeScript must pass with 0 errors
-2. `npm test` — All 129 unit tests must pass
+2. `npm test` — All 136 unit tests must pass
 3. If Tauri config or Rust changed: `cargo check --manifest-path src-tauri/Cargo.toml`
 
 ### Before Every Release
@@ -86,6 +86,8 @@ npm run tauri build  # Production build
 
 **HTML documents** (`.html`/`.htm`) are converted to markdown first (`html-to-markdown.ts`: `rehype-parse` → `rehype-remark` → `remark-stringify`, dropping script/style/head/iframe subtrees — this doubles as sanitization), then flow through the same pipeline.
 
+**Web view for HTML files** (`OriginalHtmlView.tsx`): HTML files default to a browser-like rendering (`webMode: true`) in a sandboxed srcdoc iframe (opaque origin, no Tauri API access, `sandbox="allow-scripts"`). Inline CSS/JS run; relative `link/script/img/source/video/audio` paths are rewritten to asset-protocol URLs. An injected script handles links (#anchor → in-page scroll with heading-text fallback, http(s)/mailto → external browser via rate-limited postMessage, relative .md/.html → open as villar tab) and reports scroll progress. The "Web" toolbar toggle (HTML files only) switches back to cards. **Zoom exception**: when the Web view is active, the content-area `zoom` is disabled (`App.tsx` `contentZoomStyle`) — WebKit miscomputes iframe width/hit-testing under CSS zoom, and browser-like rendering should be 100% anyway. **Network exception**: documents in Web view may load their own remote resources (CDN CSS/JS, fonts, images) — a deliberate exception to the local-only rule; card view remains conversion-only with no scripts.
+
 **Custom plugins** in `src/plugins/`:
 - `remark-section.ts` - H2-based splitting. H2-less docs rescued by paragraph splitting.
 - `remark-tldr.ts` - TextRank + rule-based extraction (summary/points/keywords/conclusion).
@@ -94,7 +96,7 @@ npm run tauri build  # Production build
 - `html-to-markdown.ts` - Converts `.html`/`.htm` files to GFM markdown (with `isHtmlPath` helper). Fully re-uses the card pipeline.
 
 **State** managed via Zustand (`src/stores/useAppStore.ts`):
-- UI: tree, focusMode, settingsOpen, aboutOpen, bookmarks, previewImage, cardScrollRef, cardNavigated
+- UI: tree, focusMode, settingsOpen, aboutOpen, bookmarks, previewImage, cardScrollRef, cardNavigated, rawMode, webMode (HTML browser-like view, default true)
 - Tabs: `tabs[]`, `activeTabIndex`, per-tab content/scroll/cardIndex/changedSections
 - Settings: persisted to localStorage (font, scale, lineHeight, paragraphSpacing, letterSpacing, contentWidth, theme, speedRead, readingRuler, etc.)
 - Navigation: `navigateToCard(index)` sets `cardNavigated=true` + calls `setActiveCardIndex` — used by Prev/Next/Outline/Thumbnails/Keyboard to always scroll. Direct card clicks use `setActiveCardIndex` without the flag to preserve the "don't scroll if card top is hidden" behavior.
@@ -135,9 +137,9 @@ All in `src-tauri/src/lib.rs`:
 
 ## Testing
 
-### Unit Tests (vitest) - 129 tests
+### Unit Tests (vitest) - 136 tests
 - `src/plugins/__tests__/` - remark-section (10), remark-tldr (10), mermaid-linear (16), remark-collapse (7), performance (6), copy-button (5), html-to-markdown (11)
-- `src/components/__tests__/` - TldrCard, Outline, FileTree, TabBar (21 tests + more)
+- `src/components/__tests__/` - TldrCard, Outline, FileTree, TabBar, OriginalHtmlView (28 tests + more)
 - `src/stores/__tests__/` - tabSlice changed-section diff for md/html (3)
 
 ### E2E Tests (Playwright) - 69 tests
@@ -159,7 +161,7 @@ All in `src-tauri/src/lib.rs`:
 - H2-only splitting (no dynamic splits, except paragraph rescue for no-H2 docs)
 - TL;DR: rule-based + TextRank only (no AI/API calls)
 - Never write to source files
-- Local-only: no network requests from the app (except update check)
+- Local-only: no network requests from the app (except update check, and remote resources referenced by HTML documents shown in Web view)
 
 ## Rust PATH Note
 

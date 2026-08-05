@@ -6,7 +6,9 @@ import { TldrCard } from "./TldrCard";
 import { SectionContent } from "./SectionContent";
 import { FileMeta } from "./FileMeta";
 import { RawView } from "./RawView";
+import { OriginalHtmlView } from "./OriginalHtmlView";
 import { shouldScrollOnDirectActivation } from "./cardVisibility";
+import { isHtmlPath } from "../../plugins/html-to-markdown";
 import { useTranslation } from "../../i18n/useTranslation";
 
 interface CardViewProps {
@@ -105,6 +107,9 @@ export function CardView({ sections }: CardViewProps) {
   const [scrollProgress, setScrollProgress] = useState(0);
   const rawMode = useAppStore((s) => s.rawMode);
   const setRawMode = useAppStore((s) => s.setRawMode);
+  const webMode = useAppStore((s) => s.webMode);
+  const setWebMode = useAppStore((s) => s.setWebMode);
+  const isHtml = isHtmlPath(selectedFilePath);
   const rawScrollRef = useRef<HTMLDivElement>(null);
   const t = useTranslation();
   const setCardScrollRef = useAppStore((s) => s.setCardScrollRef);
@@ -214,8 +219,20 @@ export function CardView({ sections }: CardViewProps) {
           >
             PDF
           </button>
+          {isHtml ? (
+            <button
+              onClick={() => { setRawMode(false); setWebMode(!webMode); }}
+              className={`px-1.5 py-0.5 text-[10px] transition-colors rounded ${
+                webMode && !rawMode
+                  ? "bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium"
+                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+              }`}
+            >
+              {t("view.web")}
+            </button>
+          ) : null}
           <button
-            onClick={() => setRawMode(!rawMode)}
+            onClick={() => { setWebMode(false); setRawMode(!rawMode); }}
             className={`px-1.5 py-0.5 text-[10px] transition-colors rounded ${
               rawMode
                 ? "bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-200 font-medium"
@@ -233,6 +250,12 @@ export function CardView({ sections }: CardViewProps) {
           content={activeTab?.content ?? ""}
           onScrollProgress={setScrollProgress}
           scrollRef={rawScrollRef}
+        />
+      ) : isHtml && webMode ? (
+        <OriginalHtmlView
+          content={activeTab?.content ?? ""}
+          filePath={selectedFilePath || null}
+          onScrollProgress={setScrollProgress}
         />
       ) : (<>
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-8 py-6 overflow-x-hidden relative">

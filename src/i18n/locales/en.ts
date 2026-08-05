@@ -165,6 +165,7 @@ export const en: TranslationDict = {
   "action.copyAll": "Copy All",
   "action.copied": "Copied!",
   "view.raw": "Raw",
+  "view.web": "Web",
 
   // Error boundary
   "error.title": "Something went wrong",

@@ -10,6 +10,7 @@ import { SettingsPanel } from "./components/Settings/SettingsPanel";
 import { ReadingRuler } from "./components/CardView/ReadingRuler";
 import { useAppStore, useActiveTab } from "./stores/useAppStore";
 import { useMarkdown } from "./hooks/useMarkdown";
+import { isHtmlPath } from "./plugins/html-to-markdown";
 import { useTheme } from "./hooks/useTheme";
 import { useKeyboard } from "./hooks/useKeyboard";
 import { useRestoreSession } from "./hooks/useRestoreSession";
@@ -53,7 +54,14 @@ function App() {
   useFileWatcher();
   useMenuActions(() => setSearchOpen(true));
 
+  const rawMode = useAppStore((s) => s.rawMode);
+  const webMode = useAppStore((s) => s.webMode);
+  // Browser-like Web view renders at 100% like a real browser — the document
+  // owns its layout. Keeping the iframe outside any zoomed subtree also
+  // avoids WebKit's broken width/hit-testing math for iframes under CSS zoom.
+  const webViewActive = webMode && !rawMode && isHtmlPath(activeTab?.file.path);
   const zoomStyle = { zoom: fontScale / 100 };
+  const contentZoomStyle = webViewActive ? undefined : zoomStyle;
   const sidebarResize = useResizable(sidebarWidth, (w) => useAppStore.getState().updateSettings({ sidebarWidth: w }), 120, 400, "left");
   const settingsResize = useResizable(settingsWidth, (w) => useAppStore.getState().updateSettings({ settingsWidth: w }), 200, 400, "right");
   return (
@@ -68,7 +76,7 @@ function App() {
           </>
         ) : null}
         <div className="flex-1 flex flex-col overflow-hidden" data-ruler-bounds>
-        <div className="flex-1 flex flex-col overflow-hidden vs-canvas" style={zoomStyle}>
+        <div className="flex-1 flex flex-col overflow-hidden vs-canvas" style={contentZoomStyle}>
           <TabBar />
           {findOpen ? <FindBar /> : null}
           <main className="flex-1 overflow-hidden">
