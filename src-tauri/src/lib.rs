@@ -35,8 +35,8 @@ fn list_md_files(dir_path: String) -> Result<Vec<FsNode>, String> {
         return Err("Not a directory".into());
     }
 
-    let mut count = 0usize;
-    let mut nodes = collect_tree_inner(path, 0, &mut count).map_err(|e| e.to_string())?;
+    let mut budget = ScanBudget::new();
+    let mut nodes = collect_tree_inner(path, 0, &mut budget).map_err(|e| e.to_string())?;
     nodes.sort_by(|a, b| match (a.is_dir, b.is_dir) {
         (true, false) => std::cmp::Ordering::Less,
         (false, true) => std::cmp::Ordering::Greater,
@@ -54,6 +54,53 @@ const SKIP_DIRS: &[&str] = &[
 
 const MAX_DEPTH: u32 = 10;
 const MAX_FILES: usize = 7000;
+// Directories visited and wall-clock time are capped separately from MAX_FILES.
+// A folder can contain millions of non-document entries (stray build output, a
+// runaway script's leftovers), and the document counter alone never rises, so the
+// walk would keep going until the app looks frozen.
+const MAX_DIRS: usize = 20_000;
+const SCAN_BUDGET: Duration = Duration::from_secs(5);
+
+struct ScanBudget {
+    files: usize,
+    dirs: usize,
+    deadline: Instant,
+}
+
+impl ScanBudget {
+    fn new() -> Self {
+        Self {
+            files: 0,
+            dirs: 0,
+            deadline: Instant::now() + SCAN_BUDGET,
+        }
+    }
+
+    fn exhausted(&self) -> bool {
+        self.files > MAX_FILES || self.dirs > MAX_DIRS || Instant::now() > self.deadline
+    }
+}
+
+// macOS only: iCloud Drive's "Optimize Mac Storage" can evict a folder's contents
+// and leave a placeholder marked SF_DATALESS. Opening that placeholder makes the
+// kernel wait for iCloud to download the real contents, and if the iCloud daemon
+// is stuck the call never returns — the whole app looks frozen. villar only reads
+// files, so it skips these placeholders rather than triggering a download.
+// lstat on the placeholder itself is cheap and does not trigger one.
+#[cfg(target_os = "macos")]
+fn is_dataless(entry: &fs::DirEntry) -> bool {
+    use std::os::macos::fs::MetadataExt;
+    const SF_DATALESS: u32 = 0x4000_0000;
+    entry
+        .metadata()
+        .map(|md| md.st_flags() & SF_DATALESS != 0)
+        .unwrap_or(false)
+}
+
+#[cfg(not(target_os = "macos"))]
+fn is_dataless(_entry: &fs::DirEntry) -> bool {
+    false
+}
 
 // Documents villar can render: Markdown and HTML
 fn is_doc_file(path: &Path) -> bool {
@@ -64,10 +111,15 @@ fn is_doc_file(path: &Path) -> bool {
     })
 }
 
-fn collect_tree_inner(dir: &Path, depth: u32, count: &mut usize) -> std::io::Result<Vec<FsNode>> {
-    if depth > MAX_DEPTH || *count > MAX_FILES {
+fn collect_tree_inner(
+    dir: &Path,
+    depth: u32,
+    budget: &mut ScanBudget,
+) -> std::io::Result<Vec<FsNode>> {
+    if depth > MAX_DEPTH || budget.exhausted() {
         return Ok(vec![]);
     }
+    budget.dirs += 1;
 
     let mut nodes = Vec::new();
     let entries = match fs::read_dir(dir) {
@@ -76,6 +128,11 @@ fn collect_tree_inner(dir: &Path, depth: u32, count: &mut usize) -> std::io::Res
     };
 
     for entry in entries {
+        // A single directory can hold millions of entries, so the budget has to be
+        // checked inside the loop — otherwise one bad directory blocks the walk.
+        if budget.exhausted() {
+            break;
+        }
         let entry = match entry {
             Ok(e) => e,
             Err(_) => continue,
@@ -83,7 +140,7 @@ fn collect_tree_inner(dir: &Path, depth: u32, count: &mut usize) -> std::io::Res
         let path = entry.path();
         let name = path.file_name().unwrap_or_default().to_string_lossy().into_owned();
 
-        if name.starts_with('.') {
+        if name.starts_with('.') || is_dataless(&entry) {
             continue;
         }
 
@@ -91,7 +148,7 @@ fn collect_tree_inner(dir: &Path, depth: u32, count: &mut usize) -> std::io::Res
             if SKIP_DIRS.contains(&name.as_str()) {
                 continue;
             }
-            let mut children = collect_tree_inner(&path, depth + 1, count)?;
+            let mut children = collect_tree_inner(&path, depth + 1, budget)?;
             if !children.is_empty() {
                 children.sort_by(|a, b| match (a.is_dir, b.is_dir) {
                     (true, false) => std::cmp::Ordering::Less,
@@ -106,7 +163,7 @@ fn collect_tree_inner(dir: &Path, depth: u32, count: &mut usize) -> std::io::Res
                 });
             }
         } else if is_doc_file(&path) {
-            *count += 1;
+            budget.files += 1;
             nodes.push(FsNode {
                 name,
                 path: path.to_string_lossy().into_owned(),
@@ -232,26 +289,46 @@ fn search_files(dir_path: String, query: String) -> Result<Vec<SearchHit>, Strin
 
     let query_lower = query.to_lowercase();
     let mut hits = Vec::new();
-    search_recursive(path, &query_lower, &mut hits).map_err(|e| e.to_string())?;
+    let mut budget = ScanBudget::new();
+    search_recursive(path, &query_lower, &mut hits, 0, &mut budget).map_err(|e| e.to_string())?;
     hits.truncate(100);
     Ok(hits)
 }
 
-fn search_recursive(dir: &Path, query: &str, hits: &mut Vec<SearchHit>) -> std::io::Result<()> {
+fn search_recursive(
+    dir: &Path,
+    query: &str,
+    hits: &mut Vec<SearchHit>,
+    depth: u32,
+    budget: &mut ScanBudget,
+) -> std::io::Result<()> {
+    if depth > MAX_DEPTH || budget.exhausted() {
+        return Ok(());
+    }
+    budget.dirs += 1;
+
     for entry in fs::read_dir(dir)? {
+        // Same reason as collect_tree_inner: one oversized directory must not
+        // hold the search open forever.
+        if budget.exhausted() {
+            break;
+        }
         let entry = entry?;
         let path = entry.path();
 
-        if path.file_name().is_some_and(|n| n.to_string_lossy().starts_with('.')) {
+        if path.file_name().is_some_and(|n| n.to_string_lossy().starts_with('.'))
+            || is_dataless(&entry)
+        {
             continue;
         }
 
         if path.is_dir() {
             let dir_name = path.file_name().unwrap_or_default().to_string_lossy();
             if !SKIP_DIRS.contains(&dir_name.as_ref()) {
-                search_recursive(&path, query, hits)?;
+                search_recursive(&path, query, hits, depth + 1, budget)?;
             }
         } else if is_doc_file(&path) {
+            budget.files += 1;
             if let Ok(content) = fs::read_to_string(&path) {
                 for (i, line) in content.lines().enumerate() {
                     if line.to_lowercase().contains(query) {

@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.10] - 2026-09-02
+
+### Fixed
+- **App froze on a blank window at startup** — If the last-opened folder contained an iCloud Drive placeholder (a folder whose contents "Optimize Mac Storage" evicted, flagged `SF_DATALESS`), reading it made macOS wait for iCloud to download the real contents. When the iCloud daemon is stuck that wait never ends, so the folder scan never returned and neither the file tree nor the open tabs ever appeared. villar is a read-only viewer, so it now skips these placeholders instead of triggering a download. A folder that previously took over 5 minutes without finishing now scans in 0.5s.
+
+### Changed
+- **Folder scans and search now stop at a budget** — Both are capped at 5 seconds and 20,000 directories, checked while reading each directory rather than only when entering one. The existing `MAX_FILES` cap counted only `.md`/`.html` files, so a folder holding large numbers of other files never tripped it and the walk ran unbounded.
+- **Session restore no longer blocks the window** — Restoring the previous folder times out after 15 seconds, and the open tabs load even if the tree fails, so a slow or unresponsive folder can never leave the window blank.
+
 ## [0.4.9] - 2026-08-05
 
 ### Added
